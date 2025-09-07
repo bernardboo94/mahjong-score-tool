@@ -23,29 +23,36 @@
         input, select {
             color: #166534;
         }
+        .modal {
+            transition: transform 0.3s ease-out;
+            transform: translateY(-100%);
+        }
+        .modal.active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-emerald-800 text-gray-800 flex items-center justify-center min-h-screen p-4">
 
 <div class="container rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto">
     <h1 class="text-3xl md:text-5xl font-extrabold text-white text-center mb-6 drop-shadow-md">
-        <span class="text-white text-opacity-80">🀄 麻将计番 🀄</span>
+        <span class="text-black drop-shadow-md">🀄 麻将计番 🀄</span>
     </h1>
 
     <div id="setup-section" class="space-y-6">
         <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
             <label for="price-input" class="block text-xl font-bold mb-2">设置每番价格</label>
-            <input type="number" id="price-input" placeholder="输入每番价格（例如：10）" value="10"
+            <input type="number" id="price-input" placeholder="输入每番价格（例如：10）"
                    class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
 
         <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
-            <h2 class="text-xl font-bold mb-4">输入玩家名字</h2>
+            <h2 class="text-xl font-bold mb-4">玩家名字</h2>
             <div id="player-inputs" class="space-y-4">
-                <input type="text" id="player-1-input" placeholder="玩家一" value="玩家一" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-2-input" placeholder="玩家二" value="玩家二" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-3-input" placeholder="玩家三" value="玩家三" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-4-input" placeholder="玩家四" value="玩家四" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-1-input" placeholder="玩家一" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-2-input" placeholder="玩家二" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-3-input" placeholder="玩家三" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-4-input" placeholder="玩家四" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
             </div>
         </div>
 
@@ -56,8 +63,12 @@
 
     <div id="game-section" class="hidden">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <p class="text-xl font-bold text-gray-700 mb-2 md:mb-0">当前局数：<span id="current-round-text">东风圈，东风局</span></p>
-            <button onclick="endGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300">
+            <p class="text-xl font-bold text-gray-700 mb-2 md:mb-0">
+                当前局数：<span id="current-round-text">东风圈，东风局</span>
+                <br class="md:hidden">
+                <span class="md:ml-4">每番价格：<span id="per-fan-price-display"></span></span>
+            </p>
+            <button onclick="showEndGameModal()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300">
                 结束游戏
             </button>
         </div>
@@ -91,6 +102,50 @@
         </div>
     </div>
 
+    <div id="summary-section" class="hidden">
+        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
+            <h2 class="text-xl md:text-2xl font-bold mb-2 text-center">游戏总结</h2>
+            
+            <h3 class="text-lg font-bold">最终分数</h3>
+            <div id="final-score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"></div>
+
+            <h3 class="text-lg font-bold mt-6">完整历史记录</h3>
+            <div id="final-history-list" class="space-y-2 text-gray-700"></div>
+            
+            <button onclick="resetGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 mt-6">
+                新的一局
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 自定义确认弹窗 -->
+<div id="end-game-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
+    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+        <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
+        <p class="text-gray-700 text-center mb-6">确定要结束游戏吗？所有数据都将被清空。</p>
+        <div class="flex justify-around space-x-4">
+            <button onclick="confirmEndGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
+                确定
+            </button>
+            <button onclick="hideEndGameModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
+                取消
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增：玩家名字错误弹窗 -->
+<div id="name-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
+    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
+        <p class="text-gray-700 text-center mb-6">请输入全部玩家名字</p>
+        <div class="flex justify-center">
+            <button onclick="hideNameErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
+                确定
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -101,16 +156,24 @@
     let history = [];
 
     function startGame() {
-        const playerNames = [
-            document.getElementById('player-1-input').value || '玩家一',
-            document.getElementById('player-2-input').value || '玩家二',
-            document.getElementById('player-3-input').value || '玩家三',
-            document.getElementById('player-4-input').value || '玩家四'
+        const playerInputs = [
+            document.getElementById('player-1-input').value,
+            document.getElementById('player-2-input').value,
+            document.getElementById('player-3-input').value,
+            document.getElementById('player-4-input').value
         ];
-        perFanPrice = parseFloat(document.getElementById('price-input').value) || 10;
+
+        // Check if all player names are filled
+        const hasEmptyName = playerInputs.some(name => name.trim() === '');
+        if (hasEmptyName) {
+            showNameErrorModal();
+            return;
+        }
+
+        perFanPrice = parseFloat(document.getElementById('price-input').value) || 0;
 
         players = {};
-        playerNames.forEach(name => {
+        playerInputs.forEach(name => {
             players[name] = 0;
         });
 
@@ -128,11 +191,12 @@
         const fans = parseInt(document.getElementById('fans-input').value) || 1;
 
         if (!winner) {
-            alert('请选择赢家！');
+            // Replaced alert with a custom message box or similar in a real app
+            console.error('请选择赢家！');
             return;
         }
 
-        const currentWind = `${winds[Math.floor(round / 4)]}圈，${winds[round % 4]}局`;
+        const currentWind = `第${Math.floor(round / 4) + 1}圈，${winds[round % 4]}局`;
         let roundRecord = {
             round: currentWind,
             winner: winner,
@@ -171,12 +235,78 @@
         updateGameUI();
     }
 
-    function endGame() {
-        if (confirm("确定要结束游戏吗？所有数据都将被清空。")) {
-            document.getElementById('setup-section').classList.remove('hidden');
-            document.getElementById('game-section').classList.add('hidden');
-            document.getElementById('price-input').value = perFanPrice;
-        }
+    // New functions for the custom modal
+    function showEndGameModal() {
+        const modal = document.getElementById('end-game-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.modal').classList.add('active');
+        }, 10);
+    }
+
+    function hideEndGameModal() {
+        const modal = document.getElementById('end-game-modal');
+        modal.querySelector('.modal').classList.remove('active');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function confirmEndGame() {
+        hideEndGameModal();
+        showSummary();
+    }
+
+    // New functions for the name error modal
+    function showNameErrorModal() {
+        const modal = document.getElementById('name-error-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.modal').classList.add('active');
+        }, 10);
+    }
+
+    function hideNameErrorModal() {
+        const modal = document.getElementById('name-error-modal');
+        modal.querySelector('.modal').classList.remove('active');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function showSummary() {
+        document.getElementById('game-section').classList.add('hidden');
+        document.getElementById('summary-section').classList.remove('hidden');
+        
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        finalScoreDisplay.innerHTML = '';
+        Object.keys(players).forEach(name => {
+            const score = players[name];
+            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
+            const cardHtml = `
+                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
+                    <p class="font-bold text-white text-lg">${name}</p>
+                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
+                </div>
+            `;
+            finalScoreDisplay.innerHTML += cardHtml;
+        });
+
+        const finalHistoryList = document.getElementById('final-history-list');
+        finalHistoryList.innerHTML = '';
+        history.forEach(record => {
+            finalHistoryList.innerHTML += `<p class="border-b border-gray-300 pb-2 mb-2"><strong>${record.round}</strong>：${record.description} 总番数：${record.fans}</p>`;
+        });
+    }
+
+    function resetGame() {
+        document.getElementById('summary-section').classList.add('hidden');
+        document.getElementById('setup-section').classList.remove('hidden');
+        document.getElementById('price-input').value = '';
+        document.getElementById('player-1-input').value = '';
+        document.getElementById('player-2-input').value = '';
+        document.getElementById('player-3-input').value = '';
+        document.getElementById('player-4-input').value = '';
     }
 
     function updateGameUI() {
@@ -189,11 +319,11 @@
         
         Object.keys(players).forEach(name => {
             const score = players[name];
-            const colorClass = score >= 0 ? 'text-emerald-400' : 'text-red-400';
+            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
             const cardHtml = `
-                <div class="card rounded-2xl p-4 text-center shadow-lg">
+                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
                     <p class="font-bold text-white text-lg">${name}</p>
-                    <p class="font-extrabold text-2xl mt-2 ${colorClass}">${score.toFixed(2)}</p>
+                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
                 </div>
             `;
             scoreDisplay.innerHTML += cardHtml;
@@ -202,7 +332,8 @@
             paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
         });
 
-        document.getElementById('current-round-text').innerText = `${winds[Math.floor(round / 4)]}圈，${winds[round % 4]}局`;
+        document.getElementById('current-round-text').innerText = `第${Math.floor(round / 4) + 1}圈，${winds[round % 4]}局`;
+        document.getElementById('per-fan-price-display').innerText = `${perFanPrice}`;
 
         const historyList = document.getElementById('history-list');
         historyList.innerHTML = '';
