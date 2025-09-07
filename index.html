@@ -1,21 +1,227 @@
-{
-"name": "麻将计番",
-"short_name": "麻将",
-"description": "一个简单的麻将计番工具",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#166534",
-"theme_color": "#166534",
-"icons": [
-{
-"src": "/images/icon-192.png",
-"sizes": "192x192",
-"type": "image/png"
-},
-{
-"src": "/images/icon-512.png",
-"sizes": "512x512",
-"type": "image/png"
-}
-]
-}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>麻将计番</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #166534;
+        }
+        .container {
+            background-color: #f0fdf4;
+        }
+        .card {
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        input, select {
+            color: #166534;
+        }
+    </style>
+</head>
+<body class="bg-emerald-800 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+<div class="container rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto">
+    <h1 class="text-3xl md:text-5xl font-extrabold text-white text-center mb-6 drop-shadow-md">
+        <span class="text-white text-opacity-80">🀄 麻将计番 🀄</span>
+    </h1>
+
+    <div id="setup-section" class="space-y-6">
+        <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
+            <label for="price-input" class="block text-xl font-bold mb-2">设置每番价格</label>
+            <input type="number" id="price-input" placeholder="输入每番价格（例如：10）" value="10"
+                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
+            <h2 class="text-xl font-bold mb-4">输入玩家名字</h2>
+            <div id="player-inputs" class="space-y-4">
+                <input type="text" id="player-1-input" placeholder="玩家一" value="玩家一" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-2-input" placeholder="玩家二" value="玩家二" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-3-input" placeholder="玩家三" value="玩家三" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="player-4-input" placeholder="玩家四" value="玩家四" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+        </div>
+
+        <button onclick="startGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
+            开始游戏
+        </button>
+    </div>
+
+    <div id="game-section" class="hidden">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <p class="text-xl font-bold text-gray-700 mb-2 md:mb-0">当前局数：<span id="current-round-text">东风圈，东风局</span></p>
+            <button onclick="endGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300">
+                结束游戏
+            </button>
+        </div>
+
+        <div id="score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+
+        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
+            <h2 class="text-xl font-bold mb-2">本局记录</h2>
+            <label for="winner-select" class="block text-md font-medium text-gray-700">赢家</label>
+            <select id="winner-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="" disabled selected>选择赢家</option>
+            </select>
+            
+            <label for="pao-select" class="block text-md font-medium text-gray-700">点炮者（如果自摸则不选）</label>
+            <select id="pao-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="" disabled selected>选择点炮者</option>
+            </select>
+
+            <label for="fans-input" class="block text-md font-medium text-gray-700">番数</label>
+            <input type="number" id="fans-input" placeholder="胡了多少番？" value="1" min="1"
+                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+
+            <button onclick="recordRound()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
+                记录本局
+            </button>
+        </div>
+
+        <div id="history-section" class="mt-8 bg-gray-100 rounded-2xl p-6 shadow-md">
+            <h2 class="text-xl font-bold mb-4">历史记录</h2>
+            <div id="history-list" class="space-y-2 text-gray-700"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let players = {};
+    let perFanPrice = 0;
+    let round = 0;
+    const winds = ["东风", "南风", "西风", "北风"];
+    let history = [];
+
+    function startGame() {
+        const playerNames = [
+            document.getElementById('player-1-input').value || '玩家一',
+            document.getElementById('player-2-input').value || '玩家二',
+            document.getElementById('player-3-input').value || '玩家三',
+            document.getElementById('player-4-input').value || '玩家四'
+        ];
+        perFanPrice = parseFloat(document.getElementById('price-input').value) || 10;
+
+        players = {};
+        playerNames.forEach(name => {
+            players[name] = 0;
+        });
+
+        round = 0;
+        history = [];
+
+        document.getElementById('setup-section').classList.add('hidden');
+        document.getElementById('game-section').classList.remove('hidden');
+        updateGameUI();
+    }
+
+    function recordRound() {
+        const winner = document.getElementById('winner-select').value;
+        const pao = document.getElementById('pao-select').value;
+        const fans = parseInt(document.getElementById('fans-input').value) || 1;
+
+        if (!winner) {
+            alert('请选择赢家！');
+            return;
+        }
+
+        const currentWind = `${winds[Math.floor(round / 4)]}圈，${winds[round % 4]}局`;
+        let roundRecord = {
+            round: currentWind,
+            winner: winner,
+            fans: fans,
+            pao: pao || '无'
+        };
+
+        if (pao) {
+            // 点炮
+            const paoAmount = fans * perFanPrice * 2;
+            const otherAmount = fans * perFanPrice;
+            players[winner] += paoAmount + 2 * otherAmount;
+            players[pao] -= paoAmount;
+            Object.keys(players).forEach(p => {
+                if (p !== winner && p !== pao) {
+                    players[p] -= otherAmount;
+                }
+            });
+            roundRecord.type = '点炮';
+            roundRecord.description = `${winner} 胡了 ${pao} 的牌，共 ${fans} 番。`;
+        } else {
+            // 自摸
+            const selfDrawAmount = fans * perFanPrice;
+            players[winner] += selfDrawAmount * 3;
+            Object.keys(players).forEach(p => {
+                if (p !== winner) {
+                    players[p] -= selfDrawAmount;
+                }
+            });
+            roundRecord.type = '自摸';
+            roundRecord.description = `${winner} 自摸，共 ${fans} 番。`;
+        }
+
+        history.push(roundRecord);
+        round++;
+        updateGameUI();
+    }
+
+    function endGame() {
+        if (confirm("确定要结束游戏吗？所有数据都将被清空。")) {
+            document.getElementById('setup-section').classList.remove('hidden');
+            document.getElementById('game-section').classList.add('hidden');
+            document.getElementById('price-input').value = perFanPrice;
+        }
+    }
+
+    function updateGameUI() {
+        const scoreDisplay = document.getElementById('score-display');
+        scoreDisplay.innerHTML = '';
+        const winnerSelect = document.getElementById('winner-select');
+        const paoSelect = document.getElementById('pao-select');
+        winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
+        paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option>';
+        
+        Object.keys(players).forEach(name => {
+            const score = players[name];
+            const colorClass = score >= 0 ? 'text-emerald-400' : 'text-red-400';
+            const cardHtml = `
+                <div class="card rounded-2xl p-4 text-center shadow-lg">
+                    <p class="font-bold text-white text-lg">${name}</p>
+                    <p class="font-extrabold text-2xl mt-2 ${colorClass}">${score.toFixed(2)}</p>
+                </div>
+            `;
+            scoreDisplay.innerHTML += cardHtml;
+            
+            winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
+            paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
+        });
+
+        document.getElementById('current-round-text').innerText = `${winds[Math.floor(round / 4)]}圈，${winds[round % 4]}局`;
+
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        history.forEach(record => {
+            historyList.innerHTML += `<p class="border-b border-gray-300 pb-2 mb-2"><strong>${record.round}</strong>：${record.description} 总番数：${record.fans}</p>`;
+        });
+    }
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                console.log('Service Worker registered: ', registration);
+            }).catch(registrationError => {
+                console.log('Service Worker registration failed: ', registrationError);
+            });
+        });
+    }
+
+</script>
+</body>
+</html>
