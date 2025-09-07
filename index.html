@@ -82,9 +82,10 @@
                 <option value="" disabled selected>选择赢家</option>
             </select>
             
-            <label for="pao-select" class="block text-md font-medium text-gray-700">点炮者（如果自摸则不选）</label>
+            <label for="pao-select" class="block text-md font-medium text-gray-700">点炮者</label>
             <select id="pao-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <option value="" disabled selected>选择点炮者</option>
+                <option value="zimo">自摸</option>
             </select>
 
             <label for="fans-input" class="block text-md font-medium text-gray-700">番数</label>
@@ -135,13 +136,26 @@
     </div>
 </div>
 
-<!-- 新增：玩家名字错误弹窗 -->
+<!-- 玩家名字错误弹窗 -->
 <div id="name-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
         <p class="text-gray-700 text-center mb-6">请输入全部玩家名字</p>
         <div class="flex justify-center">
             <button onclick="hideNameErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
+                确定
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 选择错误弹窗 -->
+<div id="selection-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
+    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+        <p class="text-gray-700 text-center mb-6">您不能选择自己作为点炮者。</p>
+        <div class="flex justify-center">
+            <button onclick="hideSelectionErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
                 确定
             </button>
         </div>
@@ -191,8 +205,13 @@
         const fans = parseInt(document.getElementById('fans-input').value) || 1;
 
         if (!winner) {
-            // Replaced alert with a custom message box or similar in a real app
             console.error('请选择赢家！');
+            return;
+        }
+
+        // Check for invalid selection (winner is also pao)
+        if (winner === pao) {
+            showSelectionErrorModal();
             return;
         }
 
@@ -204,8 +223,19 @@
             pao: pao || '无'
         };
 
-        if (pao) {
-            // 点炮
+        if (pao === 'zimo') {
+            // 自摸 (Self-drawn)
+            const selfDrawAmount = fans * perFanPrice * 2;
+            players[winner] += selfDrawAmount * 3;
+            Object.keys(players).forEach(p => {
+                if (p !== winner) {
+                    players[p] -= selfDrawAmount;
+                }
+            });
+            roundRecord.type = '自摸';
+            roundRecord.description = `${winner} 自摸，共 ${fans} 番。`;
+        } else {
+            // 点炮 (Discarder)
             const paoAmount = fans * perFanPrice * 2;
             const otherAmount = fans * perFanPrice;
             players[winner] += paoAmount + 2 * otherAmount;
@@ -217,17 +247,6 @@
             });
             roundRecord.type = '点炮';
             roundRecord.description = `${winner} 胡了 ${pao} 的牌，共 ${fans} 番。`;
-        } else {
-            // 自摸
-            const selfDrawAmount = fans * perFanPrice;
-            players[winner] += selfDrawAmount * 3;
-            Object.keys(players).forEach(p => {
-                if (p !== winner) {
-                    players[p] -= selfDrawAmount;
-                }
-            });
-            roundRecord.type = '自摸';
-            roundRecord.description = `${winner} 自摸，共 ${fans} 番。`;
         }
 
         history.push(roundRecord);
@@ -274,6 +293,24 @@
         }, 300);
     }
 
+    // New functions for the selection error modal
+    function showSelectionErrorModal() {
+        const modal = document.getElementById('selection-error-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.modal').classList.add('active');
+        }, 10);
+    }
+
+    function hideSelectionErrorModal() {
+        const modal = document.getElementById('selection-error-modal');
+        modal.querySelector('.modal').classList.remove('active');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+
     function showSummary() {
         document.getElementById('game-section').classList.add('hidden');
         document.getElementById('summary-section').classList.remove('hidden');
@@ -315,7 +352,7 @@
         const winnerSelect = document.getElementById('winner-select');
         const paoSelect = document.getElementById('pao-select');
         winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
-        paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option>';
+        paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option><option value="zimo">自摸</option>';
         
         Object.keys(players).forEach(name => {
             const score = players[name];
