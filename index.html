@@ -121,7 +121,8 @@
             </form>
         </div>
     </div>
-
+    
+    <!-- 消息提示模态框 -->
     <div id="message-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 transition-transform duration-500">
         <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center">
             <p id="message-text" class="text-xl font-semibold text-gray-800"></p>
@@ -131,12 +132,27 @@
         </div>
     </div>
 
+    <!-- 确认模态框 -->
+    <div id="confirm-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 transition-transform duration-500">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center">
+            <p id="confirm-text" class="text-xl font-semibold text-gray-800"></p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="confirm-yes-button" class="bg-red-500 text-white font-bold py-2 px-6 rounded-xl hover:bg-red-600 transition duration-300">
+                    确定
+                </button>
+                <button id="confirm-no-button" class="bg-gray-400 text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-500 transition duration-300">
+                    取消
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 将你的 Firebase 配置粘贴到这里！
+        // IMPORTANT: 确保你已经正确替换了下面的占位符！
         // 你可以从你的 Firebase 控制台 -> 项目设置 -> 你的应用 中获取。
 const firebaseConfig = {
   apiKey: "AIzaSyB6eidZtcLAHWcuvtZM_UPY4mpPHe0GWUw",
@@ -147,8 +163,6 @@ const firebaseConfig = {
   appId: "1:741832063281:web:a1963423d99fb70a7e9810"
 };
         
-        // 确保你已经正确替换了上面的占位符！
-
         // 初始化 Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -162,6 +176,10 @@ const firebaseConfig = {
         const messageModal = document.getElementById('message-modal');
         const messageText = document.getElementById('message-text');
         const messageOkButton = document.getElementById('message-ok-button');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmText = document.getElementById('confirm-text');
+        const confirmYesButton = document.getElementById('confirm-yes-button');
+        const confirmNoButton = document.getElementById('confirm-no-button');
 
         const playerSetupForm = document.getElementById('player-setup-form');
         const scoreForm = document.getElementById('score-form');
@@ -188,6 +206,19 @@ const firebaseConfig = {
         function showMessage(message) {
             messageText.innerText = message;
             showModal(messageModal);
+        }
+
+        function showConfirm(message, onConfirm) {
+            confirmText.innerText = message;
+            confirmYesButton.onclick = () => {
+                hideModal(confirmModal);
+                onConfirm(true);
+            };
+            confirmNoButton.onclick = () => {
+                hideModal(confirmModal);
+                onConfirm(false);
+            };
+            showModal(confirmModal);
         }
         
         messageOkButton.addEventListener('click', () => {
@@ -376,41 +407,47 @@ const firebaseConfig = {
                 showMessage("没有历史记录可以撤销。");
                 return;
             }
-
-            const lastRecord = gameState.history[gameState.history.length - 1];
-            const newScores = { ...gameState.scores };
-
-            newScores[lastRecord.winner] -= lastRecord.gained;
-
-            if (lastRecord.pao) {
-                newScores[lastRecord.pao] -= lastRecord.lost;
-                const otherPlayers = Object.keys(newScores).filter(name => name !== lastRecord.winner && name !== lastRecord.pao);
-                const lostFromOthers = lastRecord.fans * gameState.perFanPrice;
-                otherPlayers.forEach(name => newScores[name] += lostFromOthers);
-            } else {
-                const losers = Object.keys(newScores).filter(name => name !== lastRecord.winner);
-                const lost = lastRecord.fans * gameState.perFanPrice;
-                losers.forEach(name => newScores[name] -= lost);
-            }
             
-            gameState = {
-                ...gameState,
-                scores: newScores,
-                history: gameState.history.slice(0, -1),
-                round: gameState.round - 1,
-            };
-            saveData();
+            showConfirm("你确定要撤销上一轮吗？", (isConfirmed) => {
+                if (isConfirmed) {
+                    const lastRecord = gameState.history[gameState.history.length - 1];
+                    const newScores = { ...gameState.scores };
+
+                    newScores[lastRecord.winner] -= lastRecord.gained;
+
+                    if (lastRecord.pao) {
+                        newScores[lastRecord.pao] -= lastRecord.lost;
+                        const otherPlayers = Object.keys(newScores).filter(name => name !== lastRecord.winner && name !== lastRecord.pao);
+                        const lostFromOthers = lastRecord.fans * gameState.perFanPrice;
+                        otherPlayers.forEach(name => newScores[name] += lostFromOthers);
+                    } else {
+                        const losers = Object.keys(newScores).filter(name => name !== lastRecord.winner);
+                        const lost = lastRecord.fans * gameState.perFanPrice;
+                        losers.forEach(name => newScores[name] -= lost);
+                    }
+                    
+                    gameState = {
+                        ...gameState,
+                        scores: newScores,
+                        history: gameState.history.slice(0, -1),
+                        round: gameState.round - 1,
+                    };
+                    saveData();
+                }
+            });
         });
         
         resetButton.addEventListener('click', () => {
-            const confirmed = confirm("你确定要重置游戏吗？这将删除所有记录。");
-            if (confirmed) {
-                gameState = { ...initialGameState };
-                saveData();
-            }
+            showConfirm("你确定要重置游戏吗？这将删除所有记录。", (isConfirmed) => {
+                if (isConfirmed) {
+                    gameState = { ...initialGameState };
+                    saveData();
+                }
+            });
         });
         
         window.addEventListener('resize', updateUI);
     </script>
 </body>
 </html>
+
