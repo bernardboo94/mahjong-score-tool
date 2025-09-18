@@ -32,278 +32,112 @@
         }
     </style>
 </head>
-<body class="bg-emerald-800 text-gray-800 flex items-center justify-center min-h-screen p-4">
+<body class="bg-emerald-800 text-gray-800 p-4 min-h-screen flex items-center justify-center">
 
-<div class="container rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto">
-    <h1 class="text-3xl md:text-5xl font-extrabold text-white text-center mb-6 drop-shadow-md">
-        <span class="text-black drop-shadow-md">🀄 麻将记分器 🀄</span>
-    </h1>
+    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500"></div>
+    </div>
 
-    <div class="text-center text-sm mb-4 text-gray-700" id="user-id-display"></div>
-
-    <div id="setup-section" class="space-y-6">
-        <div id="nickname-section" class="bg-gray-100 rounded-2xl p-6 shadow-md" style="display: none;">
-            <h2 class="text-xl font-bold mb-4">设置昵称</h2>
-            <p class="text-gray-700 mb-4">请设置一个独一无二的昵称来保存你的游戏记录。</p>
-            <input type="text" id="nickname-input" placeholder="输入你的昵称 (例如: Bernard)"
-                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <button onclick="saveNickname()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 mt-4">
-                保存昵称
-            </button>
+    <div id="game-container" class="container mx-auto p-6 rounded-3xl shadow-2xl max-w-2xl w-full hidden">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-green-900">麻将记分器</h1>
+            <p class="text-sm text-gray-600 mt-2">版本：1.0</p>
         </div>
-        
-        <div id="game-setup-section" style="display: none;">
-            <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
-                <h2 class="text-xl font-bold mb-4">开始新游戏</h2>
-                <label for="price-input" class="block text-md font-bold mb-2">每番价格</label>
-                <input type="number" id="price-input" placeholder="输入每番价格 (例如: 10)"
-                       class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <div class="space-y-4 mt-4">
-                    <input type="text" id="player-1-input" placeholder="玩家一" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="text" id="player-2-input" placeholder="玩家二" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="text" id="player-3-input" placeholder="玩家三" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="text" id="player-4-input" placeholder="玩家四" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+
+        <!-- 当前轮信息 -->
+        <div class="bg-emerald-100 p-4 rounded-xl text-center shadow-inner mb-6">
+            <h2 id="current-round-text" class="text-xl font-bold text-green-800"></h2>
+            <p id="per-fan-price-display" class="text-lg text-green-700 mt-2">番价: 1</p>
+            <p id="user-id-display" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+
+        <!-- 玩家分数展示 -->
+        <div id="score-display" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <!-- 玩家分数卡片将在这里动态生成 -->
+        </div>
+
+        <!-- 输入表单 -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">计算本轮分数</h3>
+            <form id="score-form" class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <label for="winner-select" class="block text-gray-700 font-semibold w-1/3">胡牌玩家</label>
+                    <select id="winner-select" name="winner" required class="flex-grow rounded-lg border-2 border-green-300 p-2">
+                        <!-- 玩家选项将在这里动态填充 -->
+                    </select>
                 </div>
-                <button onclick="startGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 mt-4">
-                    开始游戏
+                <div class="flex items-center space-x-4">
+                    <label for="fans-input" class="block text-gray-700 font-semibold w-1/3">番数</label>
+                    <input type="number" id="fans-input" name="fans" min="1" max="100" value="1" required class="flex-grow rounded-lg border-2 border-green-300 p-2">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <label for="pao-select" class="block text-gray-700 font-semibold w-1/3">放炮玩家（自摸可留空）</label>
+                    <select id="pao-select" name="pao" class="flex-grow rounded-lg border-2 border-green-300 p-2">
+                        <option value="">自摸</option>
+                        <!-- 玩家选项将在这里动态填充 -->
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-green-700 transition duration-300">
+                    提交本轮分数
+                </button>
+            </form>
+            
+            <div class="mt-4 flex justify-between space-x-2">
+                <button id="undo-button" class="flex-1 bg-red-500 text-white font-bold py-2 px-4 rounded-xl shadow-md hover:bg-red-600 transition duration-300">
+                    撤销上一轮
+                </button>
+                <button id="reset-button" class="flex-1 bg-gray-400 text-white font-bold py-2 px-4 rounded-xl shadow-md hover:bg-gray-500 transition duration-300">
+                    重置游戏
                 </button>
             </div>
-    
-            <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
-                <h2 class="text-xl font-bold mb-4">加载历史游戏</h2>
-                <div id="game-list" class="space-y-2">
-                    <!-- 保存的游戏将在此处列出 -->
-                    <p class="text-center text-gray-500">正在加载历史游戏...</p>
-                </div>
+            
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="mt-6 bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">历史记录</h3>
+            <div id="history-list" class="space-y-4">
+                <!-- 历史记录将在这里动态生成 -->
             </div>
         </div>
     </div>
 
-
-    <div id="game-section" class="hidden">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <p class="text-xl font-bold text-gray-700 mb-2 md:mb-0">
-                当前圈数: <span id="current-round-text">东风，东局</span>
-                <br class="md:hidden">
-                <span class="md:ml-4">每番价格: <span id="per-fan-price-display"></span></span>
-            </p>
-            <button onclick="showEndGameModal()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300">
-                结束游戏
-            </button>
-        </div>
-
-        <div id="score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
-        <div id="saving-status" class="text-center text-sm text-gray-500 mb-4"></div>
-
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
-            <h2 class="text-xl font-bold mb-2">记录本局</h2>
-            <label for="winner-select" class="block text-md font-medium text-gray-700">赢家</label>
-            <select id="winner-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="" disabled selected>选择赢家</option>
-            </select>
-            
-            <label for="pao-select" class="block text-md font-medium text-gray-700">放炮</label>
-            <select id="pao-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="" disabled selected>选择放炮者</option>
-                <option value="zimo">自摸 (Zimo)</option>
-            </select>
-
-            <label for="fans-input" class="block text-md font-medium text-gray-700">番数</label>
-            <input type="number" id="fans-input" placeholder="多少番?" value="1" min="1"
-                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-
-            <button onclick="recordRound()" id="record-button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
-                记录本局
-            </button>
-        </div>
-
-        <div id="history-section" class="mt-8 bg-gray-100 rounded-2xl p-6 shadow-md">
-            <h2 class="text-xl font-bold mb-4">历史记录</h2>
-            <div id="history-list" class="space-y-2 text-gray-700"></div>
+    <!-- 模态框 -->
+    <div id="player-setup-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 transition-transform duration-500">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-300">
+            <h2 class="text-3xl font-extrabold text-center mb-6 text-green-800">开始新游戏</h2>
+            <form id="player-setup-form" class="space-y-6">
+                <div>
+                    <label for="player-names-input" class="block text-gray-700 font-semibold mb-2">输入玩家名字（用逗号分隔）</label>
+                    <input type="text" id="player-names-input" required class="w-full rounded-xl border-2 border-green-300 p-3" placeholder="例如：玩家A, 玩家B, 玩家C, 玩家D">
+                </div>
+                <div>
+                    <label for="per-fan-price" class="block text-gray-700 font-semibold mb-2">每番价格</label>
+                    <input type="number" id="per-fan-price" value="1" required class="w-full rounded-xl border-2 border-green-300 p-3">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 px-4 rounded-2xl shadow-md hover:bg-green-700 transition duration-300">
+                    开始游戏
+                </button>
+            </form>
         </div>
     </div>
 
-    <div id="summary-section" class="hidden">
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
-            <h2 class="text-xl md:text-2xl font-bold mb-2 text-center">游戏总结</h2>
-            
-            <h3 class="text-lg font-bold">最终分数</h3>
-            <div id="final-score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"></div>
-            
-            <h3 class="text-lg font-bold">数据分析</h3>
-            <div id="stats-display" class="space-y-6"></div>
-
-            <h3 class="text-lg font-bold mt-6">完整历史记录</h3>
-            <div id="final-history-list" class="space-y-2 text-gray-700"></div>
-            
-            <button onclick="resetGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 mt-6">
-                开始新游戏
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 自定义模态框 -->
-<div id="end-game-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
-        <p class="text-gray-700 text-center mb-6">你确定要结束游戏吗？所有数据都将被清除。</p>
-        <div class="flex justify-around space-x-4">
-            <button onclick="confirmEndGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
-                确认
-            </button>
-            <button onclick="hideEndGameModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
-                取消
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="name-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入所有玩家的姓名。</p>
-        <div class="flex justify-center">
-            <button onclick="hideNameErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
+    <div id="message-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 transition-transform duration-500">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center">
+            <p id="message-text" class="text-xl font-semibold text-gray-800"></p>
+            <button id="message-ok-button" class="mt-6 bg-green-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-green-700 transition duration-300">
                 确定
             </button>
         </div>
     </div>
-</div>
 
-<div id="selection-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">你不能选择自己作为放炮者。</p>
-        <div class="flex justify-center">
-            <button onclick="hideSelectionErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-<div id="price-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入每番价格。</p>
-        <div class="flex justify-center">
-            <button onclick="hidePriceErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="winner-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">请选择一个赢家。</p>
-        <div class="flex justify-center">
-            <button onclick="hideWinnerErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="pao-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">请选择一个放炮者。</p>
-        <div class="flex justify-center">
-            <button onclick="hidePaoErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="fans-low-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
-        <p class="text-gray-700 text-center mb-6">至少需要3番。</p>
-        <div class="flex justify-center">
-            <button onclick="hideFansLowErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="fans-decimal-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入有效的番数。</p>
-        <div class="flex justify-center">
-            <button onclick="hideFansDecimalErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="history-details-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center" id="history-details-title"></h3>
-        <div id="history-details-content" class="max-h-[60vh] overflow-y-auto space-y-4"></div>
-        <div class="flex justify-center mt-6">
-            <button onclick="hideHistoryDetailsModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                关闭
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="nickname-exists-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">昵称已存在</h3>
-        <p class="text-gray-700 text-center mb-6">此昵称已被使用，请尝试另一个。</p>
-        <div class="flex justify-center">
-            <button onclick="hideNicknameExistsModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="nickname-empty-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入你的昵称。</p>
-        <div class="flex justify-center">
-            <button onclick="hideNicknameEmptyModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-    // Firebase 导入
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, onSnapshot, collection, query, where, getDocs, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    setLogLevel('Debug');
-
-    // 全局变量
-    let app, auth, db, userId, displayName;
-    let players = {};
-    let perFanPrice = 0;
-    let round = 0;
-    const winds = ["东", "南", "西", "北"];
-    let history = [];
-    let lastRoundTimestamp = null;
-    let playerStats = {};
-    let currentGameId = null;
-
-    // TODO: 将你的 Firebase 配置粘贴到这里！
-    // 
-    // 从你的 Firebase 控制台 -> 项目设置 -> 你的应用 中获取。
-    // 这将使你的应用可移植，并在 GitHub 上运行。
-    // 
+        // 将你的 Firebase 配置粘贴到这里！
+        // 你可以从你的 Firebase 控制台 -> 项目设置 -> 你的应用 中获取。
 const firebaseConfig = {
   apiKey: "AIzaSyB6eidZtcLAHWcuvtZM_UPY4mpPHe0GWUw",
   authDomain: "mahjong-958fa.firebaseapp.com",
@@ -312,723 +146,271 @@ const firebaseConfig = {
   messagingSenderId: "741832063281",
   appId: "1:741832063281:web:a1963423d99fb70a7e9810"
 };
-
-    const appId = firebaseConfig.projectId;
-
-    // 初始化 Firebase 和身份验证
-    async function initializeFirebaseAndAuth() {
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-
-            // 监听身份验证状态变化
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    await loadUserProfile();
-                } else {
-                    console.log('用户已登出，尝试匿名登录');
-                    userId = crypto.randomUUID(); // 非认证用户的备用 ID
-                    document.getElementById('user-id-display').innerText = `用户 ID: ${userId} (匿名)`;
-                    try {
-                        await signInAnonymously(auth);
-                        console.log('匿名登录成功');
-                    } catch (error) {
-                        console.error("匿名登录失败:", error);
-                    }
-                }
-            });
-
-            // 此令牌在 Canvas 环境中提供，但在 GitHub 上没有。
-            // 在 GitHub 上，onAuthStateChanged 监听器将处理匿名登录。
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-                console.log('自定义令牌登录成功');
-            }
-        } catch (error) {
-            console.error("Firebase 初始化失败:", error);
-        }
-    }
-
-    // 从 Firestore 加载用户昵称
-    async function loadUserProfile() {
-        if (!userId) {
-            console.error("无法加载用户资料：用户ID未定义");
-            return;
-        }
-
-        try {
-            const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/info`);
-            const userProfileSnap = await getDoc(userProfileRef);
-
-            if (userProfileSnap.exists()) {
-                displayName = userProfileSnap.data().nickname;
-                document.getElementById('user-id-display').innerText = `登录为: ${displayName}`;
-                document.getElementById('nickname-section').style.display = 'none';
-                document.getElementById('game-setup-section').style.display = 'block';
-                await loadGames();
-            } else {
-                document.getElementById('user-id-display').innerText = `用户 ID: ${userId} (请设置昵称)`;
-                document.getElementById('nickname-section').style.display = 'block';
-                document.getElementById('game-setup-section').style.display = 'none';
-            }
-        } catch (error) {
-            console.error("加载用户资料失败:", error);
-        }
-    }
-    
-    // 将用户昵称保存到 Firestore
-    async function saveNickname() {
-        const nickname = document.getElementById('nickname-input').value.trim();
-        if (!nickname) {
-            showNicknameEmptyModal();
-            return;
-        }
-
-        try {
-            // 检查昵称是否已存在
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/profile`), where("nickname", "==", nickname));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                showNicknameExistsModal();
-                return;
-            }
-
-            const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/info`);
-            await setDoc(userProfileRef, { nickname: nickname, uid: userId });
-            
-            displayName = nickname;
-            document.getElementById('user-id-display').innerText = `登录为: ${displayName}`;
-            document.getElementById('nickname-section').style.display = 'none';
-            document.getElementById('game-setup-section').style.display = 'block';
-            await loadGames();
-        } catch (error) {
-            console.error("保存昵称失败:", error);
-        }
-    }
-
-    // 从 Firestore 加载游戏列表
-    async function loadGames() {
-        const gamesList = document.getElementById('game-list');
-        gamesList.innerHTML = '<p class="text-center text-gray-500">正在加载历史游戏...</p>';
-        try {
-            const gamesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/mahjong-games`);
-            const gamesQuery = query(gamesCollectionRef, orderBy('timestamp', 'desc'));
-            const gamesSnapshot = await getDocs(gamesQuery);
-
-            if (gamesSnapshot.empty) {
-                gamesList.innerHTML = '<p class="text-center text-gray-500">未找到历史游戏。</p>';
-                return;
-            }
-
-            gamesList.innerHTML = '';
-            gamesSnapshot.forEach(doc => {
-                const gameData = doc.data();
-                const gameDate = new Date(gameData.timestamp).toLocaleString();
-                const playersList = gameData.playerNames ? gameData.playerNames.join(', ') : '未知玩家';
-
-                const gameItem = document.createElement('div');
-                gameItem.className = 'bg-white rounded-xl p-4 shadow-md flex justify-between items-center';
-                gameItem.innerHTML = `
-                    <div>
-                        <p class="font-bold text-lg">${gameData.gameTitle || '未命名游戏'}</p>
-                        <p class="text-sm text-gray-600">${gameDate}</p>
-                        <p class="text-sm text-gray-600">玩家: ${playersList}</p>
-                    </div>
-                    <div>
-                        <button onclick="loadHistoryGame('${doc.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-1 px-3 rounded-xl shadow-md transition duration-300">查看</button>
-                        <button onclick="deleteGame('${doc.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-xl shadow-md transition duration-300 ml-2">删除</button>
-                    </div>
-                `;
-                gamesList.appendChild(gameItem);
-            });
-        } catch (error) {
-            console.error("加载游戏列表失败:", error);
-            gamesList.innerHTML = '<p class="text-center text-red-500">加载历史游戏失败。</p>';
-        }
-    }
-
-    // 加载特定游戏详情
-    async function loadHistoryGame(gameId) {
-        const gameRef = doc(db, `artifacts/${appId}/users/${userId}/mahjong-games/${gameId}`);
-        const gameSnap = await getDoc(gameRef);
-
-        if (gameSnap.exists()) {
-            const data = gameSnap.data();
-            showHistoryDetailsModal(data);
-        } else {
-            console.error('游戏记录不存在！');
-        }
-    }
-
-    // 删除游戏
-    async function deleteGame(gameId) {
-        try {
-            await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/mahjong-games/${gameId}`));
-            console.log("游戏已删除:", gameId);
-            loadGames();
-        } catch (error) {
-            console.error("删除游戏失败:", error);
-        }
-    }
-
-    // 保存游戏到 Firestore
-    async function saveGame() {
-        if (!userId) {
-            console.error("无法保存游戏：用户ID未定义");
-            return;
-        }
-
-        const savingStatus = document.getElementById('saving-status');
-        savingStatus.innerText = '正在保存...';
-
-        const gameData = {
-            playerNames: Object.keys(players),
-            players,
-            perFanPrice,
-            round,
-            history: history,
-            playerStats,
-            timestamp: Date.now(),
-            gameTitle: `麻将游戏 ${new Date().toLocaleString()}` // 生成默认标题
-        };
-
-        try {
-            const gamesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/mahjong-games`);
-            if (currentGameId) {
-                // 更新现有游戏
-                const gameRef = doc(gamesCollectionRef, currentGameId);
-                await updateDoc(gameRef, gameData);
-                console.log("游戏已更新:", currentGameId);
-            } else {
-                // 创建新游戏
-                const newGameRef = await addDoc(gamesCollectionRef, gameData);
-                currentGameId = newGameRef.id;
-                console.log("新游戏已创建:", currentGameId);
-            }
-            savingStatus.innerText = '已保存！';
-            setTimeout(() => savingStatus.innerText = '', 3000); // 3秒后隐藏
-        } catch (error) {
-            console.error("保存游戏失败:", error);
-            savingStatus.innerText = '保存失败！';
-        }
-    }
-
-    // ----------------------------------------------------
-    // 应用逻辑（与 Firestore 集成）
-    // ----------------------------------------------------
-
-    function startGame() {
-        const priceInput = document.getElementById('price-input').value;
-        perFanPrice = parseFloat(priceInput);
-        if (isNaN(perFanPrice) || perFanPrice <= 0) {
-            showPriceErrorModal();
-            return;
-        }
-
-        const playerInputs = [
-            document.getElementById('player-1-input').value,
-            document.getElementById('player-2-input').value,
-            document.getElementById('player-3-input').value,
-            document.getElementById('player-4-input').value
-        ];
-
-        const hasEmptyName = playerInputs.some(name => name.trim() === '');
-        if (hasEmptyName) {
-            showNameErrorModal();
-            return;
-        }
-
-        players = {};
-        playerStats = {};
-        round = 0;
-        history = [];
-        lastRoundTimestamp = Date.now();
-        currentGameId = null; 
-
-        playerInputs.forEach(name => {
-            players[name] = 0;
-            playerStats[name] = { totalFans: 0, wins: 0, paos: 0, selfDraws: 0, maxFans: 0 };
-        });
-
-        document.getElementById('setup-section').classList.add('hidden');
-        document.getElementById('game-section').classList.remove('hidden');
-
-        saveGame();
-        updateGameUI();
-    }
-
-    async function recordRound() {
-        const winner = document.getElementById('winner-select').value;
-        const pao = document.getElementById('pao-select').value;
-        const fansInput = document.getElementById('fans-input').value;
-
-        if (!winner) {
-            showWinnerErrorModal();
-            return;
-        }
-
-        if (!pao) {
-            showPaoErrorModal();
-            return;
-        }
         
-        const fans = parseFloat(fansInput);
-        if (isNaN(fans) || fans !== Math.floor(fans)) {
-            showFansDecimalErrorModal();
-            return;
-        }
-        if (fans < 3) {
-            showFansLowErrorModal();
-            return;
-        }
+        // 确保你已经正确替换了上面的占位符！
 
-        if (winner === pao) {
-            showSelectionErrorModal();
-            return;
-        }
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let userId = '';
+        let appId = firebaseConfig.projectId;
+
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const gameContainer = document.getElementById('game-container');
+        const playerSetupModal = document.getElementById('player-setup-modal');
+        const messageModal = document.getElementById('message-modal');
+        const messageText = document.getElementById('message-text');
+        const messageOkButton = document.getElementById('message-ok-button');
+
+        const playerSetupForm = document.getElementById('player-setup-form');
+        const scoreForm = document.getElementById('score-form');
+        const undoButton = document.getElementById('undo-button');
+        const resetButton = document.getElementById('reset-button');
         
-        let description = '';
-        if (pao === 'zimo') {
-            description = `${winner} 自摸了 ${fans} 番。`;
-        } else {
-            description = `${winner} 从 ${pao} 那里赢了，有 ${fans} 番。`;
-        }
-
-        const now = Date.now();
-        const roundDuration = (now - lastRoundTimestamp) / 1000;
-        lastRoundTimestamp = now;
-
-        let roundRecord = {
-            round: round,
-            winner: winner,
-            fans: fans,
-            pao: pao,
-            description: description,
-            duration: roundDuration
-        };
-
-        history.push(roundRecord);
-        round++;
-        
-        updateAllStats();
-        updateGameUI();
-        saveGame();
-    }
-    
-    function updateAllStats() {
-        Object.keys(players).forEach(name => {
-            playerStats[name] = { totalFans: 0, wins: 0, paos: 0, selfDraws: 0, maxFans: 0 };
-        });
-
-        let lastWinner = null;
-        let consecutiveWins = 0;
-        let lastPao = null;
-        let consecutivePaos = 0;
-
-        history.forEach(record => {
-            playerStats[record.winner].totalFans += record.fans;
-            playerStats[record.winner].wins += 1;
-            if (record.fans > playerStats[record.winner].maxFans) {
-                playerStats[record.winner].maxFans = record.fans;
-            }
-
-            if (record.pao === 'zimo') {
-                playerStats[record.winner].selfDraws += 1;
-            } else {
-                playerStats[record.pao].paos += 1;
-            }
-
-            if (record.winner === lastWinner) {
-                consecutiveWins++;
-            } else {
-                consecutiveWins = 1;
-                lastWinner = record.winner;
-            }
-            playerStats[record.winner].consecutiveWins = Math.max(playerStats[record.winner].consecutiveWins || 0, consecutiveWins);
-
-            if (record.pao !== 'zimo' && record.pao === lastPao) {
-                consecutivePaos++;
-            } else {
-                consecutivePaos = 1;
-                lastPao = record.pao;
-            }
-            if (record.pao !== 'zimo') {
-                playerStats[record.pao].consecutivePaos = Math.max(playerStats[record.pao].consecutivePaos || 0, consecutivePaos);
-            }
-        });
-
-        recalculateScores();
-    }
-
-    function recalculateScores() {
-        Object.keys(players).forEach(name => players[name] = 0);
-
-        history.forEach(record => {
-            if (record.pao === 'zimo' || record.pao === 'none') {
-                const selfDrawAmount = record.fans * perFanPrice * 2;
-                players[record.winner] += selfDrawAmount * 3;
-                Object.keys(players).forEach(p => {
-                    if (p !== record.winner) {
-                        players[p] -= selfDrawAmount;
-                    }
-                });
-            } else {
-                const paoAmount = record.fans * perFanPrice * 2;
-                const otherAmount = record.fans * perFanPrice;
-                players[record.winner] += paoAmount + 2 * otherAmount;
-                players[record.pao] -= paoAmount;
-                Object.keys(players).forEach(p => {
-                    if (p !== record.winner && p !== record.pao) {
-                        players[p] -= otherAmount;
-                    }
-                });
-            }
-        });
-    }
-
-    // 模态框函数
-    function showModal(id) {
-        const modal = document.getElementById(id);
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.querySelector('.modal').classList.add('active');
-        }, 10);
-    }
-
-    function hideModal(id) {
-        const modal = document.getElementById(id);
-        modal.querySelector('.modal').classList.remove('active');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
-    
-    function showEndGameModal() { showModal('end-game-modal'); }
-    function hideEndGameModal() { hideModal('end-game-modal'); }
-    function confirmEndGame() { hideEndGameModal(); showSummary(); }
-
-    function showNameErrorModal() { showModal('name-error-modal'); }
-    function hideNameErrorModal() { hideModal('name-error-modal'); }
-
-    function showSelectionErrorModal() { showModal('selection-error-modal'); }
-    function hideSelectionErrorModal() { hideModal('selection-error-modal'); }
-    
-    function showWinnerErrorModal() { showModal('winner-error-modal'); }
-    function hideWinnerErrorModal() { hideModal('winner-error-modal'); }
-
-    function showPaoErrorModal() { showModal('pao-error-modal'); }
-    function hidePaoErrorModal() { hideModal('pao-error-modal'); }
-
-    function showFansLowErrorModal() { showModal('fans-low-error-modal'); }
-    function hideFansLowErrorModal() { hideModal('fans-low-error-modal'); }
-
-    function showFansDecimalErrorModal() { showModal('fans-decimal-error-modal'); }
-    function hideFansDecimalErrorModal() { hideModal('fans-decimal-error-modal'); }
-
-    function showPriceErrorModal() { showModal('price-error-modal'); }
-    function hidePriceErrorModal() { hideModal('price-error-modal'); }
-
-    function showNicknameExistsModal() { showModal('nickname-exists-modal'); }
-    function hideNicknameExistsModal() { hideModal('nickname-exists-modal'); }
-
-    function showNicknameEmptyModal() { showModal('nickname-empty-modal'); }
-    function hideNicknameEmptyModal() { hideModal('nickname-empty-modal'); }
-
-    function showHistoryDetailsModal(data) {
-        document.getElementById('history-details-title').innerText = `历史记录: ${data.gameTitle || '未命名游戏'}`;
-        const contentDiv = document.getElementById('history-details-content');
-        contentDiv.innerHTML = '';
-
-        const playerNames = Object.keys(data.players);
-        
-        let introHtml = `
-            <div class="bg-gray-100 rounded-xl p-4 shadow-inner">
-                <h4 class="font-bold text-lg mb-2">游戏信息</h4>
-                <p>玩家: ${playerNames.join(', ')}</p>
-                <p>每番价格: ${data.perFanPrice}</p>
-                <p>总局数: ${data.history.length}</p>
-            </div>
-        `;
-
-        let summaryHtml = `
-            <div class="bg-gray-100 rounded-xl p-4 shadow-inner">
-                <h4 class="font-bold text-lg mb-2">最终分数</h4>
-                <div class="grid grid-cols-2 gap-2">
-        `;
-        playerNames.forEach(name => {
-            summaryHtml += `
-                <div class="bg-white rounded-xl p-2 shadow-sm text-center">
-                    <p class="font-semibold">${name}</p>
-                    <p class="text-xl font-bold">${data.players[name].toFixed(2)}</p>
-                </div>
-            `;
-        });
-        summaryHtml += `
-                </div>
-            </div>
-        `;
-
-        let historyHtml = `
-            <div class="bg-gray-100 rounded-xl p-4 shadow-inner">
-                <h4 class="font-bold text-lg mb-2">详细历史记录</h4>
-                <div class="space-y-2">
-        `;
-        data.history.forEach(record => {
-            const displayRound = `第 ${Math.floor(record.round / 4) + 1} 圈, ${winds[record.round % 4]} 风`;
-            historyHtml += `
-                <div class="bg-white rounded-lg p-3 shadow-sm">
-                    <p class="font-bold">${displayRound}</p>
-                    <p>${record.description}</p>
-                </div>
-            `;
-        });
-        historyHtml += `
-                </div>
-            </div>
-        `;
-        
-        contentDiv.innerHTML = introHtml + summaryHtml + historyHtml;
-
-        showModal('history-details-modal');
-    }
-
-    function hideHistoryDetailsModal() { hideModal('history-details-modal'); }
-    
-    function showSummary() {
-        document.getElementById('game-section').classList.add('hidden');
-        document.getElementById('summary-section').classList.remove('hidden');
-        
-        const finalScoreDisplay = document.getElementById('final-score-display');
-        finalScoreDisplay.innerHTML = '';
-        Object.keys(players).forEach(name => {
-            const score = players[name];
-            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
-            const cardHtml = `
-                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
-                    <p class="font-bold text-white text-lg">${name}</p>
-                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
-                </div>
-            `;
-            finalScoreDisplay.innerHTML += cardHtml;
-        });
-
-        const statsDisplay = document.getElementById('stats-display');
-        statsDisplay.innerHTML = '';
-
-        if (history.length > 0) {
-            let overallStatsHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">📊 整体游戏数据</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">总局数:</p>
-                            <p class="text-xl font-semibold">${history.length} 局</p>
-                        </div>
-            `;
-            const totalDuration = history.reduce((sum, record) => sum + record.duration, 0);
-            const avgDuration = (totalDuration / history.length).toFixed(1);
-            const minDuration = history.reduce((min, record) => Math.min(min, record.duration), Infinity).toFixed(1);
-            const maxDuration = history.reduce((max, record) => Math.max(max, record.duration), 0).toFixed(1);
-            overallStatsHtml += `
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">平均每局时间:</p>
-                            <p class="text-xl font-semibold">${avgDuration} 秒</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">最短一局时间:</p>
-                            <p class="text-xl font-semibold">${minDuration} 秒</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">最长一局时间:</p>
-                            <p class="text-xl font-semibold">${maxDuration} 秒</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += overallStatsHtml;
-            
-            let findTiedPlayers = (data, key, isMax) => {
-                let maxVal = isMax ? -Infinity : Infinity;
-                let tiedPlayers = [];
-                Object.keys(data).forEach(player => {
-                    if (isMax) {
-                        if ((data[player][key] || 0) > maxVal) {
-                            maxVal = (data[player][key] || 0);
-                            tiedPlayers = [player];
-                        } else if ((data[player][key] || 0) === maxVal) {
-                            tiedPlayers.push(player);
-                        }
-                    } else {
-                        if ((data[player][key] || 0) < maxVal) {
-                            maxVal = (data[player][key] || 0);
-                            tiedPlayers = [player];
-                        } else if ((data[player][key] || 0) === maxVal) {
-                            tiedPlayers.push(player);
-                        }
-                    }
-                });
-                return { players: tiedPlayers.join(', '), value: maxVal };
-            };
-
-            const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
-            const winningPlayers = sortedScores.filter(p => players[p] === players[sortedScores[0]]).join(', ');
-            const losingPlayers = sortedScores.filter(p => players[p] === players[sortedScores[sortedScores.length - 1]]).join(', ');
-            
-            const highestFanRound = history.reduce((prev, current) => (prev.fans > current.fans) ? prev : current);
-            const highestFanPlayers = history.filter(h => h.fans === highestFanRound.fans).map(h => h.winner);
-            const uniqueHighestFanPlayers = [...new Set(highestFanPlayers)].join(', ');
-
-            const consecutiveWinInfo = findTiedPlayers(playerStats, 'consecutiveWins', true);
-            const consecutiveWinKing = consecutiveWinInfo.players;
-            const maxConsecutive = consecutiveWinInfo.value;
-
-            const consecutivePaoInfo = findTiedPlayers(playerStats, 'consecutivePaos', true);
-            const consecutivePaoKing = consecutivePaoInfo.players;
-            const maxConsecutivePaos = consecutivePaoInfo.value;
-            
-            const winInfo = findTiedPlayers(playerStats, 'wins', true);
-            const winKings = winInfo.players;
-            const maxWins = winInfo.value;
-            
-            const selfDrawInfo = findTiedPlayers(playerStats, 'selfDraws', true);
-            const selfDrawKings = selfDrawInfo.players;
-            const maxSelfDraws = selfDrawInfo.value;
-
-            const paoInfo = findTiedPlayers(playerStats, 'paos', true);
-            const paoKings = paoInfo.players;
-            const maxPaos = paoInfo.value;
-            
-            let rankingsHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">🏆 玩家排名</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">赢家:</p>
-                            <p class="text-xl font-semibold">${winningPlayers}</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">输家:</p>
-                            <p class="text-xl font-semibold">${losingPlayers}</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">最高番数局:</p>
-                            <p class="text-xl font-semibold">${uniqueHighestFanPlayers} (${highestFanRound.fans} 番)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">连胜王:</p>
-                            <p class="text-xl font-semibold">${consecutiveWinKing} (${maxConsecutive} 连胜)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">赢牌王:</p>
-                            <p class="text-xl font-semibold">${winKings} (${maxWins} 次)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">自摸王:</p>
-                            <p class="text-xl font-semibold">${selfDrawKings} (${maxSelfDraws} 次)</p>
-                        </div>
-                         <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">连炮王:</p>
-                            <p class="text-xl font-semibold">${consecutivePaoKing} (${maxConsecutivePaos} 次)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">放炮王:</p>
-                            <p class="text-xl font-semibold">${paoKings} (${maxPaos} 次)</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += rankingsHtml;
-
-            let avgFansHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">📈 玩家数据</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            `;
-            Object.keys(playerStats).forEach(name => {
-                const stats = playerStats[name];
-                const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : 0;
-                avgFansHtml += `
-                    <div class="bg-white rounded-xl p-4 shadow-inner">
-                        <p class="font-bold">${name}:</p>
-                        <p class="text-md font-medium">平均番数: <span class="text-lg font-semibold">${avgFans}</span></p>
-                        <p class="text-md font-medium">最高番数: <span class="text-lg font-semibold">${stats.maxFans}</span></p>
-                    </div>
-                `;
-            });
-            avgFansHtml += `
-                    </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += avgFansHtml;
-
-        } else {
-            statsDisplay.innerHTML = '<p class="text-center text-gray-500">没有可分析的数据。</p>';
-        }
-
-        const finalHistoryList = document.getElementById('final-history-list');
-        finalHistoryList.innerHTML = '';
-        history.forEach(record => {
-            finalHistoryList.innerHTML += `<p class="border-b border-gray-300 pb-2 mb-2"><strong>${record.description}</strong></p>`;
-        });
-    }
-
-    function resetGame() {
-        document.getElementById('summary-section').classList.add('hidden');
-        document.getElementById('setup-section').classList.remove('hidden');
-        document.getElementById('game-section').classList.add('hidden');
-        document.getElementById('price-input').value = '';
-        document.getElementById('player-1-input').value = '';
-        document.getElementById('player-2-input').value = '';
-        document.getElementById('player-3-input').value = '';
-        document.getElementById('player-4-input').value = '';
-        currentGameId = null;
-        loadGames();
-    }
-
-    function updateGameUI() {
         const scoreDisplay = document.getElementById('score-display');
-        scoreDisplay.innerHTML = '';
         const winnerSelect = document.getElementById('winner-select');
         const paoSelect = document.getElementById('pao-select');
-        winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
-        paoSelect.innerHTML = '<option value="" disabled selected>选择放炮者</option><option value="zimo">自摸 (Zimo)</option>';
-        
-        Object.keys(players).forEach(name => {
-            const score = players[name];
-            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
-            const cardHtml = `
-                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
-                    <p class="font-bold text-white text-lg">${name}</p>
-                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
-                </div>
-            `;
-            scoreDisplay.innerHTML += cardHtml;
-            
-            winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
-            paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
-        });
-
-        document.getElementById('current-round-text').innerText = `第 ${Math.floor(round / 4) + 1} 圈, ${winds[round % 4]} 风`;
-        document.getElementById('per-fan-price-display').innerText = `${perFanPrice}`;
-
         const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        history.forEach((record, index) => {
-            const displayRound = `第 ${Math.floor(record.round / 4) + 1} 圈, ${winds[record.round % 4]} 风`;
-            historyList.innerHTML += `
-                <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2">
-                    <p><strong>${displayRound}</strong>: ${record.description}</p>
-                </div>
-            `;
-        });
-    }
 
-    window.onload = initializeFirebaseAndAuth;
-</script>
+        const winds = ['东', '南', '西', '北'];
+
+        // 模态框控制函数
+        function showModal(modal) {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+        function hideModal(modal) {
+            modal.classList.remove('active');
+            setTimeout(() => { modal.style.display = 'none'; }, 500);
+        }
+
+        function showMessage(message) {
+            messageText.innerText = message;
+            showModal(messageModal);
+        }
+        
+        messageOkButton.addEventListener('click', () => {
+            hideModal(messageModal);
+        });
+
+        async function initAuth() {
+            try {
+                await signInAnonymously(auth);
+                userId = auth.currentUser.uid;
+                document.getElementById('user-id-display').innerText = `用户 ID: ${userId}`;
+                loadingSpinner.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                // 加载数据
+                loadData();
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                showMessage("无法连接到游戏服务器。请检查你的 Firebase 配置和网络连接。");
+            }
+        }
+        
+        window.onload = initAuth;
+
+        // Firestore 数据路径
+        function getGameDocRef() {
+            return doc(db, 'artifacts', appId, 'users', userId, 'mahjong', 'game_state');
+        }
+
+        // 初始游戏状态
+        const initialGameState = {
+            scores: {},
+            round: 0,
+            perFanPrice: 1,
+            history: [],
+        };
+        
+        let gameState = { ...initialGameState };
+        
+        function updateUI() {
+            scoreDisplay.innerHTML = '';
+            winnerSelect.innerHTML = '';
+            paoSelect.innerHTML = '<option value="">自摸</option>';
+
+            const playerNames = Object.keys(gameState.scores);
+            playerNames.forEach(name => {
+                const score = gameState.scores[name];
+                const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
+                const cardHtml = `
+                    <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
+                        <p class="font-bold text-white text-lg">${name}</p>
+                        <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
+                    </div>
+                `;
+                scoreDisplay.innerHTML += cardHtml;
+                
+                winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+
+            document.getElementById('current-round-text').innerText = `第 ${Math.floor(gameState.round / 4) + 1} 圈, ${winds[gameState.round % 4]} 风`;
+            document.getElementById('per-fan-price-display').innerText = `番价: ${gameState.perFanPrice}`;
+
+            historyList.innerHTML = '';
+            gameState.history.forEach((record, index) => {
+                const displayRound = `第 ${Math.floor(record.round / 4) + 1} 圈, ${winds[record.round % 4]} 风`;
+                historyList.innerHTML += `
+                    <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2">
+                        <p><strong>${displayRound}</strong>: ${record.winner} 胡牌 ${record.fans} 番</p>
+                        <p><strong>${record.winner}</strong>: +${record.gained.toFixed(2)}</p>
+                        <p>${record.pao ? `<strong>${record.pao}</strong>: ${record.lost.toFixed(2)}` : '自摸'}</p>
+                    </div>
+                `;
+            });
+
+            if (Object.keys(gameState.scores).length > 0) {
+                hideModal(playerSetupModal);
+            } else {
+                showModal(playerSetupModal);
+            }
+        }
+
+        async function loadData() {
+            const gameDocRef = getGameDocRef();
+            try {
+                onSnapshot(gameDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        gameState = docSnap.data();
+                    } else {
+                        gameState = { ...initialGameState };
+                    }
+                    updateUI();
+                }, (error) => {
+                    console.error("Firestore Error:", error);
+                    showMessage("加载游戏数据失败。请重试。");
+                });
+            } catch (error) {
+                console.error("Firestore Load Error:", error);
+                showMessage("加载游戏数据失败。");
+            }
+        }
+        
+        async function saveData() {
+            const gameDocRef = getGameDocRef();
+            try {
+                await setDoc(gameDocRef, gameState);
+            } catch (error) {
+                console.error("Firestore Save Error:", error);
+                showMessage("保存游戏数据失败。");
+            }
+        }
+
+        playerSetupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const playerNamesInput = document.getElementById('player-names-input').value;
+            const perFanPrice = parseFloat(document.getElementById('per-fan-price').value);
+
+            const names = playerNamesInput.split(',').map(name => name.trim()).filter(name => name !== '');
+            if (names.length !== 4) {
+                showMessage("请输入四位玩家的名字，并用逗号分隔。");
+                return;
+            }
+
+            const scores = {};
+            names.forEach(name => scores[name] = 0);
+
+            gameState = {
+                scores,
+                round: 0,
+                perFanPrice,
+                history: [],
+            };
+            saveData();
+            updateUI();
+        });
+
+        scoreForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const winner = document.getElementById('winner-select').value;
+            const fans = parseInt(document.getElementById('fans-input').value);
+            const pao = document.getElementById('pao-select').value;
+
+            if (pao && pao === winner) {
+                showMessage("放炮玩家不能是胡牌玩家。");
+                return;
+            }
+            
+            const newScores = { ...gameState.scores };
+            const perFanPrice = gameState.perFanPrice;
+            const gained = fans * perFanPrice * (pao ? 2 : 3);
+            const lost = pao ? -gained : -(fans * perFanPrice);
+
+            newScores[winner] += gained;
+
+            if (pao) {
+                newScores[pao] += lost;
+                const otherPlayers = Object.keys(newScores).filter(name => name !== winner && name !== pao);
+                const lostFromOthers = -fans * perFanPrice;
+                otherPlayers.forEach(name => newScores[name] += lostFromOthers);
+            } else {
+                const losers = Object.keys(newScores).filter(name => name !== winner);
+                losers.forEach(name => newScores[name] += lost);
+            }
+
+            const newHistory = [...gameState.history, {
+                winner,
+                fans,
+                pao,
+                gained,
+                lost,
+                round: gameState.round,
+            }];
+
+            gameState = {
+                ...gameState,
+                scores: newScores,
+                history: newHistory,
+                round: gameState.round + 1,
+            };
+            saveData();
+            scoreForm.reset();
+            document.getElementById('fans-input').value = 1;
+        });
+
+        undoButton.addEventListener('click', () => {
+            if (gameState.history.length === 0) {
+                showMessage("没有历史记录可以撤销。");
+                return;
+            }
+
+            const lastRecord = gameState.history[gameState.history.length - 1];
+            const newScores = { ...gameState.scores };
+
+            newScores[lastRecord.winner] -= lastRecord.gained;
+
+            if (lastRecord.pao) {
+                newScores[lastRecord.pao] -= lastRecord.lost;
+                const otherPlayers = Object.keys(newScores).filter(name => name !== lastRecord.winner && name !== lastRecord.pao);
+                const lostFromOthers = lastRecord.fans * gameState.perFanPrice;
+                otherPlayers.forEach(name => newScores[name] += lostFromOthers);
+            } else {
+                const losers = Object.keys(newScores).filter(name => name !== lastRecord.winner);
+                const lost = lastRecord.fans * gameState.perFanPrice;
+                losers.forEach(name => newScores[name] -= lost);
+            }
+            
+            gameState = {
+                ...gameState,
+                scores: newScores,
+                history: gameState.history.slice(0, -1),
+                round: gameState.round - 1,
+            };
+            saveData();
+        });
+        
+        resetButton.addEventListener('click', () => {
+            const confirmed = confirm("你确定要重置游戏吗？这将删除所有记录。");
+            if (confirmed) {
+                gameState = { ...initialGameState };
+                saveData();
+            }
+        });
+        
+        window.addEventListener('resize', updateUI);
+    </script>
 </body>
 </html>
-
-
-
