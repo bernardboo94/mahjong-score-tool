@@ -258,23 +258,7 @@
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     setLogLevel('debug'); // Enable debug logging for Firestore
-
-    // 
-    // 请在此处粘贴你的 Firebase 配置对象
-    // 
-    // 访问 https://console.firebase.google.com/
-    // 创建一个新的 Web 应用，复制其配置并粘贴在这里。
-    // 示例格式如下:
-    // const firebaseConfig = {
-    //   apiKey: "YOUR_API_KEY",
-    //   authDomain: "YOUR_AUTH_DOMAIN",
-    //   projectId: "YOUR_PROJECT_ID",
-    //   storageBucket: "YOUR_STORAGE_BUCKET",
-    //   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    //   appId: "YOUR_APP_ID"
-    // };
-    // 
-    // 将下面的空对象替换为你的配置
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 const firebaseConfig = {
   apiKey: "AIzaSyB6eidZtcLAHWcuvtZM_UPY4mpPHe0GWUw",
   authDomain: "mahjong-958fa.firebaseapp.com",
@@ -283,27 +267,30 @@ const firebaseConfig = {
   messagingSenderId: "741832063281",
   appId: "1:741832063281:web:a1963423d99fb70a7e9810"
 };
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     // Firebase initialization
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     
-    // Auto-sign in anonymously when the app loads
-    onAuthStateChanged(auth, (user) => {
-        if (!user) {
-            signInAnonymously(auth).then(() => {
-                console.log("Signed in anonymously.");
-                document.getElementById('user-status').innerText = '已准备就绪';
-            }).catch((error) => {
-                console.error("Anonymous sign-in failed:", error);
-                document.getElementById('user-status').innerText = `登录失败：${error.message}`;
-            });
-        } else {
-            console.log("Already signed in as:", user.uid);
+    // Auto-sign in
+    async function initAuth() {
+        try {
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+            console.log("Authentication successful.");
             document.getElementById('user-status').innerText = '已准备就绪';
+        } catch (error) {
+            console.error("Authentication failed:", error);
+            document.getElementById('user-status').innerText = `登录失败：${error.message}`;
         }
-    });
+    }
+
+    initAuth();
 
     let players = {};
     let perFanPrice = 0;
@@ -322,7 +309,7 @@ const firebaseConfig = {
             console.error("User ID or Game ID is not set. Cannot get document reference.");
             return null;
         }
-        return doc(db, `temporaryGames/${gameId}`);
+        return doc(db, `/artifacts/${appId}/public/data/temporaryGames/${gameId}`);
     }
 
     function saveGame() {
@@ -336,7 +323,7 @@ const firebaseConfig = {
             players: players,
             perFanPrice: perFanPrice,
             round: round,
-            history: JSON.stringify(history), // Stringify complex array
+            history: JSON.stringify(history),
             playerStats: JSON.stringify(playerStats),
             lastRoundTimestamp: lastRoundTimestamp,
             creatorId: userId
@@ -376,17 +363,21 @@ const firebaseConfig = {
         const existingGameId = gameIdInput.value.trim();
 
         if (existingGameId) {
-            const tempGameDocRef = doc(db, `temporaryGames/${existingGameId}`);
-            const gameDoc = await getDoc(tempGameDocRef);
-
-            if (gameDoc.exists()) {
-                gameId = existingGameId;
-                document.getElementById('setup-section').classList.add('hidden');
-                document.getElementById('game-section').classList.remove('hidden');
-                document.getElementById('game-id-display').innerText = `游戏ID: ${gameId}`;
-                document.getElementById('game-id-display').classList.remove('hidden');
-                listenForChanges();
-            } else {
+            const gameDocRef = doc(db, `/artifacts/${appId}/public/data/temporaryGames/${existingGameId}`);
+            try {
+                const gameDoc = await getDoc(gameDocRef);
+                if (gameDoc.exists()) {
+                    gameId = existingGameId;
+                    document.getElementById('setup-section').classList.add('hidden');
+                    document.getElementById('game-section').classList.remove('hidden');
+                    document.getElementById('game-id-display').innerText = `游戏ID: ${gameId}`;
+                    document.getElementById('game-id-display').classList.remove('hidden');
+                    listenForChanges();
+                } else {
+                    showGameNotFoundErrorModal();
+                }
+            } catch (error) {
+                console.error("Error fetching game document:", error);
                 showGameNotFoundErrorModal();
             }
         }
@@ -435,7 +426,7 @@ const firebaseConfig = {
         round = 0;
         history = [];
         lastRoundTimestamp = Date.now();
-        gameId = crypto.randomUUID(); // Generate a new unique game ID
+        gameId = crypto.randomUUID();
         
         document.getElementById('setup-section').classList.add('hidden');
         document.getElementById('game-section').classList.remove('hidden');
@@ -896,5 +887,6 @@ const firebaseConfig = {
 </script>
 </body>
 </html>
+
 
 
