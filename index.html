@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>四人麻将计番（用户登录版）</title>
+    <title>四人麻将计番</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -149,7 +149,7 @@
     </div>
 </div>
 
-<!-- 自定义确认弹窗 -->
+<!-- Custom confirmation modals -->
 <div id="end-game-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
@@ -165,7 +165,6 @@
     </div>
 </div>
 
-<!-- 玩家名字错误弹窗 -->
 <div id="name-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
@@ -178,7 +177,6 @@
     </div>
 </div>
 
-<!-- 选择错误弹窗 -->
 <div id="selection-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
@@ -191,7 +189,6 @@
     </div>
 </div>
 
-<!-- 每番价格错误弹窗 -->
 <div id="price-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
@@ -204,7 +201,6 @@
     </div>
 </div>
 
-<!-- 新增：赢家未选弹窗 -->
 <div id="winner-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
@@ -217,7 +213,6 @@
     </div>
 </div>
 
-<!-- 新增：点炮者未选弹窗 -->
 <div id="pao-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
@@ -230,7 +225,6 @@
     </div>
 </div>
 
-<!-- 新增：番数过低弹窗 -->
 <div id="fans-low-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
@@ -243,7 +237,6 @@
     </div>
 </div>
 
-<!-- 新增：番数格式错误弹窗 -->
 <div id="fans-decimal-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
@@ -256,7 +249,6 @@
     </div>
 </div>
 
-<!-- 新增：游戏ID不存在弹窗 -->
 <div id="game-not-found-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
     <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
         <h3 class="text-xl font-semibold mb-4 text-center">游戏不存在</h3>
@@ -272,18 +264,37 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     setLogLevel('debug'); // Enable debug logging for Firestore
 
-    // Global variables
-    const __app_id = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const __firebase_config = typeof __firebase_config !== 'undefined' ? __firebase_config : '{"projectId":"your-project-id"}';
-    const __initial_auth_token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
-    
+    // 
+    // 请在此处粘贴你的 Firebase 配置对象
+    // 
+    // 访问 https://console.firebase.google.com/
+    // 创建一个新的 Web 应用，复制其配置并粘贴在这里。
+    // 示例格式如下:
+    // const firebaseConfig = {
+    //   apiKey: "YOUR_API_KEY",
+    //   authDomain: "YOUR_AUTH_DOMAIN",
+    //   projectId: "YOUR_PROJECT_ID",
+    //   storageBucket: "YOUR_STORAGE_BUCKET",
+    //   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    //   appId: "YOUR_APP_ID"
+    // };
+    // 
+    // 将下面的空对象替换为你的配置
+const firebaseConfig = {
+  apiKey: "AIzaSyB6eidZtcLAHWcuvtZM_UPY4mpPHe0GWUw",
+  authDomain: "mahjong-958fa.firebaseapp.com",
+  projectId: "mahjong-958fa",
+  storageBucket: "mahjong-958fa.firebasestorage.app",
+  messagingSenderId: "741832063281",
+  appId: "1:741832063281:web:a1963423d99fb70a7e9810"
+};
+
     // Firebase initialization
-    const firebaseConfig = JSON.parse(__firebase_config);
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -299,6 +310,7 @@
     let gameId = null;
     let userId = null;
     let isBernard = false;
+    let isInitialized = false;
 
     // --- User Login and Firebase Setup ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -309,6 +321,7 @@
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('setup-section').classList.remove('hidden');
                 document.getElementById('user-status').innerText = `用户：${isBernard ? 'Bernard' : '访客'}`;
+                isInitialized = true;
             } else {
                 console.log("User is signed out.");
                 document.getElementById('user-status').innerText = `请登录`;
@@ -316,6 +329,7 @@
                 document.getElementById('setup-section').classList.add('hidden');
                 document.getElementById('game-section').classList.add('hidden');
                 document.getElementById('summary-section').classList.add('hidden');
+                isInitialized = true;
             }
         });
     });
@@ -323,7 +337,8 @@
     async function signInAsBernard() {
         isBernard = true;
         try {
-            await signInWithCustomToken(auth, __initial_auth_token);
+            // 在您的环境中，我们使用匿名登录来模拟 Bernard 的身份
+            await signInAnonymously(auth);
             document.getElementById('user-status').innerText = `用户：Bernard`;
         } catch (error) {
             console.error("Bernard sign-in failed:", error);
@@ -346,26 +361,26 @@
 
     // --- Firebase & State Management ---
     function getGameDocRef() {
+        if (!userId) {
+            console.error("User ID is not set. Cannot get document reference.");
+            return null;
+        }
         if (isBernard) {
             // Data path for Bernard (private)
-            return doc(db, `/artifacts/${__app_id}/users/${userId}/_user_id/${gameId}`);
+            return doc(db, `users/${userId}/privateGames/${gameId}`);
         } else {
             // Data path for Guest (public and temporary)
-            return doc(db, `/artifacts/${__app_id}/public/data/session-games/${gameId}`);
+            return doc(db, `temporaryGames/${gameId}`);
         }
     }
 
     function saveGame() {
-        if (!gameId) {
-            console.error("Game ID is not set. Cannot save.");
-            return;
-        }
-        if (!userId) {
-            console.error("User ID is not set. Cannot save.");
+        const gameDocRef = getGameDocRef();
+        if (!gameDocRef) {
+            console.error("Document reference is invalid. Cannot save.");
             return;
         }
 
-        const gameDocRef = getGameDocRef();
         const gameData = {
             players: players,
             perFanPrice: perFanPrice,
@@ -384,9 +399,9 @@
     }
 
     function listenForChanges() {
-        if (!gameId || !userId) return;
-
         const gameDocRef = getGameDocRef();
+        if (!gameDocRef) return;
+
         onSnapshot(gameDocRef, (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
@@ -407,11 +422,15 @@
     }
 
     async function loadFromCloud() {
+        if (!isInitialized) {
+            console.log("Firebase not initialized yet.");
+            return;
+        }
         const gameIdInput = document.getElementById('game-id-input');
         const existingGameId = gameIdInput.value.trim();
 
         if (existingGameId) {
-            const tempGameDocRef = isBernard ? doc(db, `/artifacts/${__app_id}/users/${userId}/_user_id/${existingGameId}`) : doc(db, `/artifacts/${__app_id}/public/data/session-games/${existingGameId}`);
+            const tempGameDocRef = isBernard ? doc(db, `users/${userId}/privateGames/${existingGameId}`) : doc(db, `temporaryGames/${existingGameId}`);
             const gameDoc = await getDoc(tempGameDocRef);
 
             if (gameDoc.exists()) {
@@ -858,11 +877,13 @@
     async function resetGame() {
         if (!isBernard) {
             const gameDocRef = getGameDocRef();
-            await deleteDoc(gameDocRef).then(() => {
-                console.log("Guest game data deleted.");
-            }).catch((error) => {
-                console.error("Error deleting guest game data:", error);
-            });
+            if (gameDocRef) {
+                await deleteDoc(gameDocRef).then(() => {
+                    console.log("Guest game data deleted.");
+                }).catch((error) => {
+                    console.error("Error deleting guest game data:", error);
+                });
+            }
         }
         
         document.getElementById('summary-section').classList.add('hidden');
