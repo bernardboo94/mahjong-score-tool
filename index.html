@@ -43,18 +43,8 @@
         <p id="game-id-display" class="text-sm text-gray-600 hidden"></p>
     </div>
 
-    <!-- Login Section -->
-    <div id="login-section" class="flex flex-col space-y-4">
-        <h2 class="text-2xl font-bold text-center mb-4">请选择你的身份</h2>
-        <button onclick="signInAsBernard()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
-            我是 Bernard
-        </button>
-        <button onclick="signInAsGuest()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
-            我是访客（数据不保存）
-        </button>
-    </div>
-
-    <div id="setup-section" class="space-y-6 hidden">
+    <!-- Setup Section -->
+    <div id="setup-section" class="space-y-6">
         <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
             <label for="price-input" class="block text-xl font-bold mb-2">设置每番价格</label>
             <input type="number" id="price-input" placeholder="输入每番价格（例如：10）"
@@ -298,6 +288,22 @@ const firebaseConfig = {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    
+    // Auto-sign in anonymously when the app loads
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            signInAnonymously(auth).then(() => {
+                console.log("Signed in anonymously.");
+                document.getElementById('user-status').innerText = '已准备就绪';
+            }).catch((error) => {
+                console.error("Anonymous sign-in failed:", error);
+                document.getElementById('user-status').innerText = `登录失败：${error.message}`;
+            });
+        } else {
+            console.log("Already signed in as:", user.uid);
+            document.getElementById('user-status').innerText = '已准备就绪';
+        }
+    });
 
     let players = {};
     let perFanPrice = 0;
@@ -309,69 +315,14 @@ const firebaseConfig = {
     let playerStats = {};
     let gameId = null;
     let userId = null;
-    let isBernard = false;
-    let isInitialized = false;
-
-    // --- User Login and Firebase Setup ---
-    document.addEventListener('DOMContentLoaded', () => {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                document.getElementById('user-status').innerText = `用户ID: ${userId}`;
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('setup-section').classList.remove('hidden');
-                document.getElementById('user-status').innerText = `用户：${isBernard ? 'Bernard' : '访客'}`;
-                isInitialized = true;
-            } else {
-                console.log("User is signed out.");
-                document.getElementById('user-status').innerText = `请登录`;
-                document.getElementById('login-section').classList.remove('hidden');
-                document.getElementById('setup-section').classList.add('hidden');
-                document.getElementById('game-section').classList.add('hidden');
-                document.getElementById('summary-section').classList.add('hidden');
-                isInitialized = true;
-            }
-        });
-    });
-
-    async function signInAsBernard() {
-        isBernard = true;
-        try {
-            // 在您的环境中，我们使用匿名登录来模拟 Bernard 的身份
-            await signInAnonymously(auth);
-            document.getElementById('user-status').innerText = `用户：Bernard`;
-        } catch (error) {
-            console.error("Bernard sign-in failed:", error);
-            document.getElementById('user-status').innerText = `Bernard登录失败：${error.message}`;
-        }
-    }
-
-    async function signInAsGuest() {
-        isBernard = false;
-        try {
-            await signInAnonymously(auth);
-            document.getElementById('user-status').innerText = `用户：访客`;
-        } catch (error) {
-            console.error("Guest sign-in failed:", error);
-            document.getElementById('user-status').innerText = `访客登录失败：${error.message}`;
-        }
-    }
-    
-    // --- End User Login ---
 
     // --- Firebase & State Management ---
     function getGameDocRef() {
-        if (!userId) {
-            console.error("User ID is not set. Cannot get document reference.");
+        if (!userId || !gameId) {
+            console.error("User ID or Game ID is not set. Cannot get document reference.");
             return null;
         }
-        if (isBernard) {
-            // Data path for Bernard (private)
-            return doc(db, `users/${userId}/privateGames/${gameId}`);
-        } else {
-            // Data path for Guest (public and temporary)
-            return doc(db, `temporaryGames/${gameId}`);
-        }
+        return doc(db, `temporaryGames/${gameId}`);
     }
 
     function saveGame() {
@@ -388,8 +339,7 @@ const firebaseConfig = {
             history: JSON.stringify(history), // Stringify complex array
             playerStats: JSON.stringify(playerStats),
             lastRoundTimestamp: lastRoundTimestamp,
-            creatorId: userId,
-            isBernard: isBernard
+            creatorId: userId
         };
         setDoc(gameDocRef, gameData, { merge: true }).then(() => {
             console.log("Game data saved to Firestore.");
@@ -422,15 +372,11 @@ const firebaseConfig = {
     }
 
     async function loadFromCloud() {
-        if (!isInitialized) {
-            console.log("Firebase not initialized yet.");
-            return;
-        }
         const gameIdInput = document.getElementById('game-id-input');
         const existingGameId = gameIdInput.value.trim();
 
         if (existingGameId) {
-            const tempGameDocRef = isBernard ? doc(db, `users/${userId}/privateGames/${existingGameId}`) : doc(db, `temporaryGames/${existingGameId}`);
+            const tempGameDocRef = doc(db, `temporaryGames/${existingGameId}`);
             const gameDoc = await getDoc(tempGameDocRef);
 
             if (gameDoc.exists()) {
@@ -452,11 +398,12 @@ const firebaseConfig = {
     // --- End Firebase & State Management ---
 
     function startGame() {
-        if (!auth.currentUser) {
-            document.getElementById('user-status').innerText = '请先登录';
+        userId = auth.currentUser?.uid;
+        if (!userId) {
+            document.getElementById('user-status').innerText = '登录失败，请刷新页面';
             return;
         }
-        
+
         const priceInput = document.getElementById('price-input').value;
         perFanPrice = parseFloat(priceInput);
 
@@ -875,15 +822,13 @@ const firebaseConfig = {
     }
 
     async function resetGame() {
-        if (!isBernard) {
-            const gameDocRef = getGameDocRef();
-            if (gameDocRef) {
-                await deleteDoc(gameDocRef).then(() => {
-                    console.log("Guest game data deleted.");
-                }).catch((error) => {
-                    console.error("Error deleting guest game data:", error);
-                });
-            }
+        const gameDocRef = getGameDocRef();
+        if (gameDocRef) {
+            await deleteDoc(gameDocRef).then(() => {
+                console.log("Game data deleted.");
+            }).catch((error) => {
+                console.error("Error deleting game data:", error);
+            });
         }
         
         document.getElementById('summary-section').classList.add('hidden');
