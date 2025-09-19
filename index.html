@@ -240,6 +240,49 @@
     let lastRoundTimestamp = null;
     let playerStats = {};
 
+    const localStorageKey = 'mahjongScoreboard';
+
+    // Save game data to local storage
+    function saveGameData() {
+        const data = {
+            players,
+            perFanPrice,
+            round,
+            history,
+            playerStats
+        };
+        localStorage.setItem(localStorageKey, JSON.stringify(data));
+    }
+
+    // Load game data from local storage
+    function loadGameData() {
+        const savedData = localStorage.getItem(localStorageKey);
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            players = data.players || {};
+            perFanPrice = data.perFanPrice || 0;
+            round = data.round || 0;
+            history = data.history || [];
+            playerStats = data.playerStats || {};
+
+            // Update UI to show loaded game state
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('game-section').classList.remove('hidden');
+            document.getElementById('price-input').value = perFanPrice;
+            updateGameUI();
+            return true;
+        }
+        return false;
+    }
+
+    // Initial page load
+    window.onload = () => {
+        if (!loadGameData()) {
+            // If no data is found, show setup section
+            document.getElementById('setup-section').classList.remove('hidden');
+        }
+    };
+    
     function startGame() {
         const priceInput = document.getElementById('price-input').value;
         perFanPrice = parseFloat(priceInput);
@@ -275,6 +318,7 @@
 
         document.getElementById('setup-section').classList.add('hidden');
         document.getElementById('game-section').classList.remove('hidden');
+        saveGameData();
         updateGameUI();
     }
 
@@ -339,6 +383,7 @@
         
         updateAllStats();
         updateGameUI();
+        saveGameData(); // Save data after each round
     }
     
     function editRound(index) {
@@ -657,6 +702,7 @@
         document.getElementById('player-2-input').value = '';
         document.getElementById('player-3-input').value = '';
         document.getElementById('player-4-input').value = '';
+        localStorage.removeItem(localStorageKey);
     }
 
     function updateGameUI() {
@@ -712,5 +758,3 @@
 </script>
 </body>
 </html>
-
-
