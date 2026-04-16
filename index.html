@@ -5,259 +5,448 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>四人麻将计番</title>
     <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            color-scheme: light;
+            --bg-dark: #06281f;
+            --bg-mid: #0f5132;
+            --accent: #d4a72c;
+            --card: rgba(248, 250, 252, 0.9);
+            --card-strong: rgba(255, 255, 255, 0.96);
+            --text-dark: #12261d;
+            --text-soft: #4d6759;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #166534;
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-dark);
+            background:
+                radial-gradient(circle at top left, rgba(212, 167, 44, 0.28), transparent 24%),
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent 18%),
+                linear-gradient(135deg, var(--bg-dark) 0%, #0a3a2d 44%, var(--bg-mid) 100%);
         }
-        .container {
-            background-color: #f0fdf4;
+
+        .shell {
+            position: relative;
+            width: min(1120px, calc(100% - 24px));
+            margin: 24px auto;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            background: rgba(4, 20, 15, 0.34);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(14px);
         }
-        .card {
-            background-color: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+
+        .panel {
+            border-radius: 24px;
+            background: var(--card);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
         }
-        input, select {
-            color: #166534;
+
+        .panel-strong { background: var(--card-strong); }
+
+        .field, .select, .action-button, .result-chip { transition: all 0.2s ease; }
+
+        .field, .select {
+            width: 100%;
+            border: 1px solid rgba(15, 81, 50, 0.16);
+            border-radius: 16px;
+            background: #fff;
+            color: var(--text-dark);
+            padding: 14px 16px;
+            font-size: 1rem;
+            outline: none;
         }
+
+        .field:focus, .select:focus {
+            border-color: rgba(15, 81, 50, 0.45);
+            box-shadow: 0 0 0 4px rgba(15, 81, 50, 0.12);
+        }
+
+        .field:disabled, .select:disabled {
+            background: #edf2ef;
+            color: #7c8f84;
+            cursor: not-allowed;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 18px;
+            padding: 14px 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .action-button:hover { transform: translateY(-1px); }
+
+        .hero-title {
+            letter-spacing: 0.04em;
+            text-wrap: balance;
+        }
+
+        .score-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            padding: 18px;
+            color: white;
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.16);
+        }
+
+        .score-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -14% -40% auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .score-positive { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .score-negative { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+        .score-neutral { background: linear-gradient(135deg, #475569, #64748b); }
+
+        .result-chip-group {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .result-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 64px;
+            border-radius: 18px;
+            border: 1px solid rgba(15, 81, 50, 0.14);
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .result-chip.active {
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.14);
+        }
+
+        .result-chip.win.active { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .result-chip.draw.active { background: linear-gradient(135deg, #475569, #64748b); }
+
+        .muted { color: var(--text-soft); }
+
+        .history-item {
+            border-radius: 18px;
+            border: 1px solid rgba(15, 81, 50, 0.12);
+            background: rgba(255, 255, 255, 0.82);
+            padding: 14px 16px;
+        }
+
         .modal {
-            transition: transform 0.3s ease-out;
-            transform: translateY(-100%);
+            transition: transform 0.28s ease, opacity 0.28s ease;
+            transform: translateY(-18px);
+            opacity: 0;
         }
+
         .modal.active {
             transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .shell {
+                margin: 12px auto;
+                padding: 14px;
+                border-radius: 24px;
+            }
         }
     </style>
 </head>
-<body class="bg-emerald-800 text-gray-800 flex items-center justify-center min-h-screen p-4">
-
-<div class="container rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto">
-    <h1 class="text-3xl md:text-5xl font-extrabold text-white text-center mb-6 drop-shadow-md">
-        <span class="text-black drop-shadow-md">🀄 四人麻将计番 🀄</span>
-    </h1>
-
-    <div id="setup-section" class="space-y-6">
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
-            <label for="price-input" class="block text-xl font-bold mb-2">设置每番价格</label>
-            <input type="number" id="price-input" placeholder="输入每番价格（例如：10）"
-                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        </div>
-
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md">
-            <h2 class="text-xl font-bold mb-4">玩家名字</h2>
-            <div id="player-inputs" class="space-y-4">
-                <input type="text" id="player-1-input" placeholder="玩家一" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-2-input" placeholder="玩家二" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-3-input" placeholder="玩家三" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <input type="text" id="player-4-input" placeholder="玩家四" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+<body class="p-3 md:p-5">
+    <div class="shell">
+        <div class="mb-6 md:mb-8 px-2 md:px-3">
+            <p class="text-amber-200 text-sm md:text-base font-semibold tracking-[0.28em] uppercase mb-3">Hong Kong Mahjong</p>
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                    <h1 class="hero-title text-3xl md:text-5xl font-black text-white leading-tight">四人麻将计番</h1>
+                    <p class="text-emerald-50/88 text-sm md:text-lg mt-3 max-w-2xl">
+                        记录胡牌、点炮、自摸和流局，自动计算四人香港麻将分数与总结。
+                    </p>
+                </div>
+                <div class="panel px-5 py-4 max-w-md">
+                    <p class="text-sm uppercase tracking-[0.25em] text-emerald-900/70 font-bold">Quick Notes</p>
+                    <p class="mt-2 text-sm md:text-base muted">现在支持“流局 / 无人胡”，不会再强制选择赢家，整局也会正常计入历史。</p>
+                </div>
             </div>
         </div>
 
-        <button onclick="startGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
-            开始游戏
-        </button>
+        <div id="setup-section" class="space-y-5">
+            <div class="grid gap-5 lg:grid-cols-[1.1fr_1.4fr]">
+                <section class="panel panel-strong p-5 md:p-7">
+                    <div class="flex items-center justify-between gap-3 mb-5">
+                        <div>
+                            <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Game Setup</p>
+                            <h2 class="text-2xl md:text-3xl font-black mt-1">开局设置</h2>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs uppercase tracking-[0.24em] text-emerald-900/50">规则</p>
+                            <p class="font-bold text-emerald-900">最低三番起胡</p>
+                        </div>
+                    </div>
+                    <label for="price-input" class="block text-sm font-bold mb-2">每番价格</label>
+                    <input type="number" id="price-input" placeholder="例如：10" class="field">
+                    <p class="mt-3 text-sm muted">系统会按你输入的每番价格自动结算每局得失。</p>
+                </section>
+
+                <section class="panel p-5 md:p-7">
+                    <div class="mb-5">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Players</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">玩家名字</h2>
+                    </div>
+                    <div class="grid gap-3 md:grid-cols-2" id="player-inputs">
+                        <input type="text" id="player-1-input" placeholder="玩家一" class="field">
+                        <input type="text" id="player-2-input" placeholder="玩家二" class="field">
+                        <input type="text" id="player-3-input" placeholder="玩家三" class="field">
+                        <input type="text" id="player-4-input" placeholder="玩家四" class="field">
+                    </div>
+                    <button onclick="startGame()" class="action-button w-full mt-5 bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
+                        开始游戏
+                    </button>
+                </section>
+            </div>
+        </div>
+
+        <div id="game-section" class="hidden space-y-5">
+            <section class="panel panel-strong p-5 md:p-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/55 font-bold">Live Table</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">
+                            <span id="current-round-text">第1圈，东风局</span>
+                        </h2>
+                        <p class="mt-2 text-sm md:text-base muted">每番价格：<span id="per-fan-price-display" class="font-bold text-emerald-900"></span></p>
+                    </div>
+                    <button onclick="showEndGameModal()" class="action-button bg-rose-500 hover:bg-rose-600 text-white">
+                        结束游戏
+                    </button>
+                </div>
+            </section>
+
+            <section id="score-display" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></section>
+
+            <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+                <section class="panel p-5 md:p-7">
+                    <div class="mb-5">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Round Entry</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">本局记录</h2>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-bold mb-3">结果类型</label>
+                            <div class="result-chip-group">
+                                <button type="button" id="result-win" class="result-chip win active" onclick="setRoundResult('win')">胡牌</button>
+                                <button type="button" id="result-draw" class="result-chip draw" onclick="setRoundResult('draw')">流局 / 无人胡</button>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label for="winner-select" class="block text-sm font-bold mb-2">赢家</label>
+                                <select id="winner-select" class="select">
+                                    <option value="" disabled selected>选择赢家</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="pao-select" class="block text-sm font-bold mb-2">点炮者</label>
+                                <select id="pao-select" class="select">
+                                    <option value="" disabled selected>选择点炮者</option>
+                                    <option value="zimo">自摸</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="fans-input" class="block text-sm font-bold mb-2">番数</label>
+                            <input type="number" id="fans-input" placeholder="胡了多少番？" value="3" min="1" class="field">
+                            <p id="round-form-hint" class="mt-2 text-sm muted">胡牌局需要填写赢家、点炮者或自摸，以及番数。</p>
+                        </div>
+
+                        <button onclick="recordRound()" id="record-button" class="action-button w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg">
+                            记录本局
+                        </button>
+                    </div>
+                </section>
+
+                <section class="panel p-5 md:p-7">
+                    <div class="mb-5">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">History</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">历史记录</h2>
+                    </div>
+                    <div id="history-list" class="space-y-3"></div>
+                </section>
+            </div>
+        </div>
+
+        <div id="summary-section" class="hidden">
+            <div class="panel p-5 md:p-7 space-y-6">
+                <div class="text-center">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Summary</p>
+                    <h2 class="text-2xl md:text-4xl font-black mt-1">游戏总结</h2>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">最终分数</h3>
+                    <div id="final-score-display" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">数据分析</h3>
+                    <div id="stats-display" class="space-y-5"></div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">完整历史记录</h3>
+                    <div id="final-history-list" class="space-y-3"></div>
+                </div>
+
+                <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
+                    新的一局
+                </button>
+            </div>
+        </div>
+        <div id="end-game-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
+                <p class="text-gray-700 text-center mb-6">确定要结束游戏吗？所有数据都将被清空。</p>
+                <div class="flex justify-around space-x-4">
+                    <button onclick="confirmEndGame()" class="action-button bg-rose-500 hover:bg-rose-600 text-white w-1/2">确定</button>
+                    <button onclick="hideEndGameModal()" class="action-button bg-slate-200 hover:bg-slate-300 text-slate-800 w-1/2">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="name-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
+                <p class="text-gray-700 text-center mb-6">请输入全部玩家名字。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideNameErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="selection-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">您不能选择自己作为点炮者。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideSelectionErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="price-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
+                <p class="text-gray-700 text-center mb-6">请输入有效的每番价格。</p>
+                <div class="flex justify-center">
+                    <button onclick="hidePriceErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="winner-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">请选择赢家。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideWinnerErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pao-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">请选择点炮者或自摸。</p>
+                <div class="flex justify-center">
+                    <button onclick="hidePaoErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="fans-low-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
+                <p class="text-gray-700 text-center mb-6">最低三番起胡。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideFansLowErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="fans-decimal-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
+                <p class="text-gray-700 text-center mb-6">请输入正确的整数番数。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideFansDecimalErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="game-section" class="hidden">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <p class="text-xl font-bold text-gray-700 mb-2 md:mb-0">
-                当前局数：<span id="current-round-text">东风圈，东风局</span>
-                <br class="md:hidden">
-                <span class="md:ml-4">每番价格：<span id="per-fan-price-display"></span></span>
-            </p>
-            <button onclick="showEndGameModal()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300">
-                结束游戏
-            </button>
-        </div>
+    <script>
+        let players = {};
+        let perFanPrice = 0;
+        let round = 0;
+        const winds = ["东风", "南风", "西风", "北风"];
+        let history = [];
+        let editingIndex = null;
+        let lastRoundTimestamp = null;
+        let playerStats = {};
+        let roundResultType = "win";
 
-        <div id="score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+        const localStorageKey = "mahjongScoreboard";
 
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
-            <h2 class="text-xl font-bold mb-2">本局记录</h2>
-            <label for="winner-select" class="block text-md font-medium text-gray-700">赢家</label>
-            <select id="winner-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="" disabled selected>选择赢家</option>
-            </select>
-            
-            <label for="pao-select" class="block text-md font-medium text-gray-700">点炮者</label>
-            <select id="pao-select" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="" disabled selected>选择点炮者</option>
-                <option value="zimo">自摸</option>
-            </select>
+        function createEmptyPlayerStats() {
+            return {
+                totalFans: 0,
+                wins: 0,
+                paos: 0,
+                selfDraws: 0,
+                draws: 0,
+                maxFans: 0,
+                consecutiveWins: 0,
+                consecutivePaos: 0
+            };
+        }
 
-            <label for="fans-input" class="block text-md font-medium text-gray-700">番数</label>
-            <input type="number" id="fans-input" placeholder="胡了多少番？" value="1" min="1"
-                   class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        function saveGameData() {
+            localStorage.setItem(localStorageKey, JSON.stringify({
+                players,
+                perFanPrice,
+                round,
+                history,
+                playerStats
+            }));
+        }
 
-            <button onclick="recordRound()" id="record-button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300">
-                记录本局
-            </button>
-        </div>
+        function loadGameData() {
+            const savedData = localStorage.getItem(localStorageKey);
+            if (!savedData) {
+                return false;
+            }
 
-        <div id="history-section" class="mt-8 bg-gray-100 rounded-2xl p-6 shadow-md">
-            <h2 class="text-xl font-bold mb-4">历史记录</h2>
-            <div id="history-list" class="space-y-2 text-gray-700"></div>
-        </div>
-    </div>
-
-    <div id="summary-section" class="hidden">
-        <div class="bg-gray-100 rounded-2xl p-6 shadow-md space-y-4">
-            <h2 class="text-xl md:text-2xl font-bold mb-2 text-center">游戏总结</h2>
-            
-            <h3 class="text-lg font-bold">最终分数</h3>
-            <div id="final-score-display" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"></div>
-            
-            <h3 class="text-lg font-bold">数据分析</h3>
-            <div id="stats-display" class="space-y-6"></div>
-
-            <h3 class="text-lg font-bold mt-6">完整历史记录</h3>
-            <div id="final-history-list" class="space-y-2 text-gray-700"></div>
-            
-            <button onclick="resetGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 mt-6">
-                新的一局
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 自定义确认弹窗 -->
-<div id="end-game-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
-        <p class="text-gray-700 text-center mb-6">确定要结束游戏吗？所有数据都将被清空。</p>
-        <div class="flex justify-around space-x-4">
-            <button onclick="confirmEndGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
-                确定
-            </button>
-            <button onclick="hideEndGameModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl shadow-md transition duration-300 w-1/2">
-                取消
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 玩家名字错误弹窗 -->
-<div id="name-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入全部玩家名字</p>
-        <div class="flex justify-center">
-            <button onclick="hideNameErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 选择错误弹窗 -->
-<div id="selection-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">您不能选择自己作为点炮者。</p>
-        <div class="flex justify-center">
-            <button onclick="hideSelectionErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 每番价格错误弹窗 -->
-<div id="price-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入每番价格</p>
-        <div class="flex justify-center">
-            <button onclick="hidePriceErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 新增：赢家未选弹窗 -->
-<div id="winner-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">请选择赢家。</p>
-        <div class="flex justify-center">
-            <button onclick="hideWinnerErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 新增：点炮者未选弹窗 -->
-<div id="pao-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
-        <p class="text-gray-700 text-center mb-6">请选择点炮者。</p>
-        <div class="flex justify-center">
-            <button onclick="hidePaoErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 新增：番数过低弹窗 -->
-<div id="fans-low-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
-        <p class="text-gray-700 text-center mb-6">最低三番起胡。</p>
-        <div class="flex justify-center">
-            <button onclick="hideFansLowErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- 新增：番数格式错误弹窗 -->
-<div id="fans-decimal-error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
-    <div class="relative bg-white rounded-2xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
-        <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
-        <p class="text-gray-700 text-center mb-6">请输入正确的番数。</p>
-        <div class="flex justify-center">
-            <button onclick="hideFansDecimalErrorModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition duration-300">
-                确定
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    let players = {};
-    let perFanPrice = 0;
-    let round = 0;
-    const winds = ["东风", "南风", "西风", "北风"];
-    let history = [];
-    let editingIndex = null;
-    let lastRoundTimestamp = null;
-    let playerStats = {};
-
-    const localStorageKey = 'mahjongScoreboard';
-
-    // Save game data to local storage
-    function saveGameData() {
-        const data = {
-            players,
-            perFanPrice,
-            round,
-            history,
-            playerStats
-        };
-        localStorage.setItem(localStorageKey, JSON.stringify(data));
-    }
-
-    // Load game data from local storage
-    function loadGameData() {
-        const savedData = localStorage.getItem(localStorageKey);
-        if (savedData) {
             const data = JSON.parse(savedData);
             players = data.players || {};
             perFanPrice = data.perFanPrice || 0;
@@ -265,496 +454,542 @@
             history = data.history || [];
             playerStats = data.playerStats || {};
 
-            // Update UI to show loaded game state
-            document.getElementById('setup-section').classList.add('hidden');
-            document.getElementById('game-section').classList.remove('hidden');
-            document.getElementById('price-input').value = perFanPrice;
+            Object.keys(players).forEach(name => {
+                if (!playerStats[name]) {
+                    playerStats[name] = createEmptyPlayerStats();
+                }
+            });
+
+            lastRoundTimestamp = Date.now();
+            document.getElementById("setup-section").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            document.getElementById("price-input").value = perFanPrice;
+            updateAllStats();
             updateGameUI();
             return true;
         }
-        return false;
-    }
 
-    // Initial page load
-    window.onload = () => {
-        if (!loadGameData()) {
-            // If no data is found, show setup section
-            document.getElementById('setup-section').classList.remove('hidden');
-        }
-    };
-    
-    function startGame() {
-        const priceInput = document.getElementById('price-input').value;
-        perFanPrice = parseFloat(priceInput);
-
-        if (isNaN(perFanPrice) || perFanPrice <= 0) {
-            showPriceErrorModal();
-            return;
-        }
-
-        const playerInputs = [
-            document.getElementById('player-1-input').value,
-            document.getElementById('player-2-input').value,
-            document.getElementById('player-3-input').value,
-            document.getElementById('player-4-input').value
-        ];
-
-        const hasEmptyName = playerInputs.some(name => name.trim() === '');
-        if (hasEmptyName) {
-            showNameErrorModal();
-            return;
-        }
-
-        players = {};
-        playerStats = {};
-        playerInputs.forEach(name => {
-            players[name] = 0;
-            playerStats[name] = { totalFans: 0, wins: 0, paos: 0, selfDraws: 0, maxFans: 0 };
-        });
-
-        round = 0;
-        history = [];
-        lastRoundTimestamp = Date.now();
-
-        document.getElementById('setup-section').classList.add('hidden');
-        document.getElementById('game-section').classList.remove('hidden');
-        saveGameData();
-        updateGameUI();
-    }
-
-    function recordRound() {
-        const winner = document.getElementById('winner-select').value;
-        const pao = document.getElementById('pao-select').value;
-        const fansInput = document.getElementById('fans-input').value;
-
-        if (!winner) {
-            showWinnerErrorModal();
-            return;
-        }
-
-        if (!pao) {
-            showPaoErrorModal();
-            return;
-        }
-        
-        const fans = parseFloat(fansInput);
-        if (isNaN(fans) || fans !== Math.floor(fans)) {
-            showFansDecimalErrorModal();
-            return;
-        }
-        if (fans < 3) {
-            showFansLowErrorModal();
-            return;
-        }
-
-        if (winner === pao) {
-            showSelectionErrorModal();
-            return;
-        }
-        
-        let description = '';
-        if (pao === 'zimo') {
-            description = `${winner} 自摸，共 ${fans} 番。`;
-        } else {
-            description = `${winner} 胡了 ${pao} 的牌，共 ${fans} 番。`;
-        }
-
-        const now = Date.now();
-        const roundDuration = (now - lastRoundTimestamp) / 1000;
-        lastRoundTimestamp = now;
-
-        let roundRecord = {
-            round: editingIndex !== null ? history[editingIndex].round : round,
-            winner: winner,
-            fans: fans,
-            pao: pao,
-            description: description,
-            duration: roundDuration
+        window.onload = () => {
+            if (!loadGameData()) {
+                document.getElementById("setup-section").classList.remove("hidden");
+            }
+            syncRoundFormState();
         };
 
-        if (editingIndex !== null) {
-            history[editingIndex] = roundRecord;
+        function startGame() {
+            const priceInput = document.getElementById("price-input").value;
+            perFanPrice = parseFloat(priceInput);
+
+            if (isNaN(perFanPrice) || perFanPrice <= 0) {
+                showPriceErrorModal();
+                return;
+            }
+
+            const playerInputs = [
+                document.getElementById("player-1-input").value.trim(),
+                document.getElementById("player-2-input").value.trim(),
+                document.getElementById("player-3-input").value.trim(),
+                document.getElementById("player-4-input").value.trim()
+            ];
+
+            if (playerInputs.some(name => name === "")) {
+                showNameErrorModal();
+                return;
+            }
+
+            players = {};
+            playerStats = {};
+            playerInputs.forEach(name => {
+                players[name] = 0;
+                playerStats[name] = createEmptyPlayerStats();
+            });
+
+            round = 0;
+            history = [];
             editingIndex = null;
-            document.getElementById('record-button').innerText = '记录本局';
-        } else {
-            history.push(roundRecord);
-            round++;
+            lastRoundTimestamp = Date.now();
+            roundResultType = "win";
+
+            document.getElementById("setup-section").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            updateGameUI();
+            syncRoundFormState();
+            saveGameData();
         }
-        
-        updateAllStats();
-        updateGameUI();
-        saveGameData(); // Save data after each round
-    }
-    
-    function editRound(index) {
-        editingIndex = index;
-        const record = history[index];
-        
-        document.getElementById('winner-select').value = record.winner;
-        document.getElementById('pao-select').value = record.pao;
-        document.getElementById('fans-input').value = record.fans;
-        
-        document.getElementById('record-button').innerText = '更新本局';
-    }
 
-    function updateAllStats() {
-        // Reset all player stats
-        Object.keys(players).forEach(name => {
-            playerStats[name] = { totalFans: 0, wins: 0, paos: 0, selfDraws: 0, maxFans: 0 };
-        });
+        function setRoundResult(type) {
+            roundResultType = type;
+            document.getElementById("result-win").classList.toggle("active", type === "win");
+            document.getElementById("result-draw").classList.toggle("active", type === "draw");
+            syncRoundFormState();
+        }
 
-        // Recalculate stats from scratch
-        let lastWinner = null;
-        let consecutiveWins = 0;
-        let lastPao = null;
-        let consecutivePaos = 0;
+        function syncRoundFormState() {
+            const winnerSelect = document.getElementById("winner-select");
+            const paoSelect = document.getElementById("pao-select");
+            const fansInput = document.getElementById("fans-input");
+            const hint = document.getElementById("round-form-hint");
+            const isDraw = roundResultType === "draw";
 
-        history.forEach(record => {
-            playerStats[record.winner].totalFans += record.fans;
-            playerStats[record.winner].wins += 1;
-            if (record.fans > playerStats[record.winner].maxFans) {
-                playerStats[record.winner].maxFans = record.fans;
+            if (!winnerSelect || !paoSelect || !fansInput || !hint) {
+                return;
             }
 
-            if (record.pao === 'zimo') {
-                playerStats[record.winner].selfDraws += 1;
+            winnerSelect.disabled = isDraw;
+            paoSelect.disabled = isDraw;
+            fansInput.disabled = isDraw;
+
+            if (isDraw) {
+                winnerSelect.value = "";
+                paoSelect.value = "";
+                fansInput.value = "";
+                hint.innerText = "流局不会变动分数，只会记录本局并进入下一局。";
             } else {
-                playerStats[record.pao].paos += 1;
+                if (!fansInput.value) {
+                    fansInput.value = "3";
+                }
+                hint.innerText = "胡牌局需要填写赢家、点炮者或自摸，以及番数。";
             }
+        }
 
-            // Consecutive wins logic
-            if (record.winner === lastWinner) {
-                consecutiveWins++;
-            } else {
-                consecutiveWins = 1;
-                lastWinner = record.winner;
+        function buildRoundDescription(record) {
+            if (record.resultType === "draw") {
+                return "流局，无人胡。";
             }
-            playerStats[record.winner].consecutiveWins = Math.max(playerStats[record.winner].consecutiveWins || 0, consecutiveWins);
-
-            // Consecutive paos logic
-            if (record.pao !== 'zimo' && record.pao === lastPao) {
-                consecutivePaos++;
-            } else {
-                consecutivePaos = 1;
-                lastPao = record.pao;
+            if (record.pao === "zimo") {
+                return `${record.winner} 自摸，共 ${record.fans} 番。`;
             }
-            if (record.pao !== 'zimo') {
-                playerStats[record.pao].consecutivePaos = Math.max(playerStats[record.pao].consecutivePaos || 0, consecutivePaos);
-            }
-        });
+            return `${record.winner} 胡了 ${record.pao} 的牌，共 ${record.fans} 番。`;
+        }
 
-        recalculateScores();
-    }
+        function recordRound() {
+            const now = Date.now();
+            const roundDuration = lastRoundTimestamp ? (now - lastRoundTimestamp) / 1000 : 0;
+            lastRoundTimestamp = now;
 
-    function recalculateScores() {
-        Object.keys(players).forEach(name => players[name] = 0);
+            const recordBase = {
+                round: editingIndex !== null ? history[editingIndex].round : round,
+                duration: roundDuration,
+                resultType: roundResultType
+            };
 
-        history.forEach(record => {
-            if (record.pao === 'zimo' || record.pao === '无') {
-                const selfDrawAmount = record.fans * perFanPrice * 2;
-                players[record.winner] += selfDrawAmount * 3;
-                Object.keys(players).forEach(p => {
-                    if (p !== record.winner) {
-                        players[p] -= selfDrawAmount;
-                    }
+            if (roundResultType === "draw") {
+                commitRoundRecord({
+                    ...recordBase,
+                    winner: null,
+                    fans: 0,
+                    pao: null,
+                    description: "流局，无人胡。"
                 });
+                return;
+            }
+
+            const winner = document.getElementById("winner-select").value;
+            const pao = document.getElementById("pao-select").value;
+            const fansInput = document.getElementById("fans-input").value;
+
+            if (!winner) {
+                showWinnerErrorModal();
+                return;
+            }
+
+            if (!pao) {
+                showPaoErrorModal();
+                return;
+            }
+
+            const fans = parseFloat(fansInput);
+            if (isNaN(fans) || fans !== Math.floor(fans)) {
+                showFansDecimalErrorModal();
+                return;
+            }
+            if (fans < 3) {
+                showFansLowErrorModal();
+                return;
+            }
+            if (winner === pao) {
+                showSelectionErrorModal();
+                return;
+            }
+
+            commitRoundRecord({
+                ...recordBase,
+                winner,
+                fans,
+                pao,
+                description: buildRoundDescription({ winner, fans, pao, resultType: "win" })
+            });
+        }
+
+        function commitRoundRecord(roundRecord) {
+            if (editingIndex !== null) {
+                history[editingIndex] = roundRecord;
+                editingIndex = null;
+                document.getElementById("record-button").innerText = "记录本局";
             } else {
+                history.push(roundRecord);
+                round += 1;
+            }
+
+            updateAllStats();
+            updateGameUI();
+            resetRoundForm();
+            saveGameData();
+        }
+
+        function editRound(index) {
+            editingIndex = index;
+            const record = history[index];
+
+            setRoundResult(record.resultType || "win");
+
+            if (record.resultType === "draw") {
+                document.getElementById("winner-select").value = "";
+                document.getElementById("pao-select").value = "";
+                document.getElementById("fans-input").value = "";
+            } else {
+                document.getElementById("winner-select").value = record.winner;
+                document.getElementById("pao-select").value = record.pao;
+                document.getElementById("fans-input").value = record.fans;
+            }
+
+            document.getElementById("record-button").innerText = "更新本局";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function updateAllStats() {
+            Object.keys(players).forEach(name => {
+                playerStats[name] = createEmptyPlayerStats();
+            });
+
+            let lastWinner = null;
+            let consecutiveWins = 0;
+            let lastPao = null;
+            let consecutivePaos = 0;
+
+            history.forEach(record => {
+                if (record.resultType === "draw") {
+                    Object.keys(playerStats).forEach(name => {
+                        playerStats[name].draws += 1;
+                    });
+                    lastWinner = null;
+                    consecutiveWins = 0;
+                    lastPao = null;
+                    consecutivePaos = 0;
+                    return;
+                }
+
+                playerStats[record.winner].totalFans += record.fans;
+                playerStats[record.winner].wins += 1;
+                playerStats[record.winner].maxFans = Math.max(playerStats[record.winner].maxFans, record.fans);
+
+                if (record.pao === "zimo") {
+                    playerStats[record.winner].selfDraws += 1;
+                    lastPao = null;
+                    consecutivePaos = 0;
+                } else {
+                    playerStats[record.pao].paos += 1;
+                    if (record.pao === lastPao) {
+                        consecutivePaos += 1;
+                    } else {
+                        consecutivePaos = 1;
+                        lastPao = record.pao;
+                    }
+                    playerStats[record.pao].consecutivePaos = Math.max(playerStats[record.pao].consecutivePaos, consecutivePaos);
+                }
+
+                if (record.winner === lastWinner) {
+                    consecutiveWins += 1;
+                } else {
+                    consecutiveWins = 1;
+                    lastWinner = record.winner;
+                }
+                playerStats[record.winner].consecutiveWins = Math.max(playerStats[record.winner].consecutiveWins, consecutiveWins);
+            });
+
+            recalculateScores();
+        }
+
+        function recalculateScores() {
+            Object.keys(players).forEach(name => {
+                players[name] = 0;
+            });
+
+            history.forEach(record => {
+                if (record.resultType === "draw") {
+                    return;
+                }
+
+                if (record.pao === "zimo") {
+                    const selfDrawAmount = record.fans * perFanPrice * 2;
+                    players[record.winner] += selfDrawAmount * 3;
+                    Object.keys(players).forEach(name => {
+                        if (name !== record.winner) {
+                            players[name] -= selfDrawAmount;
+                        }
+                    });
+                    return;
+                }
+
                 const paoAmount = record.fans * perFanPrice * 2;
                 const otherAmount = record.fans * perFanPrice;
                 players[record.winner] += paoAmount + 2 * otherAmount;
                 players[record.pao] -= paoAmount;
-                Object.keys(players).forEach(p => {
-                    if (p !== record.winner && p !== record.pao) {
-                        players[p] -= otherAmount;
+                Object.keys(players).forEach(name => {
+                    if (name !== record.winner && name !== record.pao) {
+                        players[name] -= otherAmount;
                     }
                 });
+            });
+        }
+
+        function showModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove("hidden");
+            setTimeout(() => {
+                modal.querySelector(".modal").classList.add("active");
+            }, 10);
+        }
+
+        function hideModal(id) {
+            const modal = document.getElementById(id);
+            modal.querySelector(".modal").classList.remove("active");
+            setTimeout(() => {
+                modal.classList.add("hidden");
+            }, 280);
+        }
+
+        function showEndGameModal() { showModal("end-game-modal"); }
+        function hideEndGameModal() { hideModal("end-game-modal"); }
+        function confirmEndGame() { hideEndGameModal(); showSummary(); }
+        function showNameErrorModal() { showModal("name-error-modal"); }
+        function hideNameErrorModal() { hideModal("name-error-modal"); }
+        function showSelectionErrorModal() { showModal("selection-error-modal"); }
+        function hideSelectionErrorModal() { hideModal("selection-error-modal"); }
+        function showWinnerErrorModal() { showModal("winner-error-modal"); }
+        function hideWinnerErrorModal() { hideModal("winner-error-modal"); }
+        function showPaoErrorModal() { showModal("pao-error-modal"); }
+        function hidePaoErrorModal() { hideModal("pao-error-modal"); }
+        function showFansLowErrorModal() { showModal("fans-low-error-modal"); }
+        function hideFansLowErrorModal() { hideModal("fans-low-error-modal"); }
+        function showFansDecimalErrorModal() { showModal("fans-decimal-error-modal"); }
+        function hideFansDecimalErrorModal() { hideModal("fans-decimal-error-modal"); }
+        function showPriceErrorModal() { showModal("price-error-modal"); }
+        function hidePriceErrorModal() { hideModal("price-error-modal"); }
+
+        function buildScoreCard(name, score) {
+            let scoreClass = "score-neutral";
+            if (score > 0) {
+                scoreClass = "score-positive";
+            } else if (score < 0) {
+                scoreClass = "score-negative";
             }
-        });
-    }
 
-    // Modal functions
-    function showModal(id) {
-        const modal = document.getElementById(id);
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.querySelector('.modal').classList.add('active');
-        }, 10);
-    }
-
-    function hideModal(id) {
-        const modal = document.getElementById(id);
-        modal.querySelector('.modal').classList.remove('active');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
-    
-    function showEndGameModal() { showModal('end-game-modal'); }
-    function hideEndGameModal() { hideModal('end-game-modal'); }
-    function confirmEndGame() { hideEndGameModal(); showSummary(); }
-
-    function showNameErrorModal() { showModal('name-error-modal'); }
-    function hideNameErrorModal() { hideModal('name-error-modal'); }
-
-    function showSelectionErrorModal() { showModal('selection-error-modal'); }
-    function hideSelectionErrorModal() { hideModal('selection-error-modal'); }
-    
-    function showWinnerErrorModal() { showModal('winner-error-modal'); }
-    function hideWinnerErrorModal() { hideModal('winner-error-modal'); }
-
-    function showPaoErrorModal() { showModal('pao-error-modal'); }
-    function hidePaoErrorModal() { hideModal('pao-error-modal'); }
-
-    function showFansLowErrorModal() { showModal('fans-low-error-modal'); }
-    function hideFansLowErrorModal() { hideModal('fans-low-error-modal'); }
-
-    function showFansDecimalErrorModal() { showModal('fans-decimal-error-modal'); }
-    function hideFansDecimalErrorModal() { hideModal('fans-decimal-error-modal'); }
-
-    function showPriceErrorModal() { showModal('price-error-modal'); }
-    function hidePriceErrorModal() { hideModal('price-error-modal'); }
-    
-    function showSummary() {
-        document.getElementById('game-section').classList.add('hidden');
-        document.getElementById('summary-section').classList.remove('hidden');
-        
-        const finalScoreDisplay = document.getElementById('final-score-display');
-        finalScoreDisplay.innerHTML = '';
-        Object.keys(players).forEach(name => {
-            const score = players[name];
-            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
-            const cardHtml = `
-                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
-                    <p class="font-bold text-white text-lg">${name}</p>
-                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
+            return `
+                <div class="score-card ${scoreClass}">
+                    <p class="text-white/80 text-sm font-semibold tracking-[0.2em] uppercase">Player</p>
+                    <p class="font-black text-xl mt-2">${name}</p>
+                    <p class="font-black text-3xl mt-4">${score.toFixed(2)}</p>
                 </div>
             `;
-            finalScoreDisplay.innerHTML += cardHtml;
-        });
+        }
 
-        const statsDisplay = document.getElementById('stats-display');
-        statsDisplay.innerHTML = '';
+        function showSummary() {
+            document.getElementById("game-section").classList.add("hidden");
+            document.getElementById("summary-section").classList.remove("hidden");
 
-        if (history.length > 0) {
-            let overallStatsHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">📊 整体游戏数据</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">总共局数:</p>
-                            <p class="text-xl font-semibold">${history.length} 局</p>
-                        </div>
-            `;
-            const totalDuration = history.reduce((sum, record) => sum + record.duration, 0);
-            const avgDuration = (totalDuration / history.length).toFixed(1);
-            const minDuration = history.reduce((min, record) => Math.min(min, record.duration), Infinity).toFixed(1);
-            const maxDuration = history.reduce((max, record) => Math.max(max, record.duration), 0).toFixed(1);
-            overallStatsHtml += `
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">平均每局时间:</p>
-                            <p class="text-xl font-semibold">${avgDuration} 秒</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">最短局时间:</p>
-                            <p class="text-xl font-semibold">${minDuration} 秒</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">最长局时间:</p>
-                            <p class="text-xl font-semibold">${maxDuration} 秒</p>
-                        </div>
+            const finalScoreDisplay = document.getElementById("final-score-display");
+            finalScoreDisplay.innerHTML = "";
+            Object.keys(players).forEach(name => {
+                finalScoreDisplay.innerHTML += buildScoreCard(name, players[name]);
+            });
+
+            const statsDisplay = document.getElementById("stats-display");
+            statsDisplay.innerHTML = "";
+
+            if (history.length === 0) {
+                statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
+            } else {
+                const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
+                const avgDuration = (totalDuration / history.length).toFixed(1);
+                const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
+                const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
+                const totalDraws = history.filter(record => record.resultType === "draw").length;
+                const winRounds = history.filter(record => record.resultType !== "draw");
+
+                statsDisplay.innerHTML += `
+                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                        <div class="history-item"><p class="font-bold">总共局数</p><p class="text-2xl font-black mt-2">${history.length} 局</p></div>
+                        <div class="history-item"><p class="font-bold">流局次数</p><p class="text-2xl font-black mt-2">${totalDraws} 次</p></div>
+                        <div class="history-item"><p class="font-bold">平均每局时间</p><p class="text-2xl font-black mt-2">${avgDuration} 秒</p></div>
+                        <div class="history-item"><p class="font-bold">最短局时间</p><p class="text-2xl font-black mt-2">${minDuration} 秒</p></div>
+                        <div class="history-item"><p class="font-bold">最长局时间</p><p class="text-2xl font-black mt-2">${maxDuration} 秒</p></div>
                     </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += overallStatsHtml;
-            
-            // Player Rankings (with tie handling)
-            let findTiedPlayers = (data, key, isMax) => {
-                let maxVal = isMax ? -Infinity : Infinity;
-                let tiedPlayers = [];
-                Object.keys(data).forEach(player => {
-                    if (isMax) {
-                        if ((data[player][key] || 0) > maxVal) {
-                            maxVal = (data[player][key] || 0);
-                            tiedPlayers = [player];
-                        } else if ((data[player][key] || 0) === maxVal) {
-                            tiedPlayers.push(player);
+                `;
+
+                const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
+                const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
+                const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
+
+                let highestFanText = "尚无胡牌记录";
+                if (winRounds.length > 0) {
+                    const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
+                    const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
+                    highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
+                }
+
+                const pickLeaders = key => {
+                    let maxValue = -Infinity;
+                    let names = [];
+                    Object.keys(playerStats).forEach(name => {
+                        const value = playerStats[name][key] || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                            names = [name];
+                        } else if (value === maxValue) {
+                            names.push(name);
                         }
-                    } else {
-                        if ((data[player][key] || 0) < maxVal) {
-                            maxVal = (data[player][key] || 0);
-                            tiedPlayers = [player];
-                        } else if ((data[player][key] || 0) === maxVal) {
-                            tiedPlayers.push(player);
-                        }
-                    }
+                    });
+                    return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
+                };
+
+                const consecutiveWins = pickLeaders("consecutiveWins");
+                const totalWins = pickLeaders("wins");
+                const selfDraws = pickLeaders("selfDraws");
+                const consecutivePaos = pickLeaders("consecutivePaos");
+                const totalPaos = pickLeaders("paos");
+
+                statsDisplay.innerHTML += `
+                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <div class="history-item"><p class="font-bold">赢家之王</p><p class="text-xl font-black mt-2">${winningPlayers}</p></div>
+                        <div class="history-item"><p class="font-bold">输家之王</p><p class="text-xl font-black mt-2">${losingPlayers}</p></div>
+                        <div class="history-item"><p class="font-bold">单局番王</p><p class="text-xl font-black mt-2">${highestFanText}</p></div>
+                        <div class="history-item"><p class="font-bold">连胡之王</p><p class="text-xl font-black mt-2">${consecutiveWins.names} (${consecutiveWins.value} 局)</p></div>
+                        <div class="history-item"><p class="font-bold">胡牌之王</p><p class="text-xl font-black mt-2">${totalWins.names} (${totalWins.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">自摸之王</p><p class="text-xl font-black mt-2">${selfDraws.names} (${selfDraws.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">连炮之王</p><p class="text-xl font-black mt-2">${consecutivePaos.names} (${consecutivePaos.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">点炮之王</p><p class="text-xl font-black mt-2">${totalPaos.names} (${totalPaos.value} 次)</p></div>
+                    </div>
+                `;
+
+                let playerStatsHtml = '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">';
+                Object.keys(playerStats).forEach(name => {
+                    const stats = playerStats[name];
+                    const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
+                    playerStatsHtml += `
+                        <div class="history-item">
+                            <p class="font-bold text-lg">${name}</p>
+                            <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
+                            <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
+                            <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
+                            <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
+                            <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
+                        </div>
+                    `;
                 });
-                return { players: tiedPlayers.join(', '), value: maxVal };
-            };
+                playerStatsHtml += "</div>";
+                statsDisplay.innerHTML += playerStatsHtml;
+            }
 
-            const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
-            const winningPlayers = sortedScores.filter(p => players[p] === players[sortedScores[0]]).join(', ');
-            const losingPlayers = sortedScores.filter(p => players[p] === players[sortedScores[sortedScores.length - 1]]).join(', ');
-            
-            const highestFanRound = history.reduce((prev, current) => (prev.fans > current.fans) ? prev : current);
-            const highestFanPlayers = history.filter(h => h.fans === highestFanRound.fans).map(h => h.winner);
-            const uniqueHighestFanPlayers = [...new Set(highestFanPlayers)].join(', ');
-
-            const consecutiveWinInfo = findTiedPlayers(playerStats, 'consecutiveWins', true);
-            const consecutiveWinKing = consecutiveWinInfo.players;
-            const maxConsecutive = consecutiveWinInfo.value;
-
-            const consecutivePaoInfo = findTiedPlayers(playerStats, 'consecutivePaos', true);
-            const consecutivePaoKing = consecutivePaoInfo.players;
-            const maxConsecutivePaos = consecutivePaoInfo.value;
-            
-            const winInfo = findTiedPlayers(playerStats, 'wins', true);
-            const winKings = winInfo.players;
-            const maxWins = winInfo.value;
-            
-            const selfDrawInfo = findTiedPlayers(playerStats, 'selfDraws', true);
-            const selfDrawKings = selfDrawInfo.players;
-            const maxSelfDraws = selfDrawInfo.value;
-
-            const paoInfo = findTiedPlayers(playerStats, 'paos', true);
-            const paoKings = paoInfo.players;
-            const maxPaos = paoInfo.value;
-            
-            let rankingsHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">🏆 玩家排行榜</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">赢家之王:</p>
-                            <p class="text-xl font-semibold">${winningPlayers}</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">输家之王:</p>
-                            <p class="text-xl font-semibold">${losingPlayers}</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">单局番王:</p>
-                            <p class="text-xl font-semibold">${uniqueHighestFanPlayers} (${highestFanRound.fans} 番)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">连胡之王:</p>
-                            <p class="text-xl font-semibold">${consecutiveWinKing} (${maxConsecutive} 局)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">胡牌之王:</p>
-                            <p class="text-xl font-semibold">${winKings} (${maxWins} 次)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">自摸之王:</p>
-                            <p class="text-xl font-semibold">${selfDrawKings} (${maxSelfDraws} 次)</p>
-                        </div>
-                         <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">连炮之王:</p>
-                            <p class="text-xl font-semibold">${consecutivePaoKing} (${maxConsecutivePaos} 次)</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-4 shadow-inner">
-                            <p class="font-bold">点炮之王:</p>
-                            <p class="text-xl font-semibold">${paoKings} (${maxPaos} 次)</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += rankingsHtml;
-
-            // Player-Specific Stats (Average Fans & Max Fans)
-            let avgFansHtml = `
-                <div class="bg-gray-200 rounded-xl p-4 shadow-md">
-                    <h4 class="text-xl font-bold mb-4">📈 玩家数据</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            `;
-            Object.keys(playerStats).forEach(name => {
-                const stats = playerStats[name];
-                const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : 0;
-                avgFansHtml += `
-                    <div class="bg-white rounded-xl p-4 shadow-inner">
-                        <p class="font-bold">${name}:</p>
-                        <p class="text-md font-medium">平均番数: <span class="text-lg font-semibold">${avgFans}</span></p>
-                        <p class="text-md font-medium">最高番数: <span class="text-lg font-semibold">${stats.maxFans}</span></p>
+            const finalHistoryList = document.getElementById("final-history-list");
+            finalHistoryList.innerHTML = "";
+            history.forEach(record => {
+                const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
+                finalHistoryList.innerHTML += `
+                    <div class="history-item">
+                        <p class="font-bold">${displayRound}</p>
+                        <p class="mt-1">${record.description}</p>
                     </div>
                 `;
             });
-            avgFansHtml += `
-                    </div>
-                </div>
-            `;
-            statsDisplay.innerHTML += avgFansHtml;
-
-        } else {
-            statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
         }
 
-        const finalHistoryList = document.getElementById('final-history-list');
-        finalHistoryList.innerHTML = '';
-        history.forEach(record => {
-            finalHistoryList.innerHTML += `<p class="border-b border-gray-300 pb-2 mb-2"><strong>${record.description}</strong></p>`;
-        });
-    }
+        function resetGame() {
+            document.getElementById("summary-section").classList.add("hidden");
+            document.getElementById("setup-section").classList.remove("hidden");
+            document.getElementById("game-section").classList.add("hidden");
 
-    function resetGame() {
-        document.getElementById('summary-section').classList.add('hidden');
-        document.getElementById('setup-section').classList.remove('hidden');
-        document.getElementById('price-input').value = '';
-        document.getElementById('player-1-input').value = '';
-        document.getElementById('player-2-input').value = '';
-        document.getElementById('player-3-input').value = '';
-        document.getElementById('player-4-input').value = '';
-        localStorage.removeItem(localStorageKey);
-    }
+            document.getElementById("price-input").value = "";
+            document.getElementById("player-1-input").value = "";
+            document.getElementById("player-2-input").value = "";
+            document.getElementById("player-3-input").value = "";
+            document.getElementById("player-4-input").value = "";
 
-    function updateGameUI() {
-        const scoreDisplay = document.getElementById('score-display');
-        scoreDisplay.innerHTML = '';
-        const winnerSelect = document.getElementById('winner-select');
-        const paoSelect = document.getElementById('pao-select');
-        winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
-        paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option><option value="zimo">自摸</option>';
-        
-        Object.keys(players).forEach(name => {
-            const score = players[name];
-            const bgColorClass = score >= 0 ? 'bg-[#3CB043]' : 'bg-red-500';
-            const cardHtml = `
-                <div class="rounded-2xl p-4 text-center shadow-lg ${bgColorClass}">
-                    <p class="font-bold text-white text-lg">${name}</p>
-                    <p class="font-extrabold text-2xl mt-2 text-black">${score.toFixed(2)}</p>
-                </div>
-            `;
-            scoreDisplay.innerHTML += cardHtml;
-            
-            winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
-            paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
-        });
+            players = {};
+            playerStats = {};
+            history = [];
+            round = 0;
+            editingIndex = null;
+            lastRoundTimestamp = null;
+            roundResultType = "win";
+            localStorage.removeItem(localStorageKey);
+            syncRoundFormState();
+        }
 
-        document.getElementById('current-round-text').innerText = `第${Math.floor(round / 4) + 1}圈，${winds[round % 4]}局`;
-        document.getElementById('per-fan-price-display').innerText = `${perFanPrice}`;
+        function resetRoundForm() {
+            setRoundResult("win");
+            document.getElementById("winner-select").selectedIndex = 0;
+            document.getElementById("pao-select").selectedIndex = 0;
+            document.getElementById("fans-input").value = "3";
+            document.getElementById("record-button").innerText = "记录本局";
+        }
 
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-        history.forEach((record, index) => {
-            const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
-            historyList.innerHTML += `
-                <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-2">
-                    <p><strong>${displayRound}</strong>：${record.description}</p>
-                    <button onclick="editRound(${index})" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-1 px-3 rounded-xl shadow-md transition duration-300 text-sm">编辑</button>
-                </div>
-            `;
-        });
-    }
+        function updateGameUI() {
+            const scoreDisplay = document.getElementById("score-display");
+            scoreDisplay.innerHTML = "";
 
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js').then(registration => {
-                console.log('Service Worker registered: ', registration);
-            }).catch(registrationError => {
-                console.log('Service Worker registration failed: ', registrationError);
+            const winnerSelect = document.getElementById("winner-select");
+            const paoSelect = document.getElementById("pao-select");
+            winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
+            paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option><option value="zimo">自摸</option>';
+
+            Object.keys(players).forEach(name => {
+                scoreDisplay.innerHTML += buildScoreCard(name, players[name]);
+                winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
             });
-        });
-    }
 
-</script>
+            document.getElementById("current-round-text").innerText = `第${Math.floor(round / 4) + 1}圈，${winds[round % 4]}局`;
+            document.getElementById("per-fan-price-display").innerText = `${perFanPrice}`;
+
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-item muted">还没有记录，先打一局吧。</div>';
+            } else {
+                history.forEach((record, index) => {
+                    const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
+                    const badgeText = record.resultType === "draw" ? "流局" : (record.pao === "zimo" ? "自摸" : "点炮");
+                    historyList.innerHTML += `
+                        <div class="history-item">
+                            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-bold">${displayRound}</p>
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${record.resultType === "draw" ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-800"}">${badgeText}</span>
+                                    </div>
+                                    <p class="mt-2">${record.description}</p>
+                                </div>
+                                <button onclick="editRound(${index})" class="action-button bg-slate-700 hover:bg-slate-800 text-white md:min-w-[104px]">编辑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            syncRoundFormState();
+        }
+
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/service-worker.js").then(registration => {
+                    console.log("Service Worker registered:", registration);
+                }).catch(registrationError => {
+                    console.log("Service Worker registration failed:", registrationError);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
