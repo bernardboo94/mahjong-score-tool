@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>四人麻将计番</title>
+    <title>Four-Player Mahjong Scorer</title>
     <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             color-scheme: light;
-            --bg-dark: #06281f;
-            --bg-mid: #0f5132;
-            --accent: #d4a72c;
-            --card: rgba(248, 250, 252, 0.9);
-            --card-strong: rgba(255, 255, 255, 0.96);
-            --text-dark: #12261d;
-            --text-soft: #4d6759;
+            --bg-dark: #dfeee7;
+            --bg-mid: #f7fbf8;
+            --accent: #2ab784;
+            --card: rgba(255, 255, 255, 0.58);
+            --card-strong: rgba(255, 255, 255, 0.74);
+            --text-dark: #183126;
+            --text-soft: #638274;
+            --text-strong: #0d2219;
+            --panel-border: rgba(57, 126, 90, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glass-shadow: 0 18px 40px rgba(63, 98, 77, 0.08);
+            --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            --glass-sheen: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04));
+            --glass-overlay: radial-gradient(circle at top left, rgba(255,255,255,0.24), transparent 32%);
         }
 
         * { box-sizing: border-box; }
@@ -23,45 +33,3268 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-family: "Plus Jakarta Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 15.5px;
+            line-height: 1.55;
+            letter-spacing: 0.01em;
             color: var(--text-dark);
             background:
-                radial-gradient(circle at top left, rgba(212, 167, 44, 0.28), transparent 24%),
-                radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent 18%),
-                linear-gradient(135deg, var(--bg-dark) 0%, #0a3a2d 44%, var(--bg-mid) 100%);
+                radial-gradient(circle at 10% 18%, rgba(99, 196, 150, 0.16), transparent 18%),
+                radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.8), transparent 22%),
+                radial-gradient(circle at 85% 84%, rgba(122, 205, 168, 0.1), transparent 20%),
+                linear-gradient(145deg, #dcebe3 0%, #eef7f1 52%, #d8e8df 100%);
         }
 
         .shell {
             position: relative;
             width: min(1120px, calc(100% - 24px));
             margin: 24px auto;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 32px;
-            background: rgba(4, 20, 15, 0.34);
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-            backdrop-filter: blur(14px);
+            padding: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: 40px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.46), rgba(255,255,255,0.18));
+            box-shadow: 0 28px 80px rgba(57, 90, 70, 0.12);
+            backdrop-filter: blur(24px) saturate(155%);
+            overflow: hidden;
+        }
+
+        .shell::before {
+            content: "";
+            position: absolute;
+            inset: -10% auto auto -10%;
+            width: 260px;
+            height: 260px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(84, 178, 130, 0.18), transparent 68%);
+            pointer-events: none;
+        }
+
+        .shell::after {
+            content: "";
+            position: absolute;
+            inset: auto -12% -18% auto;
+            width: 320px;
+            height: 320px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(154, 215, 187, 0.22), transparent 68%);
+            pointer-events: none;
+        }
+
+        .panel,
+        .feature-card,
+        .history-item,
+        .summary-kpi,
+        .chart-card,
+        .fan-chip,
+        .fan-static,
+        .fan-family,
+        .fan-level-card,
+        .room-box,
+        .reference-source-pill,
+        .theme-toggle,
+        .main-tab,
+        .field,
+        .select {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel > *,
+        .feature-card > *,
+        .history-item > *,
+        .summary-kpi > *,
+        .chart-card > *,
+        .fan-chip > *,
+        .fan-static > *,
+        .fan-family > *,
+        .fan-level-card > *,
+        .room-box > *,
+        .reference-source-pill > *,
+        .theme-toggle > *,
+        .main-tab > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel::before,
+        .feature-card::before,
+        .history-item::before,
+        .summary-kpi::before,
+        .chart-card::before,
+        .fan-chip::before,
+        .fan-static::before,
+        .fan-family::before,
+        .fan-level-card::before,
+        .room-box::before,
+        .reference-source-pill::before,
+        .theme-toggle::before,
+        .main-tab::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--glass-overlay);
+            pointer-events: none;
+            opacity: 0.55;
+            z-index: 0;
+        }
+
+        .panel::after,
+        .feature-card::after,
+        .history-item::after,
+        .summary-kpi::after,
+        .chart-card::after,
+        .fan-chip::after,
+        .fan-static::after,
+        .fan-family::after,
+        .fan-level-card::after,
+        .room-box::after,
+        .reference-source-pill::after,
+        .theme-toggle::after,
+        .main-tab::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background: var(--glass-sheen);
+            pointer-events: none;
+            opacity: 0.45;
+            z-index: 0;
         }
 
         .panel {
-            border-radius: 24px;
+            border-radius: 30px;
             background: var(--card);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(22px) saturate(165%);
+            color: var(--text-strong);
         }
 
         .panel-strong { background: var(--card-strong); }
+
+        .panel h2,
+        .feature-card h2,
+        .feature-card h3,
+        .feature-card h4,
+        .history-item h3,
+        .history-item h4 {
+            color: var(--text-strong);
+            line-height: 1.18;
+            letter-spacing: -0.02em;
+        }
+
+        .panel h2 {
+            font-size: clamp(1.45rem, 1.8vw, 1.85rem);
+        }
+
+        .panel h3,
+        .feature-card h3 {
+            font-size: 1.08rem;
+        }
+
+        .panel h4,
+        .feature-card h4 {
+            font-size: 0.98rem;
+        }
+
+        .panel p,
+        .feature-card p,
+        .fan-chip p,
+        .history-item p,
+        .summary-kpi p,
+        .chart-card p,
+        .room-box p {
+            color: inherit;
+        }
 
         .field, .select, .action-button, .result-chip { transition: all 0.2s ease; }
 
         .field, .select {
             width: 100%;
-            border: 1px solid rgba(15, 81, 50, 0.16);
-            border-radius: 16px;
-            background: #fff;
-            color: var(--text-dark);
+            border: 1px solid rgba(64, 119, 88, 0.12);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.66);
+            color: var(--text-strong);
             padding: 14px 16px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             outline: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 8px 18px rgba(71, 97, 81, 0.04);
+            backdrop-filter: blur(16px) saturate(155%);
+        }
+
+        .field:focus, .select:focus {
+            border-color: rgba(32, 130, 91, 0.42);
+            box-shadow: 0 0 0 4px rgba(55, 162, 116, 0.12);
+        }
+
+        .field:disabled, .select:disabled {
+            background: #edf2ef;
+            color: #7c8f84;
+            cursor: not-allowed;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 20px;
+            padding: 13px 17px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            line-height: 1.15;
+            cursor: pointer;
+            box-shadow: 0 14px 26px rgba(54, 97, 72, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button:hover { transform: translateY(-1px); }
+
+        .action-button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent 58%);
+            pointer-events: none;
+        }
+
+        .hero-title {
+            letter-spacing: 0.04em;
+            text-wrap: balance;
+        }
+
+        .score-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 18px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 18px 32px rgba(32, 56, 44, 0.16);
+            backdrop-filter: blur(14px) saturate(135%);
+        }
+
+        .score-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -14% -40% auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .score-positive { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .score-negative { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+        .score-neutral { background: linear-gradient(135deg, #475569, #64748b); }
+
+        .result-chip-group {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .result-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 64px;
+            border-radius: 18px;
+            border: 1px solid rgba(15, 81, 50, 0.14);
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .result-chip.active {
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.14);
+        }
+
+        .result-chip.win.active { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .result-chip.draw.active { background: linear-gradient(135deg, #475569, #64748b); }
+
+        .muted { color: var(--text-soft); }
+
+        .history-item {
+            border-radius: 18px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255, 255, 255, 0.52);
+            padding: 13px 15px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(16px) saturate(145%);
+            color: var(--text-strong);
+        }
+
+        .summary-spotlight {
+            border-radius: 28px;
+            padding: 24px;
+            color: white;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 28%),
+                radial-gradient(circle at 18% 12%, rgba(255,255,255,0.16), transparent 22%),
+                linear-gradient(135deg, rgba(15,81,50,0.94), rgba(21,128,61,0.86) 55%, rgba(212,167,44,0.78) 140%);
+            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow: 0 22px 48px rgba(15, 81, 50, 0.24), inset 0 1px 0 rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px) saturate(155%);
+        }
+
+        .summary-kpi {
+            border-radius: 20px;
+            padding: 15px 16px;
+            background: rgba(255,255,255,0.56);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(16px) saturate(140%);
+            color: var(--text-strong);
+        }
+
+        .chart-card {
+            border-radius: 24px;
+            padding: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(244,248,245,0.42));
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(18px) saturate(145%);
+            color: var(--text-strong);
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: minmax(84px, 120px) 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chart-track {
+            position: relative;
+            height: 14px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #dbe7de;
+        }
+
+        .chart-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            border-radius: inherit;
+        }
+
+        .chart-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .summary-metric-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        }
+
+        .summary-metric-card {
+            border-radius: 20px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.56);
+            padding: 16px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(16px) saturate(140%);
+        }
+
+        .summary-metric-label {
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+        }
+
+        .summary-metric-value {
+            margin-top: 10px;
+            font-size: 1.8rem;
+            line-height: 1.05;
+            font-weight: 900;
+            color: var(--text-strong);
+        }
+
+        .summary-metric-sub {
+            margin-top: 6px;
+            font-size: 0.86rem;
+            color: var(--text-soft);
+        }
+
+        .summary-leader-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .summary-leader-card {
+            border-radius: 22px;
+            border: 1px solid var(--panel-border);
+            background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(244,248,245,0.42));
+            padding: 16px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(18px) saturate(145%);
+        }
+
+        .summary-leader-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .summary-leader-rank {
+            min-width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(15, 81, 50, 0.1);
+            color: #0f5132;
+            font-weight: 900;
+        }
+
+        .summary-leader-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-soft);
+        }
+
+        .summary-leader-name {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            line-height: 1.15;
+            font-weight: 900;
+            color: var(--text-strong);
+        }
+
+        .summary-leader-value {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        .summary-leader-track {
+            position: relative;
+            margin-top: 14px;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(15, 81, 50, 0.08);
+        }
+
+        .summary-leader-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            border-radius: inherit;
+        }
+
+        .tool-tab {
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.82);
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tool-tab.active {
+            background: linear-gradient(135deg, #0f5132, #15803d);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 12px 24px rgba(15, 81, 50, 0.18);
+        }
+
+        .main-tab {
+            border-radius: 999px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.88);
+            background: rgba(255,255,255,0.42);
+            color: #3f6755;
+            font-weight: 800;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-tab.active {
+            background: linear-gradient(135deg, #1f8f62, #39b97e);
+            color: white;
+            box-shadow: 0 14px 28px rgba(39, 126, 88, 0.22);
+        }
+
+        .feature-card {
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.52);
+            padding: 16px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(18px) saturate(145%);
+            color: var(--text-strong);
+        }
+
+        .fan-chip {
+            border-radius: 16px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.54);
+            padding: 12px 14px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(14px) saturate(145%);
+            color: var(--text-strong);
+        }
+
+        .fan-static {
+            border-radius: 18px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.56);
+            overflow: hidden;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(16px) saturate(145%);
+        }
+
+        .fan-static-head {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .fan-family {
+            border-radius: 24px;
+            border: 1px solid var(--panel-border);
+            background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(245,250,247,0.44));
+            padding: 16px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(18px) saturate(145%);
+        }
+
+        .fan-family-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(15, 81, 50, 0.12);
+        }
+
+        .reference-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0;
+            margin-bottom: 14px;
+        }
+
+        .reference-source-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.46);
+            color: var(--text-soft);
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(14px) saturate(145%);
+        }
+
+        .reference-source-pill a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .reference-source-pill a:hover {
+            text-decoration: underline;
+        }
+
+        .fan-family-kicker {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #0f5132;
+        }
+
+        .fan-family-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 78px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.08);
+            color: #0f5132;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .fan-level-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .fan-level-card {
+            border-radius: 20px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.48);
+            padding: 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+            backdrop-filter: blur(14px) saturate(140%);
+        }
+
+        .fan-level-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .fan-level-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.08);
+            color: #0f5132;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .fan-items-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .fan-accordion-body {
+            padding: 0 14px 14px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .fan-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 58px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: #0f5132;
+            color: white;
+            font-weight: 800;
+            font-size: 0.82rem;
+        }
+
+        .reference-tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 48px));
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: start;
+        }
+
+        .reference-tile {
+            border-radius: 14px;
+            border: 1px solid rgba(15, 81, 50, 0.18);
+            background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(239,248,243,0.82));
+            min-height: 62px;
+            aspect-ratio: 3 / 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f5132;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .reference-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .reference-tile.fallback {
+            padding: 6px;
+            text-align: center;
+            line-height: 1.15;
+        }
+
+        .room-box h2,
+        .room-box p,
+        .room-box label {
+            color: inherit;
+        }
+
+        .theme-toggle {
+            border-radius: 999px;
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.56);
+            color: #214937;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 12px 26px rgba(71, 97, 81, 0.12);
+            backdrop-filter: blur(16px) saturate(150%);
+        }
+
+        .dark-mode {
+            --bg-dark: #0f1c18;
+            --bg-mid: #142721;
+            --card: rgba(19, 32, 27, 0.54);
+            --card-strong: rgba(25, 40, 34, 0.68);
+            --text-dark: #e9f7f0;
+            --text-soft: #b8d2c5;
+            --text-strong: #f4fff9;
+            --panel-border: rgba(173, 214, 195, 0.16);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+            --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            --glass-sheen: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            --glass-overlay: radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 32%);
+        }
+
+        .dark-mode .shell {
+            background: linear-gradient(180deg, rgba(10,18,15,0.56), rgba(10,18,15,0.26));
+            border-color: rgba(255,255,255,0.08);
+            backdrop-filter: blur(26px) saturate(155%);
+        }
+
+        .dark-mode .panel,
+        .dark-mode .panel-strong,
+        .dark-mode .history-item,
+        .dark-mode .summary-kpi,
+        .dark-mode .chart-card,
+        .dark-mode .feature-card,
+        .dark-mode .fan-chip {
+            background: rgba(18, 31, 26, 0.56);
+            color: #edf3f1;
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .fan-static {
+            background: rgba(18, 31, 26, 0.56);
+            color: #edf3f1;
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .fan-family,
+        .dark-mode .fan-level-card {
+            background: rgba(18, 31, 26, 0.52);
+            color: #edf3f1;
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .fan-family-header {
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .reference-source-pill {
+            background: rgba(18, 31, 26, 0.52);
+            color: #dff5ea;
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .room-lobby-card {
+            background: rgba(18, 31, 26, 0.56);
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .dark-mode .room-lobby-tag {
+            background: rgba(16, 185, 129, 0.14);
+            color: #d7f6ea;
+        }
+
+        .dark-mode .room-lobby-empty {
+            background: rgba(18, 31, 26, 0.34);
+            border-color: rgba(148, 163, 184, 0.16);
+            color: var(--text-soft);
+        }
+
+        .dark-mode .fan-family-kicker,
+        .dark-mode .fan-family-count,
+        .dark-mode .fan-level-tag {
+            color: #d7f6ea;
+            background: rgba(16, 185, 129, 0.14);
+        }
+
+
+        .dark-mode .field,
+        .dark-mode .select,
+        .dark-mode .result-chip,
+        .dark-mode .tool-tab {
+            background: rgba(24, 39, 33, 0.78);
+            color: #f3faf7;
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+
+        .dark-mode .chart-track {
+            background: rgba(71, 85, 105, 0.56);
+        }
+
+        .dark-mode .room-box {
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 28%),
+                linear-gradient(135deg, rgba(25, 56, 44, 0.78), rgba(22, 44, 35, 0.58) 68%, rgba(255,255,255,0.05) 130%);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .dark-mode .room-box h2,
+        .dark-mode .room-box label {
+            color: #f4fff9;
+        }
+
+        .dark-mode .theme-toggle {
+            background: rgba(243, 250, 247, 0.14);
+            color: #f3faf7;
+        }
+
+        .dark-mode .brand-kicker {
+            color: #cfe9dd;
+        }
+
+        .dark-mode .brand-subtitle {
+            color: #dff5ea;
+        }
+
+        .dark-mode .room-copy {
+            color: rgba(242, 252, 247, 0.96);
+        }
+
+        .dark-mode .room-copy-soft {
+            color: rgba(222, 242, 233, 0.84);
+        }
+
+        .dark-mode .room-status-pill {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+            color: rgba(242, 252, 247, 0.9);
+        }
+
+        .dark-mode #timer-status-text {
+            color: #f7d88a !important;
+        }
+
+        .dark-mode .main-tab {
+            background: rgba(255,255,255,0.1);
+            color: #f3faf7;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .dark-mode .main-tab.active {
+            background: rgba(243,250,247,0.95);
+            color: #0b1120;
+        }
+
+        .dark-mode .reference-tile {
+            background: linear-gradient(180deg, rgba(28,44,37,0.9), rgba(17,29,24,0.82));
+            color: #f3faf7;
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        .dark-mode .bg-white {
+            background-color: rgba(22, 32, 40, 0.98) !important;
+        }
+
+        .dark-mode .bg-slate-200,
+        .dark-mode .bg-gray-300 {
+            background-color: rgba(51, 65, 85, 0.9) !important;
+        }
+
+        .dark-mode .text-white {
+            color: #f8fafc !important;
+        }
+
+        .dark-mode .text-emerald-950,
+        .dark-mode .text-emerald-900 {
+            color: #f3faf7 !important;
+        }
+
+        .text-emerald-900\/60,
+        .text-emerald-900\/70,
+        .text-emerald-900\/55,
+        .text-emerald-900\/50,
+        .text-emerald-50\/85,
+        .text-emerald-50\/88 {
+            color: var(--text-soft) !important;
+        }
+
+        .dark-mode .text-emerald-900,
+        .dark-mode .text-emerald-800,
+        .dark-mode .text-emerald-700,
+        .dark-mode .text-slate-800,
+        .dark-mode .text-gray-700,
+        .dark-mode .text-gray-500 {
+            color: var(--text-strong) !important;
+        }
+
+        .dark-mode .text-emerald-900\/60,
+        .dark-mode .text-emerald-900\/70,
+        .dark-mode .text-emerald-900\/55,
+        .dark-mode .text-emerald-900\/50,
+        .dark-mode .text-emerald-50\/85,
+        .dark-mode .text-emerald-50\/88 {
+            color: var(--text-soft) !important;
+        }
+
+        .panel label,
+        .panel .font-bold,
+        .feature-card .font-bold,
+        .history-item .font-bold,
+        .chart-card .font-bold {
+            color: var(--text-strong);
+        }
+
+        .panel .text-sm,
+        .feature-card .text-sm,
+        .history-item .text-sm,
+        .chart-card .text-sm {
+            line-height: 1.5;
+            font-size: 0.88rem;
+        }
+
+        .panel .text-lg,
+        .feature-card .text-lg,
+        .history-item .text-lg,
+        .chart-card .text-lg {
+            font-size: 1rem;
+        }
+
+        .panel .text-2xl,
+        .feature-card .text-2xl,
+        .history-item .text-2xl,
+        .chart-card .text-2xl {
+            font-size: 1.55rem;
+            line-height: 1.15;
+        }
+
+        .panel .text-3xl,
+        .feature-card .text-3xl,
+        .history-item .text-3xl,
+        .chart-card .text-3xl {
+            font-size: 1.95rem;
+            line-height: 1.08;
+        }
+
+        .brand-kicker {
+            font-size: 0.86rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #6a9080;
+        }
+
+        .brand-title {
+            font-size: clamp(2rem, 4.8vw, 3.6rem);
+            font-weight: 900;
+            line-height: 1.04;
+            color: #10291e;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-lockup {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .brand-subtitle {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #3c6452;
+        }
+
+        .room-box {
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.52);
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.54), transparent 30%),
+                linear-gradient(135deg, rgba(97, 191, 151, 0.72), rgba(127, 211, 175, 0.56) 58%, rgba(255,255,255,0.42) 120%);
+            color: #123124;
+            padding: 18px;
+            box-shadow: 0 22px 42px rgba(26, 98, 67, 0.12);
+            backdrop-filter: blur(16px);
+        }
+
+        .room-copy {
+            color: rgba(18, 49, 36, 0.96);
+            line-height: 1.45;
+        }
+
+        .room-copy-soft {
+            color: rgba(18, 49, 36, 0.78);
+            line-height: 1.5;
+        }
+
+        .room-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(18, 49, 36, 0.12);
+            background: rgba(255,255,255,0.48);
+            color: rgba(18, 49, 36, 0.82);
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(14px) saturate(145%);
+            max-width: fit-content;
+        }
+
+        .room-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #f59e0b;
+            box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
+            flex-shrink: 0;
+        }
+
+        .room-status-pill.connected .room-status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.16);
+        }
+
+        .page-stack {
+            display: grid;
+            gap: 24px;
+        }
+
+        .section-stack {
+            display: grid;
+            gap: 24px;
+        }
+
+        .section-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .section-header {
+            margin-bottom: 18px;
+        }
+
+        .section-tabs {
+            margin-bottom: 14px;
+        }
+
+        .hero-nav {
+            margin-top: 18px;
+            gap: 12px;
+        }
+
+        .room-lobby-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .room-lobby-card {
+            border-radius: 22px;
+            border: 1px solid var(--panel-border);
+            background: rgba(255,255,255,0.5);
+            padding: 16px;
+            box-shadow: var(--glass-shadow), var(--glass-highlight);
+            backdrop-filter: blur(16px) saturate(145%);
+        }
+
+        .room-lobby-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .room-lobby-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.08);
+            color: #0f5132;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .room-lobby-empty {
+            padding: 24px 16px;
+            text-align: center;
+            border-radius: 22px;
+            border: 1px dashed var(--panel-border);
+            color: var(--text-soft);
+            background: rgba(255,255,255,0.28);
+        }
+
+        .modal {
+            transition: transform 0.28s ease, opacity 0.28s ease;
+            transform: translateY(-18px);
+            opacity: 0;
+        }
+
+        .modal.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .shell {
+                margin: 12px auto;
+                padding: 14px;
+                border-radius: 24px;
+            }
+
+            .page-stack,
+            .section-stack,
+            .section-grid {
+                gap: 18px;
+            }
+
+            .section-header {
+                margin-bottom: 14px;
+            }
+
+            .hero-nav {
+                margin-top: 16px;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="p-3 md:p-5">
+    <div class="shell">
+        <div class="mb-7 md:mb-10 px-2 md:px-3">
+            <div class="flex flex-col gap-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="brand-lockup">
+                        <div class="brand-title-wrap">
+                            <h1 class="hero-title brand-title">Four-Player Mahjong Scorer</h1>
+                            <p class="brand-subtitle">四人麻将计番</p>
+                        </div>
+                    </div>
+                    <button type="button" id="theme-toggle-button" onclick="toggleTheme()" class="theme-toggle shrink-0" aria-label="切换深浅色模式" title="切换深浅色模式">◐</button>
+                </div>
+            </div>
+            <div class="flex flex-wrap hero-nav">
+                <button type="button" id="main-tab-play" class="main-tab active" onclick="switchMainTab('play')">记分主页</button>
+                <button type="button" id="main-tab-lobby" class="main-tab" onclick="switchMainTab('lobby')">房间大厅</button>
+                <button type="button" id="main-tab-reference" class="main-tab" onclick="switchMainTab('reference')">番数参考</button>
+                <button type="button" id="main-tab-photo" class="main-tab" onclick="switchMainTab('photo')">拍照辅助</button>
+            </div>
+        </div>
+
+        <div id="play-page" class="page-stack">
+        <div id="setup-section" class="section-stack">
+            <section class="room-box">
+                <div class="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.25em] room-copy font-bold">Shared Room</p>
+                        <h2 class="text-2xl font-black mt-1">记分房间</h2>
+                        <p class="text-sm room-copy-soft mt-3 max-w-[34rem]">创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。</p>
+                    </div>
+                    <div class="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+                        <input type="text" id="room-id-input" placeholder="输入朋友分享的房号" class="field">
+                        <button type="button" onclick="createRoom()" class="action-button bg-white text-emerald-900">创建房间</button>
+                        <button type="button" onclick="joinRoom()" class="action-button bg-emerald-700 text-white">加入房间</button>
+                    </div>
+                </div>
+                <div class="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div id="room-status-text" class="room-status-pill">
+                        <span class="room-status-dot" aria-hidden="true"></span>
+                        <span class="text-sm">当前未连接共享房间，仍可单机使用。</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="copy-room-link-button" onclick="copyRoomLink()" class="action-button bg-amber-400 text-emerald-950 hidden">复制分享链接</button>
+                        <button type="button" id="leave-room-button" onclick="leaveRoom()" class="action-button bg-slate-200 text-slate-800 hidden">离开房间</button>
+                    </div>
+                </div>
+            </section>
+            <div class="section-grid lg:grid-cols-[1.1fr_1.4fr]">
+                <section class="panel panel-strong p-5 md:p-7">
+                    <div class="flex items-center justify-between gap-3 section-header">
+                        <div>
+                            <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Game Setup</p>
+                            <h2 class="text-2xl md:text-3xl font-black mt-1">开局设置</h2>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs uppercase tracking-[0.24em] text-emerald-900/50">规则</p>
+                            <p class="font-bold text-emerald-900">最低三番起胡</p>
+                        </div>
+                    </div>
+                    <label for="price-input" class="block text-sm font-bold mb-2">每番价格</label>
+                    <input type="number" id="price-input" placeholder="例如：10" class="field">
+                    <p class="mt-3 text-sm muted">系统会按你输入的每番价格自动结算每局得失。</p>
+                </section>
+
+                <section class="panel p-5 md:p-7">
+                    <div class="section-header">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Players</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">玩家名字</h2>
+                    </div>
+                    <div class="grid gap-3 md:grid-cols-2" id="player-inputs">
+                        <input type="text" id="player-1-input" placeholder="玩家一" class="field">
+                        <input type="text" id="player-2-input" placeholder="玩家二" class="field">
+                        <input type="text" id="player-3-input" placeholder="玩家三" class="field">
+                        <input type="text" id="player-4-input" placeholder="玩家四" class="field">
+                    </div>
+                    <button onclick="startGame()" class="action-button w-full mt-4 bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
+                        开始游戏
+                    </button>
+                </section>
+            </div>
+        </div>
+
+        <div id="game-section" class="hidden section-stack">
+            <section class="panel panel-strong p-5 md:p-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/55 font-bold">Live Table</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">
+                            <span id="current-round-text">第1圈，东风局</span>
+                        </h2>
+                        <p class="mt-2 text-sm md:text-base muted">每番价格：<span id="per-fan-price-display" class="font-bold text-emerald-900"></span></p>
+                        <p class="mt-2 text-sm md:text-base muted">本局计时：<span id="round-timer-text" class="font-bold text-emerald-900">00:00</span></p>
+                        <p id="timer-status-text" class="mt-1 text-sm text-amber-700 hidden">计时已暂停</p>
+                        <p id="active-room-text" class="mt-2 text-sm text-emerald-800 hidden"></p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="pause-timer-button" onclick="togglePauseTimer()" class="action-button bg-amber-400 text-emerald-950">暂停计时</button>
+                        <button type="button" id="copy-room-link-button-live" onclick="copyRoomLink()" class="action-button bg-white text-emerald-900 hidden">复制链接</button>
+                        <button onclick="showEndGameModal()" class="action-button bg-rose-500 hover:bg-rose-600 text-white">
+                            结束游戏
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="score-display" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></section>
+
+            <div class="section-grid xl:grid-cols-[1.05fr_0.95fr]">
+                <section class="panel p-5 md:p-7">
+                    <div class="section-header">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Round Entry</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">本局记录</h2>
+                    </div>
+
+                    <div class="section-stack">
+                        <div>
+                            <label class="block text-sm font-bold mb-3">结果类型</label>
+                            <div class="result-chip-group">
+                                <button type="button" id="result-win" class="result-chip win active" onclick="setRoundResult('win')">胡牌</button>
+                                <button type="button" id="result-draw" class="result-chip draw" onclick="setRoundResult('draw')">流局 / 无人胡</button>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label for="winner-select" class="block text-sm font-bold mb-2">赢家</label>
+                                <select id="winner-select" class="select">
+                                    <option value="" disabled selected>选择赢家</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="pao-select" class="block text-sm font-bold mb-2">点炮者</label>
+                                <select id="pao-select" class="select">
+                                    <option value="" disabled selected>选择点炮者</option>
+                                    <option value="zimo">自摸</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="fans-input" class="block text-sm font-bold mb-2">番数</label>
+                            <input type="number" id="fans-input" placeholder="胡了多少番？" value="3" min="1" class="field">
+                            <p id="round-form-hint" class="mt-2 text-sm muted">胡牌局需要填写赢家、点炮者或自摸，以及番数。</p>
+                        </div>
+
+                        <button onclick="recordRound()" id="record-button" class="action-button w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg">
+                            记录本局
+                        </button>
+                    </div>
+                </section>
+
+                <section class="panel p-5 md:p-7">
+                    <div class="section-header">
+                        <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">History</p>
+                        <h2 class="text-2xl md:text-3xl font-black mt-1">历史记录</h2>
+                    </div>
+                    <div class="flex flex-wrap gap-2 section-tabs">
+                        <button type="button" id="tool-tab-history" class="tool-tab active" onclick="switchGameTool('history')">历史记录</button>
+                    </div>
+                    <div id="history-list" class="space-y-3"></div>
+                </section>
+            </div>
+        </div>
+
+        <div id="summary-section" class="hidden">
+            <div class="panel p-5 md:p-7 section-stack">
+                <div class="text-center">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Summary</p>
+                    <h2 class="text-2xl md:text-4xl font-black mt-1">游戏总结</h2>
+                </div>
+
+                <div id="summary-winner-spotlight"></div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">最终分数</h3>
+                    <div id="final-score-display" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+                </div>
+
+                <div class="section-grid xl:grid-cols-2">
+                    <div id="summary-score-chart" class="chart-card"></div>
+                    <div id="summary-win-chart" class="chart-card"></div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">数据分析</h3>
+                    <div id="stats-display" class="section-stack"></div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-3">完整历史记录</h3>
+                    <div id="final-history-list" class="space-y-3"></div>
+                </div>
+
+                <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
+                    新的一局
+                </button>
+            </div>
+        </div>
+        </div>
+
+        <div id="lobby-page" class="hidden page-stack">
+            <section class="panel p-5 md:p-7">
+                <div class="flex items-center justify-between gap-3 section-header">
+                    <div>
+                        <h2 class="text-2xl md:text-4xl font-black">房间大厅</h2>
+                        <p class="mt-2 muted">查看目前开放的房间，直接加入朋友的牌局。</p>
+                    </div>
+                    <button type="button" onclick="refreshRoomLobby()" class="action-button bg-white text-emerald-900">刷新列表</button>
+                </div>
+                <div id="room-lobby-list" class="room-lobby-grid"></div>
+            </section>
+        </div>
+
+        <div id="reference-page" class="hidden page-stack">
+            <section class="panel p-5 md:p-7">
+                <div class="flex items-center justify-between gap-3 section-header">
+                    <h2 class="text-2xl md:text-4xl font-black">番数参考</h2>
+                    <div class="reference-source-pill">
+                        <span>来源</span>
+                        <a href="https://zh.wikipedia.org/zh-cn/%E9%A6%99%E6%B8%AF%E9%BA%BB%E9%9B%80%E8%83%A1%E7%89%8C%E5%88%97%E8%A1%A8" target="_blank" rel="noopener noreferrer">维基百科</a>
+                    </div>
+                </div>
+                <div id="main-fans-reference-panel" class="space-y-4"></div>
+            </section>
+        </div>
+
+        <div id="photo-page" class="hidden page-stack">
+            <section class="panel p-5 md:p-7">
+                <div class="section-header">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-900/60">Photo Helper</p>
+                    <h2 class="text-2xl md:text-3xl font-black mt-1">拍照参考</h2>
+                    <p class="mt-2 muted">拍下牌面作参考，再勾选番种来辅助计算。现在是手动辅助模式，不会自动识别牌型。</p>
+                </div>
+                <div id="reference-camera-helper-panel" class="space-y-4"></div>
+            </section>
+        </div>
+        <p class="text-center text-sm mt-8" style="color: #285240;">Created by Bernard Boo<br>Have Fun :)</p>
+        <div id="end-game-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
+                <p class="text-gray-700 text-center mb-6">确定要结束游戏吗？所有数据都将被清空。</p>
+                <div class="flex justify-around space-x-4">
+                    <button onclick="confirmEndGame()" class="action-button bg-rose-500 hover:bg-rose-600 text-white w-1/2">确定</button>
+                    <button onclick="hideEndGameModal()" class="action-button bg-slate-200 hover:bg-slate-300 text-slate-800 w-1/2">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="name-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
+                <p id="name-error-message" class="text-gray-700 text-center mb-6">请输入全部玩家名字。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideNameErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="selection-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">您不能选择自己作为点炮者。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideSelectionErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="price-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">输入错误</h3>
+                <p class="text-gray-700 text-center mb-6">请输入有效的每番价格。</p>
+                <div class="flex justify-center">
+                    <button onclick="hidePriceErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="winner-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">请选择赢家。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideWinnerErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pao-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">选择错误</h3>
+                <p class="text-gray-700 text-center mb-6">请选择点炮者或自摸。</p>
+                <div class="flex justify-center">
+                    <button onclick="hidePaoErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="fans-low-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
+                <p class="text-gray-700 text-center mb-6">最低三番起胡。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideFansLowErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="fans-decimal-error-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">番数错误</h3>
+                <p class="text-gray-700 text-center mb-6">请输入正确的整数番数。</p>
+                <div class="flex justify-center">
+                    <button onclick="hideFansDecimalErrorModal()" class="action-button bg-emerald-700 hover:bg-emerald-800 text-white">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, get, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHzYWWraGcjSX0i7VpVN8rjDFQ5hehnUY",
+            authDomain: "hkmahjong-f31f9.firebaseapp.com",
+            databaseURL: "https://hkmahjong-f31f9-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "hkmahjong-f31f9",
+            storageBucket: "hkmahjong-f31f9.firebasestorage.app",
+            messagingSenderId: "664632742500",
+            appId: "1:664632742500:web:e4298054ade89b592ec571"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+
+        const authReady = new Promise((resolve, reject) => {
+            const unsubscribe = onAuthStateChanged(auth, user => {
+                if (user) {
+                    unsubscribe();
+                    resolve(user);
+                }
+            }, error => {
+                unsubscribe();
+                reject(error);
+            });
+        });
+
+        signInAnonymously(auth).catch(error => {
+            console.error("Anonymous sign-in failed:", error);
+        });
+
+        window.firebaseRoomApi = {
+            ref,
+            get,
+            set,
+            onValue,
+            serverTimestamp,
+            database,
+            auth,
+            authReady
+        };
+    </script>
+
+    <script>
+        let players = {};
+        let perFanPrice = 0;
+        let round = 0;
+        const winds = ["东风", "南风", "西风", "北风"];
+        let history = [];
+        let editingIndex = null;
+        let lastRoundTimestamp = null;
+        let playerStats = {};
+        let roundResultType = "win";
+        let currentRoomId = "";
+        let roomListenerRef = null;
+        let roomCatalogUnsubscribe = null;
+        let applyingRemoteState = false;
+        let roundStartedAt = null;
+        let pauseStartedAt = null;
+        let pausedDurationMs = 0;
+        let isTimerPaused = false;
+        let timerIntervalId = null;
+        let currentTheme = "light";
+        let currentGameTool = "history";
+        let currentMainTab = "play";
+
+        const themeStorageKey = "mahjongTheme";
+        const fanReferenceSections = [
+            {
+                title: "正统牌型 · 一番",
+                items: [
+                    { name: "平和", fans: 1 },
+                    { name: "无花", fans: 1 },
+                    { name: "正花", fans: 1 },
+                    { name: "自摸", fans: 1 },
+                    { name: "门前清", fans: 1 },
+                    { name: "番牌", fans: 1 },
+                    { name: "抢杠", fans: 1 },
+                    { name: "海底捞月", fans: 1 }
+                ]
+            },
+            {
+                title: "正统牌型 · 两番",
+                items: [
+                    { name: "杠上开花", fans: 2 },
+                    { name: "一台花", fans: 2 }
+                ]
+            },
+            {
+                title: "正统牌型 · 三番",
+                items: [
+                    { name: "花和", fans: 3 },
+                    { name: "对对和", fans: 3 },
+                    { name: "混一色", fans: 3 }
+                ]
+            },
+            {
+                title: "正统牌型 · 四番",
+                items: [{ name: "花幺九（混老头）", fans: 4 }]
+            },
+            {
+                title: "正统牌型 · 五番",
+                items: [{ name: "小三元", fans: 5 }]
+            },
+            {
+                title: "正统牌型 · 六番",
+                items: [{ name: "小四喜", fans: 6 }]
+            },
+            {
+                title: "正统牌型 · 七番",
+                items: [{ name: "清一色", fans: 7 }]
+            },
+            {
+                title: "正统牌型 · 八番",
+                items: [
+                    { name: "大三元", fans: 8 },
+                    { name: "坎坎糊 / 全刻子", fans: 8 },
+                    { name: "字一色", fans: 8 }
+                ]
+            },
+            {
+                title: "正统牌型 · 十番（例牌）",
+                items: [
+                    { name: "九莲宝灯", fans: 10 },
+                    { name: "天和", fans: 10 },
+                    { name: "地和", fans: 10 },
+                    { name: "人和", fans: 10 }
+                ]
+            },
+            {
+                title: "正统牌型 · 十三番（例牌）",
+                items: [
+                    { name: "大四喜", fans: 13 },
+                    { name: "十三幺", fans: 13 },
+                    { name: "十八罗汉", fans: 13 }
+                ]
+            },
+            {
+                title: "自订牌型 · 一番",
+                note: "以下多为开局前自订规则，不一定适用于所有牌局。",
+                items: [
+                    { name: "哑仔（打出牌时没有讲出相对应的牌名）", fans: 1 },
+                    { name: "一般高（二同顺）", fans: 1 },
+                    { name: "一般低（二步高）", fans: 1 },
+                    { name: "缺门", fans: 1 }
+                ]
+            },
+            {
+                title: "自订牌型 · 二番",
+                items: [
+                    { name: "冧手胡", fans: 2 },
+                    { name: "三般高（三同顺）", fans: 2 },
+                    { name: "三般低（三步高）", fans: 2 },
+                    { name: "一条龙（一气通贯）", fans: 2 }
+                ]
+            },
+            {
+                title: "自订牌型 · 三番",
+                items: [
+                    { name: "钟鼓齐鸣（杠爆）", fans: 3 },
+                    { name: "两般高（双龙抱）", fans: 3 },
+                    { name: "两般低（双蛇抱）", fans: 3 },
+                    { name: "镜糊糊", fans: 3 },
+                    { name: "四般高（四同顺）", fans: 3 },
+                    { name: "四般低（步步高）", fans: 3 },
+                    { name: "三杠子", fans: 3 },
+                    { name: "三喜临门（三风刻）", fans: 3 },
+                    { name: "七对子（呖咕呖咕）", fans: 3 },
+                    { name: "双色同刻", fans: 3 }
+                ]
+            }
+        ];
+
+        const localStorageKey = "mahjongScoreboard";
+        const roomStorageKey = "mahjongScoreboardRoomId";
+        const tileImageMap = {
+            t1: "assets/mahjong-tiles/MJt1-.svg",
+            t2: "assets/mahjong-tiles/MJt2-.svg",
+            t3: "assets/mahjong-tiles/MJt3-.svg",
+            t4: "assets/mahjong-tiles/MJt4-.svg",
+            t5: "assets/mahjong-tiles/MJt5-.svg",
+            t6: "assets/mahjong-tiles/MJt6-.svg",
+            t7: "assets/mahjong-tiles/MJt7-.svg",
+            t8: "assets/mahjong-tiles/MJt8-.svg",
+            t9: "assets/mahjong-tiles/MJt9-.svg",
+            s1: "assets/mahjong-tiles/MJs1-.svg",
+            s2: "assets/mahjong-tiles/MJs2-.svg",
+            s3: "assets/mahjong-tiles/MJs3-.svg",
+            s4: "assets/mahjong-tiles/MJs4-.svg",
+            s5: "assets/mahjong-tiles/MJs5-.svg",
+            s6: "assets/mahjong-tiles/MJs6-.svg",
+            s7: "assets/mahjong-tiles/MJs7-.svg",
+            s8: "assets/mahjong-tiles/MJs8-.svg",
+            s9: "assets/mahjong-tiles/MJs9-.svg",
+            w1: "assets/mahjong-tiles/MJw1-.svg",
+            w2: "assets/mahjong-tiles/MJw2-.svg",
+            w3: "assets/mahjong-tiles/MJw3-.svg",
+            w4: "assets/mahjong-tiles/MJw4-.svg",
+            w5: "assets/mahjong-tiles/MJw5-.svg",
+            w6: "assets/mahjong-tiles/MJw6-.svg",
+            w7: "assets/mahjong-tiles/MJw7-.svg",
+            w8: "assets/mahjong-tiles/MJw8-.svg",
+            w9: "assets/mahjong-tiles/MJw9-.svg",
+            east: "assets/mahjong-tiles/MJf1-.svg",
+            south: "assets/mahjong-tiles/MJf2-.svg",
+            west: "assets/mahjong-tiles/MJf3-.svg",
+            north: "assets/mahjong-tiles/MJf4-.svg",
+            red: "assets/mahjong-tiles/MJd1-.svg",
+            green: "assets/mahjong-tiles/MJd2-.svg",
+            white: "assets/mahjong-tiles/MJd3-.svg",
+            spring: "assets/mahjong-tiles/MJh1-.svg",
+            summer: "assets/mahjong-tiles/MJh2-.svg",
+            autumn: "assets/mahjong-tiles/MJh3-.svg",
+            winter: "assets/mahjong-tiles/MJh4-.svg",
+            plum: "assets/mahjong-tiles/MJh5-.svg",
+            orchid: "assets/mahjong-tiles/MJh6-.svg",
+            chrysanthemum: "assets/mahjong-tiles/MJh7-.svg",
+            bamboo: "assets/mahjong-tiles/MJh8-.svg"
+        };
+
+        const fanReferenceSamples = {
+            "小和": { tiles: ["t1", "t2", "t3", "s3", "s3", "s3", "s5", "s6", "s7", "w6", "w7", "w8", "east", "east"], source: "Wikipedia 小和样例" },
+            "平和": { tiles: ["t1", "t2", "t3", "t5", "t6", "t7", "s2", "s3", "s4", "w6", "w7", "w8", "east", "east"], source: "Wikipedia 平和样例" },
+            "无花": { note: "维基百科对“无花”只有文字说明，没有独立示例牌图。" },
+            "正花": { tiles: ["spring", "plum"], source: "Wikipedia 正花（东位示例）" },
+            "自摸": { note: "维基百科对“自摸”只有文字说明，没有独立示例牌图。" },
+            "门前清": { note: "维基百科对“门前清”只有文字说明，没有独立示例牌图。" },
+            "番牌": { note: "维基百科对“番牌”只有文字说明，没有独立示例牌图。" },
+            "抢杠": { note: "维基百科对“抢杠”只有文字说明，没有独立示例牌图。" },
+            "海底捞月": { note: "维基百科对“海底捞月”只有文字说明，没有独立示例牌图。" },
+            "杠上开花": { note: "维基百科对“杠上开花”只有文字说明，没有独立示例牌图。" },
+            "一台花": { tiles: ["spring", "summer", "autumn", "winter"], source: "Wikipedia 一台花样例" },
+            "花和": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum"], source: "Wikipedia 花和样例" },
+            "对对和": { tiles: ["s1", "s1", "s1", "w6", "w6", "w6", "w8", "w8", "w8", "w9", "w9", "w9", "west", "west"], source: "Wikipedia 对对和样例" },
+            "混一色": { tiles: ["w1", "w1", "w3", "w4", "w5", "w7", "w7", "w7", "w9", "w9", "w9", "west", "west", "west"], source: "Wikipedia 混一色样例" },
+            "花幺九（混老头）": { tiles: ["s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1", "w1", "west", "west", "west", "green", "green"], source: "Wikipedia 花幺九样例" },
+            "小三元": { tiles: ["s1", "s2", "s3", "t5", "red", "green", "white"], source: "Wikipedia 小三元样例" },
+            "小四喜": { tiles: ["t4", "t5", "t6", "east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north"], source: "Wikipedia 小四喜样例" },
+            "清一色": { tiles: ["w1", "w2", "w3", "w5", "w5", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w4", "w4"], source: "Wikipedia 清一色样例" },
+            "大三元": { tiles: ["s1", "s2", "s3", "red", "red", "red", "green", "green", "green", "white", "white", "white", "t5", "t5"], source: "Wikipedia 大三元样例" },
+            "坎坎糊 / 全刻子": { note: "维基百科在“坎坎胡”条目仅给文字说明，这里不再放错误示例。" },
+            "字一色": { tiles: ["east", "east", "east", "south", "south", "south", "north", "north", "north", "red", "red", "red", "green", "green"], source: "Wikipedia 字一色样例" },
+            "九莲宝灯": { tiles: ["w1", "w1", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w7"], source: "Wikipedia 九莲宝灯样例" },
+            "天和": { note: "维基百科对“天和”只有文字说明，没有独立示例牌图。" },
+            "地和": { note: "维基百科对“地和”只有文字说明，没有独立示例牌图。" },
+            "人和": { note: "维基百科对“人和”只有文字说明，没有独立示例牌图。" },
+            "大四喜": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north", "north", "t5", "t5"], source: "Wikipedia 大四喜样例" },
+            "十三幺": { tiles: ["t1", "t9", "s1", "s9", "w1", "w9", "east", "south", "west", "north", "red", "green", "white", "white"], source: "Wikipedia 十三幺样例" },
+            "十八罗汉": { note: "维基百科对“十八罗汉”在该页只有文字说明，没有独立示例牌图。" },
+            "哑仔": { note: "维基百科对“哑仔”只有文字说明，没有独立示例牌图。" },
+            "一般高（二同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 一般高样例" },
+            "一般低（二步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 一般低样例" },
+            "缺门": { tiles: ["s3", "s3", "s3", "s5", "s6", "s7", "w1", "w2", "w3", "w6", "w7", "w8", "s1", "s1"], source: "Wikipedia 缺门样例" },
+            "冧手胡": { note: "维基百科对“冧手胡”只有文字说明，没有独立示例牌图。" },
+            "三般高（三同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 三般高样例" },
+            "三般低（三步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 三般低样例" },
+            "一条龙（一气通贯）": { tiles: ["w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "t2", "t2", "t2", "east", "east"], source: "Wikipedia 一条龙样例" },
+            "钟鼓齐鸣（杠爆）": { note: "维基百科对“钟鼓齐鸣”只有文字说明，没有独立示例牌图。" },
+            "两般高（双龙抱）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s2", "s3", "s1", "s2", "s3", "east", "east"], source: "Wikipedia 两般高样例" },
+            "两般低（双蛇抱）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s2", "s3", "s2", "s3", "s4", "east", "east"], source: "Wikipedia 两般低样例" },
+            "镜糊糊": { tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "s1", "s2", "s3", "s4", "s5", "s6", "east", "east"], source: "Wikipedia 镜糊糊样例" },
+            "四般高（四同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "east", "east"], source: "Wikipedia 四般高样例" },
+            "四般低（步步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "t4", "t5", "t6", "east", "east"], source: "Wikipedia 四般低样例" },
+            "三杠子": { tiles: ["t1", "t1", "t1", "s2", "s2", "s2", "w3", "w3", "w3", "t6", "t7", "t8", "green", "green"], source: "Wikipedia 三杠子样例" },
+            "三喜临门（三风刻）": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "w1", "w2", "w3", "t5", "t5"], source: "Wikipedia 三喜临门样例" },
+            "七对子（呖咕呖咕）": { tiles: ["t1", "t1", "s2", "s2", "w3", "w3", "t4", "t4", "s5", "s5", "w6", "w6", "green", "green"], source: "Wikipedia 七对子样例" },
+            "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"], source: "Wikipedia 双色同刻样例" }
+        };
+
+        const tileLabelMap = {
+            t1: "1饼", t2: "2饼", t3: "3饼", t4: "4饼", t5: "5饼", t6: "6饼", t7: "7饼", t8: "8饼", t9: "9饼",
+            s1: "1条", s2: "2条", s3: "3条", s4: "4条", s5: "5条", s6: "6条", s7: "7条", s8: "8条", s9: "9条",
+            w1: "1万", w2: "2万", w3: "3万", w4: "4万", w5: "5万", w6: "6万", w7: "7万", w8: "8万", w9: "9万",
+            east: "东", south: "南", west: "西", north: "北",
+            red: "中", green: "发", white: "白",
+            spring: "春", summer: "夏", autumn: "秋", winter: "冬",
+            plum: "梅", orchid: "兰", chrysanthemum: "菊", bamboo: "竹"
+        };
+
+        function createEmptyPlayerStats() {
+            return {
+                totalFans: 0,
+                wins: 0,
+                paos: 0,
+                selfDraws: 0,
+                draws: 0,
+                maxFans: 0,
+                consecutiveWins: 0,
+                consecutivePaos: 0
+            };
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.body.classList.toggle("dark-mode", theme === "dark");
+            const themeButton = document.getElementById("theme-toggle-button");
+            if (themeButton) {
+                themeButton.innerText = theme === "dark" ? "☀" : "☾";
+            }
+            localStorage.setItem(themeStorageKey, theme);
+        }
+
+        function toggleTheme() {
+            setTheme(currentTheme === "dark" ? "light" : "dark");
+        }
+
+        function showNameErrorModal(message = "请输入全部玩家名字。") {
+            const messageNode = document.getElementById("name-error-message");
+            if (messageNode) {
+                messageNode.innerText = message;
+            }
+            showModal("name-error-modal");
+        }
+
+        function handleReferenceImageError(img, key) {
+            const tile = img.closest(".reference-tile");
+            if (!tile) {
+                return;
+            }
+            tile.classList.add("fallback");
+            tile.innerHTML = `<span>${tileLabelMap[key] || key}</span>`;
+        }
+
+        function switchMainTab(tab) {
+            currentMainTab = tab;
+            document.getElementById("play-page").classList.toggle("hidden", tab !== "play");
+            document.getElementById("lobby-page").classList.toggle("hidden", tab !== "lobby");
+            document.getElementById("reference-page").classList.toggle("hidden", tab !== "reference");
+            document.getElementById("photo-page").classList.toggle("hidden", tab !== "photo");
+            document.getElementById("main-tab-play").classList.toggle("active", tab === "play");
+            document.getElementById("main-tab-lobby").classList.toggle("active", tab === "lobby");
+            document.getElementById("main-tab-reference").classList.toggle("active", tab === "reference");
+            document.getElementById("main-tab-photo").classList.toggle("active", tab === "photo");
+        }
+
+        function switchGameTool(tool) {
+            currentGameTool = tool;
+            const historyList = document.getElementById("history-list");
+            const historyTab = document.getElementById("tool-tab-history");
+            if (historyList) {
+                historyList.classList.toggle("hidden", tool !== "history");
+            }
+            if (historyTab) {
+                historyTab.classList.toggle("active", tool === "history");
+            }
+        }
+
+        function buildFanReferenceHtml() {
+            const fanFamilies = [
+                {
+                    key: "classic",
+                    kicker: "Classic",
+                    title: "正统牌型",
+                    description: "",
+                    sections: fanReferenceSections.filter(section => section.title.startsWith("正统牌型"))
+                },
+                {
+                    key: "custom",
+                    kicker: "Optional",
+                    title: "自订牌型",
+                    description: "",
+                    sections: fanReferenceSections.filter(section => section.title.startsWith("自订牌型"))
+                }
+            ];
+
+            const buildReferenceTiles = item => {
+                const sample = fanReferenceSamples[item.name];
+                if (!sample) {
+                    return `<p class="text-sm muted mt-3">这个牌型暂时未整理到维基页面中的对应示例图。</p>`;
+                }
+
+                if (sample.note) {
+                    return `<p class="text-sm muted mt-3">${sample.note}</p>`;
+                }
+
+                const tileKeys = sample.tiles;
+                return `
+                    <div class="reference-tiles">
+                        ${tileKeys.map(key => `
+                            <div class="reference-tile">
+                                <img src="${tileImageMap[key] || "data:,"}" alt="${item.name} 参考牌" loading="lazy" onerror="handleReferenceImageError(this, '${key}')">
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
+            };
+
+            const buildReferenceItem = item => {
+                const sample = fanReferenceSamples[item.name];
+                const hasPhotoReference = Boolean(sample && Array.isArray(sample.tiles) && sample.tiles.length);
+
+                if (!hasPhotoReference) {
+                    return `
+                        <div class="fan-static">
+                            <div class="fan-static-head">
+                                <div>
+                                    <p class="font-bold">${item.name}</p>
+                                </div>
+                                <span class="fan-badge">${item.fans} 番</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="fan-static">
+                        <div class="fan-static-head">
+                            <div>
+                                <p class="font-bold">${item.name}</p>
+                            </div>
+                            <span class="fan-badge">${item.fans} 番</span>
+                        </div>
+                        <div class="fan-accordion-body">
+                            ${buildReferenceTiles(item)}
+                        </div>
+                    </div>
+                `;
+            };
+
+            const buildFamily = family => {
+                const totalItems = family.sections.reduce((sum, section) => sum + section.items.length, 0);
+                return `
+                    <section class="fan-family">
+                        <div class="fan-family-header">
+                            <div>
+                                <p class="fan-family-kicker">${family.kicker}</p>
+                                <h4 class="text-2xl font-black mt-2">${family.title}</h4>
+                                ${family.description ? `<p class="mt-2 text-sm muted">${family.description}</p>` : ""}
+                            </div>
+                            <span class="fan-family-count">${totalItems} 项</span>
+                        </div>
+                        <div class="fan-level-grid">
+                            ${family.sections.map(section => `
+                                <div class="fan-level-card">
+                                    <div class="fan-level-head">
+                                        <div>
+                                            <h5 class="text-lg font-black">${section.title.replace(/^.*?·\s*/, "")}</h5>
+                                            ${section.note ? `<p class="mt-1 text-sm muted">${section.note}</p>` : ""}
+                                        </div>
+                                        <span class="fan-level-tag">${section.items.length} 项</span>
+                                    </div>
+                                    <div class="fan-items-grid">
+                                        ${section.items.map(item => buildReferenceItem(item)).join("")}
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </section>
+                `;
+            };
+
+            return `
+                <div class="grid gap-5 xl:grid-cols-2">
+                    ${fanFamilies.map(buildFamily).join("")}
+                </div>
+            `;
+        }
+
+        function renderFanReference() {
+            const panels = [
+                document.getElementById("main-fans-reference-panel")
+            ].filter(Boolean);
+
+            const html = buildFanReferenceHtml();
+            panels.forEach(panel => {
+                panel.innerHTML = html;
+            });
+        }
+
+        function leaveRoom() {
+            currentRoomId = "";
+            localStorage.removeItem(roomStorageKey);
+            const url = new URL(window.location.href);
+            url.searchParams.delete("room");
+            window.history.replaceState({}, "", url.toString());
+            document.getElementById("room-id-input").value = "";
+            setRoomStatus("已离开共享房间，现在回到单机模式。");
+        }
+
+        function formatRoomUpdatedAt(timestamp) {
+            if (!timestamp || Number.isNaN(Number(timestamp))) {
+                return "刚刚更新";
+            }
+            return new Date(Number(timestamp)).toLocaleString("zh-CN", {
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        function renderRoomLobby(rooms = []) {
+            const lobbyList = document.getElementById("room-lobby-list");
+            if (!lobbyList) {
+                return;
+            }
+
+            if (!rooms.length) {
+                lobbyList.innerHTML = `<div class="room-lobby-empty">暂时还没有开放中的房间。你可以先创建一个房间，再邀请朋友加入。</div>`;
+                return;
+            }
+
+            lobbyList.innerHTML = rooms.map(room => `
+                <div class="room-lobby-card">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-bold uppercase tracking-[0.18em] text-emerald-900/60">Room</p>
+                            <h3 class="text-2xl font-black mt-2">${room.id}</h3>
+                        </div>
+                        <span class="room-lobby-tag">${room.status}</span>
+                    </div>
+                    <div class="room-lobby-meta">
+                        <span class="room-lobby-tag">${room.playerCount} 位玩家</span>
+                        <span class="room-lobby-tag">${room.roundLabel}</span>
+                        <span class="room-lobby-tag">${formatRoomUpdatedAt(room.updatedAt)}</span>
+                    </div>
+                    <button type="button" onclick="joinListedRoom('${room.id}')" class="action-button w-full mt-4 bg-emerald-700 text-white">加入房间</button>
+                </div>
+            `).join("");
+        }
+
+        function joinListedRoom(roomId) {
+            document.getElementById("room-id-input").value = roomId;
+            switchMainTab("play");
+            joinRoom();
+        }
+
+        async function refreshRoomLobby() {
+            if (!(await ensureFirebaseReady())) {
+                renderRoomLobby([]);
+                return;
+            }
+
+            const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
+            const snapshot = await window.firebaseRoomApi.get(roomsRef);
+            if (!snapshot.exists()) {
+                renderRoomLobby([]);
+                return;
+            }
+
+            const rooms = Object.entries(snapshot.val() || {}).map(([id, room]) => {
+                const state = room?.state || {};
+                const playerCount = Object.keys(state.players || {}).length;
+                const roundNumber = Number(state.round || 0);
+                return {
+                    id,
+                    updatedAt: room?.updatedAt || 0,
+                    playerCount,
+                    roundLabel: playerCount > 0 ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
+                    status: playerCount > 0 ? "进行中" : "可加入"
+                };
+            }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+
+            renderRoomLobby(rooms);
+        }
+
+        function buildCameraHelperHtml() {
+            return `
+                <div class="feature-card">
+                    <h3 class="text-xl font-black">拍照辅助计算</h3>
+                    <p class="mt-2 muted">先拍照或上传牌面，再勾选你认出的番种，系统会自动合计番数并填回记分表单。</p>
+                    <input type="file" id="camera-input-shared" accept="image/*" capture="environment" class="field mt-4" onchange="handleCameraImage(event)">
+                    <div id="camera-preview-wrap-shared" class="hidden mt-4">
+                        <img id="camera-preview-image-shared" alt="camera preview" class="w-full rounded-2xl border border-emerald-900/10">
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h4 class="text-lg font-black">手动番数清单</h4>
+                            <p class="muted">根据照片和手牌勾选，下方会自动合计。</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/55 font-bold">合计番数</p>
+                            <p id="camera-fan-total-shared" class="text-3xl font-black">0</p>
+                        </div>
+                    </div>
+                    <div id="camera-fan-checklist-shared" class="grid gap-3 mt-4 md:grid-cols-2"></div>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <button type="button" onclick="applyCameraFanTotal()" class="action-button bg-emerald-700 text-white">套用到本局番数</button>
+                        <button type="button" onclick="resetCameraFanChecklist()" class="action-button bg-slate-200 text-slate-800">清空选择</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCameraFanChecklist() {
+            const items = fanReferenceSections.flatMap(section => section.items);
+            const checklistHtml = items.map(item => `
+                <label class="fan-chip flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" class="camera-fan-item" data-fans="${item.fans}" onchange="updateCameraFanTotal()">
+                    <span class="flex-1 font-bold">${item.name}</span>
+                    <span class="text-lg font-black text-emerald-700">${item.fans} 番</span>
+                </label>
+            `).join("");
+            [
+                document.getElementById("camera-fan-checklist"),
+                document.getElementById("camera-fan-checklist-shared")
+            ].filter(Boolean).forEach(checklist => {
+                checklist.innerHTML = checklistHtml;
+            });
+            updateCameraFanTotal();
+        }
+
+        function updateCameraFanTotal() {
+            const total = Array.from(document.querySelectorAll(".camera-fan-item:checked"))
+                .reduce((sum, checkbox) => sum + Number(checkbox.dataset.fans || 0), 0);
+            ["camera-fan-total", "camera-fan-total-shared"].forEach(id => {
+                const totalNode = document.getElementById(id);
+                if (totalNode) {
+                    totalNode.innerText = `${total}`;
+                }
+            });
+        }
+
+        function applyCameraFanTotal() {
+            const total = Array.from(document.querySelectorAll(".camera-fan-item:checked"))
+                .reduce((sum, checkbox) => sum + Number(checkbox.dataset.fans || 0), 0);
+            document.getElementById("fans-input").value = total || 3;
+            setRoundResult("win");
+            switchGameTool("history");
+        }
+
+        function resetCameraFanChecklist() {
+            document.querySelectorAll(".camera-fan-item").forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateCameraFanTotal();
+        }
+
+        function handleCameraImage(event) {
+            const file = event.target.files?.[0];
+            if (!file) {
+                return;
+            }
+            const objectUrl = URL.createObjectURL(file);
+            [
+                ["camera-preview-wrap", "camera-preview-image"],
+                ["camera-preview-wrap-shared", "camera-preview-image-shared"]
+            ].forEach(([wrapId, imageId]) => {
+                const previewWrap = document.getElementById(wrapId);
+                const previewImage = document.getElementById(imageId);
+                if (previewWrap && previewImage) {
+                    previewImage.src = objectUrl;
+                    previewWrap.classList.remove("hidden");
+                }
+            });
+        }
+
+        function formatDuration(seconds) {
+            const totalSeconds = Math.max(0, Math.floor(seconds));
+            const minutes = Math.floor(totalSeconds / 60);
+            const remainingSeconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+        }
+
+        function getRoundElapsedMs(now = Date.now()) {
+            if (!roundStartedAt) {
+                return 0;
+            }
+            const activePauseMs = isTimerPaused && pauseStartedAt ? now - pauseStartedAt : 0;
+            return Math.max(0, now - roundStartedAt - pausedDurationMs - activePauseMs);
+        }
+
+        function resetRoundTimer() {
+            roundStartedAt = Date.now();
+            pauseStartedAt = null;
+            pausedDurationMs = 0;
+            isTimerPaused = false;
+            updateTimerUI();
+        }
+
+        function updateTimerUI() {
+            const timerText = document.getElementById("round-timer-text");
+            const timerStatus = document.getElementById("timer-status-text");
+            const pauseButton = document.getElementById("pause-timer-button");
+
+            if (!timerText || !timerStatus || !pauseButton) {
+                return;
+            }
+
+            timerText.innerText = formatDuration(getRoundElapsedMs() / 1000);
+            timerStatus.classList.toggle("hidden", !isTimerPaused);
+            pauseButton.innerText = isTimerPaused ? "继续计时" : "暂停计时";
+            pauseButton.classList.toggle("bg-amber-400", !isTimerPaused);
+            pauseButton.classList.toggle("bg-emerald-700", isTimerPaused);
+            pauseButton.classList.toggle("text-emerald-950", !isTimerPaused);
+            pauseButton.classList.toggle("text-white", isTimerPaused);
+        }
+
+        function ensureTimerInterval() {
+            if (timerIntervalId !== null) {
+                return;
+            }
+            timerIntervalId = window.setInterval(() => {
+                updateTimerUI();
+            }, 1000);
+        }
+
+        function togglePauseTimer() {
+            if (!roundStartedAt) {
+                resetRoundTimer();
+            }
+
+            if (isTimerPaused) {
+                pausedDurationMs += Date.now() - pauseStartedAt;
+                pauseStartedAt = null;
+                isTimerPaused = false;
+            } else {
+                pauseStartedAt = Date.now();
+                isTimerPaused = true;
+            }
+
+            updateTimerUI();
+            saveGameData();
+        }
+
+        function saveGameData() {
+            localStorage.setItem(localStorageKey, JSON.stringify({
+                players,
+                perFanPrice,
+                round,
+                history,
+                playerStats,
+                timerState: {
+                    roundStartedAt,
+                    pauseStartedAt,
+                    pausedDurationMs,
+                    isTimerPaused
+                }
+            }));
+
+            if (!applyingRemoteState && currentRoomId) {
+                syncRoomState();
+            }
+        }
+
+        function loadGameData() {
+            const savedData = localStorage.getItem(localStorageKey);
+            if (!savedData) {
+                return false;
+            }
+
+            const data = JSON.parse(savedData);
+            players = data.players || {};
+            perFanPrice = data.perFanPrice || 0;
+            round = data.round || 0;
+            history = data.history || [];
+            playerStats = data.playerStats || {};
+            roundStartedAt = data.timerState?.roundStartedAt || Date.now();
+            pauseStartedAt = data.timerState?.pauseStartedAt || null;
+            pausedDurationMs = data.timerState?.pausedDurationMs || 0;
+            isTimerPaused = data.timerState?.isTimerPaused || false;
+
+            Object.keys(players).forEach(name => {
+                if (!playerStats[name]) {
+                    playerStats[name] = createEmptyPlayerStats();
+                }
+            });
+
+            lastRoundTimestamp = Date.now();
+            updateTimerUI();
+            document.getElementById("setup-section").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            document.getElementById("price-input").value = perFanPrice;
+            updateAllStats();
+            updateGameUI();
+            return true;
+        }
+
+        function buildGameStatePayload() {
+            return {
+                players,
+                perFanPrice,
+                round,
+                history,
+                playerStats,
+                timerState: {
+                    roundStartedAt,
+                    pauseStartedAt,
+                    pausedDurationMs,
+                    isTimerPaused
+                }
+            };
+        }
+
+        function applyGameStatePayload(data) {
+            players = data.players || {};
+            perFanPrice = data.perFanPrice || 0;
+            round = data.round || 0;
+            history = data.history || [];
+            playerStats = data.playerStats || {};
+            roundStartedAt = data.timerState?.roundStartedAt || Date.now();
+            pauseStartedAt = data.timerState?.pauseStartedAt || null;
+            pausedDurationMs = data.timerState?.pausedDurationMs || 0;
+            isTimerPaused = data.timerState?.isTimerPaused || false;
+
+            Object.keys(players).forEach(name => {
+                if (!playerStats[name]) {
+                    playerStats[name] = createEmptyPlayerStats();
+                }
+            });
+        }
+
+        function getRoomShareLink(roomId = currentRoomId) {
+            if (!roomId) {
+                return "";
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set("room", roomId);
+            return url.toString();
+        }
+
+        function setRoomStatus(text, isConnected = false) {
+            const roomStatus = document.getElementById("room-status-text");
+            const setupCopyButton = document.getElementById("copy-room-link-button");
+            const leaveRoomButton = document.getElementById("leave-room-button");
+            const liveCopyButton = document.getElementById("copy-room-link-button-live");
+            const activeRoomText = document.getElementById("active-room-text");
+
+            roomStatus.classList.toggle("connected", Boolean(isConnected && currentRoomId));
+            roomStatus.innerHTML = `<span class="room-status-dot" aria-hidden="true"></span><span class="text-sm">${text}</span>`;
+
+            if (isConnected && currentRoomId) {
+                setupCopyButton.classList.remove("hidden");
+                leaveRoomButton.classList.remove("hidden");
+                liveCopyButton.classList.remove("hidden");
+                activeRoomText.classList.remove("hidden");
+                activeRoomText.innerText = `共享房号：${currentRoomId}`;
+            } else {
+                setupCopyButton.classList.add("hidden");
+                leaveRoomButton.classList.add("hidden");
+                liveCopyButton.classList.add("hidden");
+                activeRoomText.classList.add("hidden");
+                activeRoomText.innerText = "";
+            }
+        }
+
+        function generateRoomId() {
+            return Math.random().toString(36).slice(2, 8).toUpperCase();
+        }
+
+        async function ensureFirebaseReady() {
+            if (!window.firebaseRoomApi) {
+                return false;
+            }
+
+            try {
+                await window.firebaseRoomApi.authReady;
+                return true;
+            } catch (error) {
+                console.error("Firebase auth is not ready:", error);
+                setRoomStatus("Firebase 连接失败，暂时无法使用共享房间。");
+                return false;
+            }
+        }
+
+        async function createRoom() {
+            if (!(await ensureFirebaseReady())) {
+                return;
+            }
+            currentRoomId = generateRoomId();
+            localStorage.setItem(roomStorageKey, currentRoomId);
+            document.getElementById("room-id-input").value = currentRoomId;
+            await ensureRoomStateExists();
+            subscribeToRoom(currentRoomId);
+            setRoomStatus(`已创建共享房间 ${currentRoomId}，现在可以开始游戏并分享链接。`, true);
+        }
+
+        async function joinRoom() {
+            if (!(await ensureFirebaseReady())) {
+                return;
+            }
+            const roomInput = document.getElementById("room-id-input").value.trim().toUpperCase();
+            if (!roomInput) {
+                setRoomStatus("请输入房号后再加入。");
+                return;
+            }
+
+            currentRoomId = roomInput;
+            localStorage.setItem(roomStorageKey, currentRoomId);
+            const exists = await loadRoomState(currentRoomId);
+            subscribeToRoom(currentRoomId);
+            if (exists) {
+                setRoomStatus(`已加入共享房间 ${currentRoomId}，正在同步最新分数。`, true);
+            } else {
+                setRoomStatus(`房间 ${currentRoomId} 目前还是空的。你可以先开始游戏，再把链接分享给朋友。`, true);
+            }
+        }
+
+        async function copyRoomLink() {
+            if (!currentRoomId) {
+                return;
+            }
+            const shareLink = getRoomShareLink();
+            await navigator.clipboard.writeText(shareLink);
+            setRoomStatus(`分享链接已复制：${currentRoomId}`, true);
+        }
+
+        async function ensureRoomStateExists() {
+            if (!currentRoomId || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
+                return;
+            }
+            const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
+            const snapshot = await window.firebaseRoomApi.get(roomRef);
+            if (!snapshot.exists()) {
+                await window.firebaseRoomApi.set(roomRef, {
+                    state: buildGameStatePayload(),
+                    updatedAt: window.firebaseRoomApi.serverTimestamp()
+                });
+            }
+        }
+
+        async function loadRoomState(roomId) {
+            if (!roomId || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
+                return false;
+            }
+            const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/state`);
+            const snapshot = await window.firebaseRoomApi.get(roomRef);
+            if (!snapshot.exists()) {
+                return false;
+            }
+
+            applyingRemoteState = true;
+            applyGameStatePayload(snapshot.val());
+            localStorage.setItem(localStorageKey, JSON.stringify(buildGameStatePayload()));
+            document.getElementById("setup-section").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            updateAllStats();
+            updateGameUI();
+            applyingRemoteState = false;
+            return true;
+        }
+
+        function subscribeToRoom(roomId) {
+            if (!roomId || !window.firebaseRoomApi) {
+                return;
+            }
+            roomListenerRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/state`);
+            window.firebaseRoomApi.onValue(roomListenerRef, snapshot => {
+                if (!snapshot.exists()) {
+                    return;
+                }
+                applyingRemoteState = true;
+                applyGameStatePayload(snapshot.val());
+                localStorage.setItem(localStorageKey, JSON.stringify(buildGameStatePayload()));
+                if (Object.keys(players).length > 0) {
+                    document.getElementById("setup-section").classList.add("hidden");
+                    document.getElementById("game-section").classList.remove("hidden");
+                }
+                updateAllStats();
+                updateGameUI();
+                applyingRemoteState = false;
+            });
+        }
+
+        async function syncRoomState() {
+            if (!currentRoomId || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
+                return;
+            }
+            const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
+            await window.firebaseRoomApi.set(roomRef, {
+                state: buildGameStatePayload(),
+                updatedAt: window.firebaseRoomApi.serverTimestamp()
+            });
+        }
+
+        window.onload = async () => {
+            ensureTimerInterval();
+            setTheme(localStorage.getItem(themeStorageKey) || "light");
+            renderFanReference();
+            const referenceCameraPanel = document.getElementById("reference-camera-helper-panel");
+            if (referenceCameraPanel) {
+                referenceCameraPanel.innerHTML = buildCameraHelperHtml();
+            }
+            renderCameraFanChecklist();
+            switchMainTab(currentMainTab);
+            switchGameTool(currentGameTool);
+            const roomFromUrl = new URL(window.location.href).searchParams.get("room");
+
+            if (!loadGameData()) {
+                document.getElementById("setup-section").classList.remove("hidden");
+            }
+
+            currentRoomId = (roomFromUrl || "").toUpperCase();
+            if (currentRoomId) {
+                localStorage.setItem(roomStorageKey, currentRoomId);
+                document.getElementById("room-id-input").value = currentRoomId;
+                setRoomStatus(`正在连接共享房间 ${currentRoomId}...`, true);
+                if (await ensureFirebaseReady()) {
+                    loadRoomState(currentRoomId).then(() => {
+                        subscribeToRoom(currentRoomId);
+                        setRoomStatus(`已连接共享房间 ${currentRoomId}。`, true);
+                    }).catch(() => {
+                        subscribeToRoom(currentRoomId);
+                        setRoomStatus(`已连接共享房间 ${currentRoomId}，等待第一局开始。`, true);
+                    });
+                }
+            } else {
+                localStorage.removeItem(roomStorageKey);
+                setRoomStatus("当前未连接共享房间，仍可单机使用。");
+            }
+            syncRoundFormState();
+            updateTimerUI();
+        };
+
+        function startGame() {
+            const priceInput = document.getElementById("price-input").value;
+            perFanPrice = parseFloat(priceInput);
+
+            if (isNaN(perFanPrice) || perFanPrice <= 0) {
+                showPriceErrorModal();
+                return;
+            }
+
+            const playerInputs = [
+                document.getElementById("player-1-input").value.trim(),
+                document.getElementById("player-2-input").value.trim(),
+                document.getElementById("player-3-input").value.trim(),
+                document.getElementById("player-4-input").value.trim()
+            ];
+
+            if (playerInputs.some(name => name === "")) {
+                showNameErrorModal();
+                return;
+            }
+
+            if (new Set(playerInputs).size !== playerInputs.length) {
+                showNameErrorModal("玩家名字不能重复，请输入 4 个不同名字。");
+                return;
+            }
+
+            players = {};
+            playerStats = {};
+            playerInputs.forEach(name => {
+                players[name] = 0;
+                playerStats[name] = createEmptyPlayerStats();
+            });
+
+            round = 0;
+            history = [];
+            editingIndex = null;
+            lastRoundTimestamp = Date.now();
+            roundResultType = "win";
+            resetRoundTimer();
+
+            document.getElementById("setup-section").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            updateGameUI();
+            syncRoundFormState();
+            saveGameData();
+            if (currentRoomId) {
+                setRoomStatus(`共享房间 ${currentRoomId} 已开始同步。`, true);
+            }
+        }
+
+        function setRoundResult(type) {
+            roundResultType = type;
+            document.getElementById("result-win").classList.toggle("active", type === "win");
+            document.getElementById("result-draw").classList.toggle("active", type === "draw");
+            syncRoundFormState();
+        }
+
+        function syncRoundFormState() {
+            const winnerSelect = document.getElementById("winner-select");
+            const paoSelect = document.getElementById("pao-select");
+            const fansInput = document.getElementById("fans-input");
+            const hint = document.getElementById("round-form-hint");
+            const isDraw = roundResultType === "draw";
+
+            if (!winnerSelect || !paoSelect || !fansInput || !hint) {
+                return;
+            }
+
+            winnerSelect.disabled = isDraw;
+            paoSelect.disabled = isDraw;
+            fansInput.disabled = isDraw;
+
+            if (isDraw) {
+                winnerSelect.value = "";
+                paoSelect.value = "";
+                fansInput.value = "";
+                hint.innerText = "流局不会变动分数，只会记录本局并进入下一局。";
+            } else {
+                if (!fansInput.value) {
+                    fansInput.value = "3";
+                }
+                hint.innerText = "胡牌局需要填写赢家、点炮者或自摸，以及番数。";
+            }
+        }
+
+        function buildRoundDescription(record) {
+            if (record.resultType === "draw") {
+                return "流局，无人胡。";
+            }
+            if (record.pao === "zimo") {
+                return `${record.winner} 自摸，共 ${record.fans} 番。`;
+            }
+            return `${record.winner} 胡了 ${record.pao} 的牌，共 ${record.fans} 番。`;
+        }
+
+        function recordRound() {
+            const now = Date.now();
+            const roundDuration = getRoundElapsedMs(now) / 1000;
+            lastRoundTimestamp = now;
+
+            const recordBase = {
+                round: editingIndex !== null ? history[editingIndex].round : round,
+                duration: roundDuration,
+                resultType: roundResultType
+            };
+
+            if (roundResultType === "draw") {
+                commitRoundRecord({
+                    ...recordBase,
+                    winner: null,
+                    fans: 0,
+                    pao: null,
+                    description: "流局，无人胡。"
+                });
+                return;
+            }
+
+            const winner = document.getElementById("winner-select").value;
+            const pao = document.getElementById("pao-select").value;
+            const fansInput = document.getElementById("fans-input").value;
+
+            if (!winner) {
+                showWinnerErrorModal();
+                return;
+            }
+
+            if (!pao) {
+                showPaoErrorModal();
+                return;
+            }
+
+            const fans = parseFloat(fansInput);
+            if (isNaN(fans) || fans !== Math.floor(fans)) {
+                showFansDecimalErrorModal();
+                return;
+            }
+            if (fans < 3) {
+                showFansLowErrorModal();
+                return;
+            }
+            if (winner === pao) {
+                showSelectionErrorModal();
+                return;
+            }
+
+            commitRoundRecord({
+                ...recordBase,
+                winner,
+                fans,
+                pao,
+                description: buildRoundDescription({ winner, fans, pao, resultType: "win" })
+            });
+        }
+
+        function commitRoundRecord(roundRecord) {
+            if (editingIndex !== null) {
+                history[editingIndex] = roundRecord;
+                editingIndex = null;
+                document.getElementById("record-button").innerText = "记录本局";
+            } else {
+                history.push(roundRecord);
+                round += 1;
+            }
+
+            updateAllStats();
+            updateGameUI();
+            resetRoundForm();
+            resetRoundTimer();
+            saveGameData();
+        }
+
+        function editRound(index) {
+            editingIndex = index;
+            const record = history[index];
+
+            setRoundResult(record.resultType || "win");
+
+            if (record.resultType === "draw") {
+                document.getElementById("winner-select").value = "";
+                document.getElementById("pao-select").value = "";
+                document.getElementById("fans-input").value = "";
+            } else {
+                document.getElementById("winner-select").value = record.winner;
+                document.getElementById("pao-select").value = record.pao;
+                document.getElementById("fans-input").value = record.fans;
+            }
+
+            document.getElementById("record-button").innerText = "更新本局";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function updateAllStats() {
+            Object.keys(players).forEach(name => {
+                playerStats[name] = createEmptyPlayerStats();
+            });
+
+            let lastWinner = null;
+            let consecutiveWins = 0;
+            let lastPao = null;
+            let consecutivePaos = 0;
+
+            history.forEach(record => {
+                if (record.resultType === "draw") {
+                    Object.keys(playerStats).forEach(name => {
+                        playerStats[name].draws += 1;
+                    });
+                    lastWinner = null;
+                    consecutiveWins = 0;
+                    lastPao = null;
+                    consecutivePaos = 0;
+                    return;
+                }
+
+                playerStats[record.winner].totalFans += record.fans;
+                playerStats[record.winner].wins += 1;
+                playerStats[record.winner].maxFans = Math.max(playerStats[record.winner].maxFans, record.fans);
+
+                if (record.pao === "zimo") {
+                    playerStats[record.winner].selfDraws += 1;
+                    lastPao = null;
+                    consecutivePaos = 0;
+                } else {
+                    playerStats[record.pao].paos += 1;
+                    if (record.pao === lastPao) {
+                        consecutivePaos += 1;
+                    } else {
+                        consecutivePaos = 1;
+                        lastPao = record.pao;
+                    }
+                    playerStats[record.pao].consecutivePaos = Math.max(playerStats[record.pao].consecutivePaos, consecutivePaos);
+                }
+
+                if (record.winner === lastWinner) {
+                    consecutiveWins += 1;
+                } else {
+                    consecutiveWins = 1;
+                    lastWinner = record.winner;
+                }
+                playerStats[record.winner].consecutiveWins = Math.max(playerStats[record.winner].consecutiveWins, consecutiveWins);
+            });
+
+            recalculateScores();
+        }
+
+        function recalculateScores() {
+            Object.keys(players).forEach(name => {
+                players[name] = 0;
+            });
+
+            history.forEach(record => {
+                if (record.resultType === "draw") {
+                    return;
+                }
+
+                if (record.pao === "zimo") {
+                    const selfDrawAmount = record.fans * perFanPrice * 2;
+                    players[record.winner] += selfDrawAmount * 3;
+                    Object.keys(players).forEach(name => {
+                        if (name !== record.winner) {
+                            players[name] -= selfDrawAmount;
+                        }
+                    });
+                    return;
+                }
+
+                const paoAmount = record.fans * perFanPrice * 2;
+                const otherAmount = record.fans * perFanPrice;
+                players[record.winner] += paoAmount + 2 * otherAmount;
+                players[record.pao] -= paoAmount;
+                Object.keys(players).forEach(name => {
+                    if (name !== record.winner && name !== record.pao) {
+                        players[name] -= otherAmount;
+                    }
+                });
+            });
+        }
+
+        function showModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove("hidden");
+            setTimeout(() => {
+                modal.querySelector(".modal").classList.add("active");
+            }, 10);
+        }
+
+        function hideModal(id) {
+            const modal = document.getElementById(id);
+            modal.querySelector(".modal").classList.remove("active");
+            setTimeout(() => {
+                modal.classList.add("hidden");
+            }, 280);
+        }
+
+        function showEndGameModal() { showModal("end-game-modal"); }
+        function hideEndGameModal() { hideModal("end-game-modal"); }
+        function confirmEndGame() { hideEndGameModal(); showSummary(); }
+        function hideNameErrorModal() { hideModal("name-error-modal"); }
+        function showSelectionErrorModal() { showModal("selection-error-modal"); }
+        function hideSelectionErrorModal() { hideModal("selection-error-modal"); }
+        function showWinnerErrorModal() { showModal("winner-error-modal"); }
+        function hideWinnerErrorModal() { hideModal("winner-error-modal"); }
+        function showPaoErrorModal() { showModal("pao-error-modal"); }
+        function hidePaoErrorModal() { hideModal("pao-error-modal"); }
+        function showFansLowErrorModal() { showModal("fans-low-error-modal"); }
+        function hideFansLowErrorModal() { hideModal("fans-low-error-modal"); }
+        function showFansDecimalErrorModal() { showModal("fans-decimal-error-modal"); }
+        function hideFansDecimalErrorModal() { hideModal("fans-decimal-error-modal"); }
+        function showPriceErrorModal() { showModal("price-error-modal"); }
+        function hidePriceErrorModal() { hideModal("price-error-modal"); }
+
+        function buildScoreCard(name, score) {
+            let scoreClass = "score-neutral";
+            if (score > 0) {
+                scoreClass = "score-positive";
+            } else if (score < 0) {
+                scoreClass = "score-negative";
+            }
+
+            return `
+                <div class="score-card ${scoreClass}">
+                    <p class="text-white/80 text-sm font-semibold tracking-[0.2em] uppercase">Player</p>
+                    <p class="font-black text-xl mt-2">${name}</p>
+                    <p class="font-black text-3xl mt-4">${score.toFixed(2)}</p>
+                </div>
+            `;
+        }
+
+        function buildBarChart(title, subtitle, rows, colorPicker) {
+            if (rows.length === 0) {
+                return `
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.24em] text-emerald-900/50 font-bold">${subtitle}</p>
+                        <h4 class="text-2xl font-black mt-1">${title}</h4>
+                        <p class="mt-4 muted">暂无数据</p>
+                    </div>
+                `;
+            }
+
+            const maxValue = Math.max(...rows.map(row => Math.abs(row.value)), 1);
+            const chartRows = rows.map((row, index) => {
+                const width = `${Math.max((Math.abs(row.value) / maxValue) * 100, 6)}%`;
+                const color = colorPicker(row, index);
+                return `
+                    <div class="chart-row">
+                        <p class="font-bold text-sm md:text-base">${row.label}</p>
+                        <div class="chart-track">
+                            <div class="chart-fill" style="width:${width}; background:${color};"></div>
+                        </div>
+                        <p class="font-black text-sm md:text-base">${row.displayValue}</p>
+                    </div>
+                `;
+            }).join("");
+
+            return `
+                <div>
+                    <p class="text-xs uppercase tracking-[0.24em] text-emerald-900/50 font-bold">${subtitle}</p>
+                    <h4 class="text-2xl font-black mt-1">${title}</h4>
+                    <div class="chart-grid mt-5">
+                        ${chartRows}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showSummary() {
+            document.getElementById("game-section").classList.add("hidden");
+            document.getElementById("summary-section").classList.remove("hidden");
+
+            const finalScoreDisplay = document.getElementById("final-score-display");
+            finalScoreDisplay.innerHTML = "";
+            Object.keys(players).forEach(name => {
+                finalScoreDisplay.innerHTML += buildScoreCard(name, players[name]);
+            });
+
+            const statsDisplay = document.getElementById("stats-display");
+            statsDisplay.innerHTML = "";
+
+            if (history.length === 0) {
+                statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
+            } else {
+                const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
+                const avgDuration = (totalDuration / history.length).toFixed(1);
+                const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
+                const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
+                const totalDraws = history.filter(record => record.resultType === "draw").length;
+                const winRounds = history.filter(record => record.resultType !== "draw");
+
+                statsDisplay.innerHTML += `
+                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                        <div class="history-item"><p class="font-bold">总共局数</p><p class="text-2xl font-black mt-2">${history.length} 局</p></div>
+                        <div class="history-item"><p class="font-bold">流局次数</p><p class="text-2xl font-black mt-2">${totalDraws} 次</p></div>
+                        <div class="history-item"><p class="font-bold">平均每局时间</p><p class="text-2xl font-black mt-2">${avgDuration} 秒</p></div>
+                        <div class="history-item"><p class="font-bold">最短局时间</p><p class="text-2xl font-black mt-2">${minDuration} 秒</p></div>
+                        <div class="history-item"><p class="font-bold">最长局时间</p><p class="text-2xl font-black mt-2">${maxDuration} 秒</p></div>
+                    </div>
+                `;
+
+                const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
+                const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
+                const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
+
+                let highestFanText = "尚无胡牌记录";
+                if (winRounds.length > 0) {
+                    const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
+                    const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
+                    highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
+                }
+
+                const pickLeaders = key => {
+                    let maxValue = -Infinity;
+                    let names = [];
+                    Object.keys(playerStats).forEach(name => {
+                        const value = playerStats[name][key] || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                            names = [name];
+                        } else if (value === maxValue) {
+                            names.push(name);
+                        }
+                    });
+                    return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
+                };
+
+                const consecutiveWins = pickLeaders("consecutiveWins");
+                const totalWins = pickLeaders("wins");
+                const selfDraws = pickLeaders("selfDraws");
+                const consecutivePaos = pickLeaders("consecutivePaos");
+                const totalPaos = pickLeaders("paos");
+
+                statsDisplay.innerHTML += `
+                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <div class="history-item"><p class="font-bold">赢家之王</p><p class="text-xl font-black mt-2">${winningPlayers}</p></div>
+                        <div class="history-item"><p class="font-bold">输家之王</p><p class="text-xl font-black mt-2">${losingPlayers}</p></div>
+                        <div class="history-item"><p class="font-bold">单局番王</p><p class="text-xl font-black mt-2">${highestFanText}</p></div>
+                        <div class="history-item"><p class="font-bold">连胡之王</p><p class="text-xl font-black mt-2">${consecutiveWins.names} (${consecutiveWins.value} 局)</p></div>
+                        <div class="history-item"><p class="font-bold">胡牌之王</p><p class="text-xl font-black mt-2">${totalWins.names} (${totalWins.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">自摸之王</p><p class="text-xl font-black mt-2">${selfDraws.names} (${selfDraws.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">连炮之王</p><p class="text-xl font-black mt-2">${consecutivePaos.names} (${consecutivePaos.value} 次)</p></div>
+                        <div class="history-item"><p class="font-bold">点炮之王</p><p class="text-xl font-black mt-2">${totalPaos.names} (${totalPaos.value} 次)</p></div>
+                    </div>
+                `;
+
+                let playerStatsHtml = '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">';
+                Object.keys(playerStats).forEach(name => {
+                    const stats = playerStats[name];
+                    const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
+                    playerStatsHtml += `
+                        <div class="history-item">
+                            <p class="font-bold text-lg">${name}</p>
+                            <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
+                            <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
+                            <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
+                            <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
+                            <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
+                        </div>
+                    `;
+                });
+                playerStatsHtml += "</div>";
+                statsDisplay.innerHTML += playerStatsHtml;
+            }
+
+            const finalHistoryList = document.getElementById("final-history-list");
+            finalHistoryList.innerHTML = "";
+            history.forEach(record => {
+                const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
+                finalHistoryList.innerHTML += `
+                    <div class="history-item">
+                        <p class="font-bold">${displayRound}</p>
+                        <p class="mt-1">${record.description}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function showSummary() {
+            document.getElementById("game-section").classList.add("hidden");
+            document.getElementById("summary-section").classList.remove("hidden");
+
+            const finalScoreDisplay = document.getElementById("final-score-display");
+            const statsDisplay = document.getElementById("stats-display");
+            const summaryWinnerSpotlight = document.getElementById("summary-winner-spotlight");
+            const summaryScoreChart = document.getElementById("summary-score-chart");
+            const summaryWinChart = document.getElementById("summary-win-chart");
+            const finalHistoryList = document.getElementById("final-history-list");
+
+            finalScoreDisplay.innerHTML = "";
+            Object.keys(players).forEach(name => {
+                finalScoreDisplay.innerHTML += buildScoreCard(name, players[name]);
+            });
+
+            statsDisplay.innerHTML = "";
+            finalHistoryList.innerHTML = "";
+
+            if (history.length === 0) {
+                summaryWinnerSpotlight.innerHTML = `
+                    <div class="summary-spotlight">
+                        <p class="text-sm uppercase tracking-[0.24em] text-white/75 font-bold">Final Table</p>
+                        <h3 class="text-3xl md:text-5xl font-black mt-3">还没有对局数据</h3>
+                        <p class="mt-3 text-white/85">先开始一局，完成后这里会显示赢家、图表和总结。</p>
+                    </div>
+                `;
+                summaryScoreChart.innerHTML = buildBarChart("最终分数分布", "Score Chart", [], () => "#15803d");
+                summaryWinChart.innerHTML = buildBarChart("胡牌次数分布", "Win Chart", [], () => "#d4a72c");
+                statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
+            } else {
+                const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
+                const avgDuration = (totalDuration / history.length).toFixed(1);
+                const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
+                const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
+                const totalDraws = history.filter(record => record.resultType === "draw").length;
+                const winRounds = history.filter(record => record.resultType !== "draw");
+                const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
+                const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
+                const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
+                const bestScore = players[sortedScores[0]];
+
+                summaryWinnerSpotlight.innerHTML = `
+                    <div class="summary-spotlight">
+                        <p class="text-sm uppercase tracking-[0.24em] font-bold" style="color: rgba(255,255,255,0.92);">Top Performer</p>
+                        <div class="grid gap-4 lg:grid-cols-[1.35fr_0.65fr] lg:items-end mt-3">
+                            <div>
+                                <p class="text-lg md:text-xl font-black" style="color: rgba(255,255,255,0.98);">今晚最大赢家</p>
+                                <h3 class="text-6xl md:text-[5.5rem] font-black leading-none mt-2">${winningPlayers}</h3>
+                                <p class="mt-4 text-xl md:text-3xl font-black" style="color: #fff4c7;">最终得分 ${bestScore.toFixed(2)}</p>
+                            </div>
+                            <div class="grid gap-3">
+                                <div class="summary-kpi">
+                                    <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">总局数</p>
+                                    <p class="text-3xl font-black mt-2 text-emerald-950">${history.length}</p>
+                                </div>
+                                <div class="summary-kpi">
+                                    <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">流局次数</p>
+                                    <p class="text-3xl font-black mt-2 text-emerald-950">${totalDraws}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                summaryScoreChart.innerHTML = buildBarChart(
+                    "最终分数分布",
+                    "Score Chart",
+                    sortedScores.map(name => ({
+                        label: name,
+                        value: players[name],
+                        displayValue: players[name].toFixed(2)
+                    })),
+                    row => row.value >= 0
+                        ? "linear-gradient(90deg, #15803d, #22c55e)"
+                        : "linear-gradient(90deg, #b91c1c, #ef4444)"
+                );
+
+                summaryWinChart.innerHTML = buildBarChart(
+                    "胡牌次数分布",
+                    "Win Chart",
+                    Object.keys(playerStats).map(name => ({
+                        label: name,
+                        value: playerStats[name].wins,
+                        displayValue: `${playerStats[name].wins} 次`
+                    })).sort((a, b) => b.value - a.value),
+                    (_, index) => index % 2 === 0
+                        ? "linear-gradient(90deg, #d4a72c, #f59e0b)"
+                        : "linear-gradient(90deg, #0f766e, #14b8a6)"
+                );
+
+                let highestFanText = "尚无胡牌记录";
+                if (winRounds.length > 0) {
+                    const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
+                    const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
+                    highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
+                }
+
+                const pickLeaders = key => {
+                    let maxValue = -Infinity;
+                    let names = [];
+                    Object.keys(playerStats).forEach(name => {
+                        const value = playerStats[name][key] || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                            names = [name];
+                        } else if (value === maxValue) {
+                            names.push(name);
+                        }
+                    });
+                    return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
+                };
+
+                const consecutiveWins = pickLeaders("consecutiveWins");
+                const totalWins = pickLeaders("wins");
+                const selfDraws = pickLeaders("selfDraws");
+                const consecutivePaos = pickLeaders("consecutivePaos");
+                const totalPaos = pickLeaders("paos");
+                const timeMax = Math.max(Number(maxDuration) || 0, Number(avgDuration) || 0, Number(minDuration) || 0, 1);
+                const leaderCards = [
+                    { rank: "01", title: "赢家之王", names: winningPlayers, value: `${bestScore.toFixed(2)} 分`, score: Math.max(bestScore, 0), color: "linear-gradient(90deg, #15803d, #22c55e)" },
+                    { rank: "02", title: "输家之王", names: losingPlayers, value: `${players[sortedScores[sortedScores.length - 1]].toFixed(2)} 分`, score: Math.abs(players[sortedScores[sortedScores.length - 1]]), color: "linear-gradient(90deg, #dc2626, #f87171)" },
+                    { rank: "03", title: "单局番王", names: highestFanText, value: "最高番数", score: winRounds.length ? Math.max(...winRounds.map(record => record.fans || 0)) : 0, color: "linear-gradient(90deg, #d4a72c, #f59e0b)" },
+                    { rank: "04", title: "连胡之王", names: consecutiveWins.names || "暂无", value: `${consecutiveWins.value} 局`, score: consecutiveWins.value, color: "linear-gradient(90deg, #0f766e, #14b8a6)" },
+                    { rank: "05", title: "胡牌之王", names: totalWins.names || "暂无", value: `${totalWins.value} 次`, score: totalWins.value, color: "linear-gradient(90deg, #2563eb, #60a5fa)" },
+                    { rank: "06", title: "自摸之王", names: selfDraws.names || "暂无", value: `${selfDraws.value} 次`, score: selfDraws.value, color: "linear-gradient(90deg, #7c3aed, #a78bfa)" },
+                    { rank: "07", title: "连炮之王", names: consecutivePaos.names || "暂无", value: `${consecutivePaos.value} 次`, score: consecutivePaos.value, color: "linear-gradient(90deg, #ea580c, #fb923c)" },
+                    { rank: "08", title: "点炮之王", names: totalPaos.names || "暂无", value: `${totalPaos.value} 次`, score: totalPaos.value, color: "linear-gradient(90deg, #be123c, #fb7185)" }
+                ];
+                const leaderMax = Math.max(...leaderCards.map(card => card.score), 1);
+
+                statsDisplay.innerHTML += `
+                    <div class="summary-metric-grid">
+                        <div class="summary-metric-card">
+                            <p class="summary-metric-label">总共局数</p>
+                            <p class="summary-metric-value">${history.length}</p>
+                            <p class="summary-metric-sub">今晚完成对局</p>
+                        </div>
+                        <div class="summary-metric-card">
+                            <p class="summary-metric-label">流局次数</p>
+                            <p class="summary-metric-value">${totalDraws}</p>
+                            <p class="summary-metric-sub">占比 ${((totalDraws / history.length) * 100).toFixed(0)}%</p>
+                        </div>
+                        <div class="summary-metric-card">
+                            <p class="summary-metric-label">平均每局时间</p>
+                            <p class="summary-metric-value">${avgDuration}<span class="text-base font-bold"> 秒</span></p>
+                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(avgDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#15803d,#22c55e);"></div></div>
+                        </div>
+                        <div class="summary-metric-card">
+                            <p class="summary-metric-label">最短局时间</p>
+                            <p class="summary-metric-value">${minDuration}<span class="text-base font-bold"> 秒</span></p>
+                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(minDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#0f766e,#14b8a6);"></div></div>
+                        </div>
+                        <div class="summary-metric-card">
+                            <p class="summary-metric-label">最长局时间</p>
+                            <p class="summary-metric-value">${maxDuration}<span class="text-base font-bold"> 秒</span></p>
+                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(maxDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#d4a72c,#f59e0b);"></div></div>
+                        </div>
+                    </div>
+                    <div class="summary-leader-grid">
+                        ${leaderCards.map(card => `
+                            <div class="summary-leader-card">
+                                <div class="summary-leader-head">
+                                    <div>
+                                        <p class="summary-leader-title">${card.title}</p>
+                                        <p class="summary-leader-name">${card.names}</p>
+                                        <p class="summary-leader-value">${card.value}</p>
+                                    </div>
+                                    <span class="summary-leader-rank">${card.rank}</span>
+                                </div>
+                                <div class="summary-leader-track">
+                                    <div class="summary-leader-fill" style="width:${(card.score / leaderMax) * 100}%;background:${card.color};"></div>
+                                </div>
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
+
+                let playerStatsHtml = '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">';
+                Object.keys(playerStats).forEach(name => {
+                    const stats = playerStats[name];
+                    const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
+                    playerStatsHtml += `
+                        <div class="history-item">
+                            <p class="font-bold text-lg">${name}</p>
+                            <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
+                            <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
+                            <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
+                            <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
+                            <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
+                        </div>
+                    `;
+                });
+                playerStatsHtml += "</div>";
+                statsDisplay.innerHTML += playerStatsHtml;
+            }
+
+            history.forEach(record => {
+                const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
+                finalHistoryList.innerHTML += `
+                    <div class="history-item">
+                        <p class="font-bold">${displayRound}</p>
+                        <p class="mt-1">${record.description}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function resetGame() {
+            document.getElementById("summary-section").classList.add("hidden");
+            document.getElementById("setup-section").classList.remove("hidden");
+            document.getElementById("game-section").classList.add("hidden");
+
+            document.getElementById("price-input").value = "";
+            document.getElementById("player-1-input").value = "";
+            document.getElementById("player-2-input").value = "";
+            document.getElementById("player-3-input").value = "";
+            document.getElementById("player-4-input").value = "";
+
+            players = {};
+            playerStats = {};
+            history = [];
+            round = 0;
+            editingIndex = null;
+            lastRoundTimestamp = null;
+            roundResultType = "win";
+            roundStartedAt = null;
+            pauseStartedAt = null;
+            pausedDurationMs = 0;
+            isTimerPaused = false;
+            localStorage.removeItem(localStorageKey);
+            syncRoundFormState();
+            updateTimerUI();
+            if (currentRoomId) {
+                saveGameData();
+                setRoomStatus(`共享房间 ${currentRoomId} 已清空，可以重新开始。`, true);
+            }
+        }
+
+        function resetRoundForm() {
+            setRoundResult("win");
+            document.getElementById("winner-select").selectedIndex = 0;
+            document.getElementById("pao-select").selectedIndex = 0;
+            document.getElementById("fans-input").value = "3";
+            document.getElementById("record-button").innerText = "记录本局";
+        }
+
+        function updateGameUI() {
+            const scoreDisplay = document.getElementById("score-display");
+            scoreDisplay.innerHTML = "";
+
+            const winnerSelect = document.getElementById("winner-select");
+            const paoSelect = document.getElementById("pao-select");
+            winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
+            paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option><option value="zimo">自摸</option>';
+
+            Object.keys(players).forEach(name => {
+                scoreDisplay.innerHTML += buildScoreCard(name, players[name]);
+                winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+
+            document.getElementById("current-round-text").innerText = `第${Math.floor(round / 4) + 1}圈，${winds[round % 4]}局`;
+            document.getElementById("per-fan-price-display").innerText = `${perFanPrice}`;
+            updateTimerUI();
+
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-item muted">还没有记录，先打一局吧。</div>';
+            } else {
+                history.forEach((record, index) => {
+                    const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
+                    const badgeText = record.resultType === "draw" ? "流局" : (record.pao === "zimo" ? "自摸" : "点炮");
+                    historyList.innerHTML += `
+                        <div class="history-item">
+                            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-bold">${displayRound}</p>
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${record.resultType === "draw" ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-800"}">${badgeText}</span>
+                                    </div>
+                                    <p class="mt-2">${record.description}</p>
+                                </div>
+                                <button onclick="editRound(${index})" class="action-button bg-slate-700 hover:bg-slate-800 text-white md:min-w-[104px]">编辑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            syncRoundFormState();
+        }
+
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/service-worker.js").then(registration => {
+                    console.log("Service Worker registered:", registration);
+                }).catch(registrationError => {
+                    console.log("Service Worker registration failed:", registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
         }
 
         .field:focus, .select:focus {
