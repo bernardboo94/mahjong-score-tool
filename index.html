@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Four-Player Mahjong Scorer</title>
-    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
@@ -1129,6 +1128,36 @@
             margin-top: 10px;
         }
 
+        .room-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .room-member-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.54);
+            border: 1px solid rgba(15, 81, 50, 0.12);
+            color: var(--text-strong);
+            font-size: 0.8rem;
+            font-weight: 800;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+        }
+
+        .room-member-chip::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.12);
+        }
+
         .room-lobby-tag {
             display: inline-flex;
             align-items: center;
@@ -1147,6 +1176,51 @@
             border: 1px dashed var(--panel-border);
             color: var(--text-soft);
             background: rgba(255,255,255,0.28);
+        }
+
+        .compact-action-row {
+            display: grid;
+            gap: 10px;
+        }
+
+        .manual-fan-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .manual-fan-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 56px;
+            padding: 10px 12px;
+        }
+
+        .manual-fan-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #15803d;
+            flex-shrink: 0;
+        }
+
+        .manual-fan-copy {
+            min-width: 0;
+            display: grid;
+            gap: 2px;
+        }
+
+        .manual-fan-name {
+            font-weight: 800;
+            line-height: 1.25;
+            font-size: 0.9rem;
+        }
+
+        .manual-fan-value {
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: #15803d;
+            white-space: nowrap;
         }
 
         .modal {
@@ -1180,6 +1254,104 @@
             .hero-nav {
                 margin-top: 16px;
                 gap: 10px;
+            }
+
+            body {
+                font-size: 14.5px;
+                line-height: 1.5;
+            }
+
+            .room-box,
+            .panel,
+            .feature-card,
+            .fan-family,
+            .fan-level-card,
+            .room-lobby-card {
+                border-radius: 22px;
+            }
+
+            .room-box {
+                padding: 14px;
+            }
+
+            .field,
+            .select {
+                padding: 12px 14px;
+                border-radius: 16px;
+                font-size: 0.92rem;
+            }
+
+            .action-button {
+                padding: 12px 14px;
+                border-radius: 16px;
+                font-size: 0.88rem;
+            }
+
+            .hero-title.brand-title {
+                font-size: clamp(1.75rem, 8vw, 2.35rem);
+            }
+
+            .brand-subtitle {
+                font-size: 1.25rem;
+            }
+
+            .main-tab {
+                padding: 10px 14px;
+                font-size: 0.88rem;
+            }
+
+            .room-status-pill {
+                max-width: 100%;
+                width: 100%;
+                border-radius: 18px;
+                padding: 10px 12px;
+            }
+
+            .room-lobby-grid,
+            .manual-fan-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-member-chip,
+            .room-lobby-tag,
+            .fan-level-tag,
+            .fan-family-count,
+            .fan-badge {
+                font-size: 0.74rem;
+            }
+
+            .fan-family {
+                padding: 14px;
+            }
+
+            .fan-family-header,
+            .fan-level-head,
+            .fan-static-head {
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .fan-static-head {
+                padding: 10px 12px;
+            }
+
+            .fan-accordion-body {
+                padding: 0 12px 12px;
+            }
+
+            .reference-tiles {
+                grid-template-columns: repeat(auto-fit, minmax(34px, 42px));
+                gap: 6px;
+            }
+
+            .reference-tile {
+                min-height: 54px;
+                border-radius: 12px;
+            }
+
+            #score-display,
+            #final-score-display {
+                gap: 12px;
             }
         }
     </style>
@@ -1230,6 +1402,10 @@
                         <button type="button" id="copy-room-link-button" onclick="copyRoomLink()" class="action-button bg-amber-400 text-emerald-950 hidden">复制分享链接</button>
                         <button type="button" id="leave-room-button" onclick="leaveRoom()" class="action-button bg-slate-200 text-slate-800 hidden">离开房间</button>
                     </div>
+                </div>
+                <div id="room-members-wrap" class="hidden mt-4">
+                    <p class="text-xs uppercase tracking-[0.22em] room-copy font-bold">Room Members</p>
+                    <div id="room-members-list" class="room-members mt-3"></div>
                 </div>
             </section>
             <div class="section-grid lg:grid-cols-[1.1fr_1.4fr]">
@@ -1506,7 +1682,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, get, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, get, set, update, remove, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         const firebaseConfig = {
@@ -1543,7 +1719,10 @@
             ref,
             get,
             set,
+            update,
+            remove,
             onValue,
+            onDisconnect,
             serverTimestamp,
             database,
             auth,
@@ -1562,8 +1741,9 @@
         let playerStats = {};
         let roundResultType = "win";
         let currentRoomId = "";
-        let roomListenerRef = null;
+        let roomStateUnsubscribe = null;
         let roomCatalogUnsubscribe = null;
+        let roomPresenceUnsubscribe = null;
         let applyingRemoteState = false;
         let roundStartedAt = null;
         let pauseStartedAt = null;
@@ -1573,8 +1753,10 @@
         let currentTheme = "light";
         let currentGameTool = "history";
         let currentMainTab = "play";
+        let currentPresence = {};
 
         const themeStorageKey = "mahjongTheme";
+        const roomViewerNameStorageKey = "mahjongViewerName";
         const fanReferenceSections = [
             {
                 title: "正统牌型 · 一番",
@@ -1787,6 +1969,22 @@
             plum: "梅", orchid: "兰", chrysanthemum: "菊", bamboo: "竹"
         };
 
+        function getTileImageCandidates(key) {
+            const filename = tileImageMap[key]?.split("/").pop();
+            if (!filename) {
+                return [];
+            }
+            return [
+                `./Mahjong%20Photo/${filename}`,
+                `./assets/mahjong-tiles/${filename}`,
+                `assets/mahjong-tiles/${filename}`
+            ];
+        }
+
+        function getTileImageSrc(key) {
+            return getTileImageCandidates(key)[0] || "data:,";
+        }
+
         function createEmptyPlayerStats() {
             return {
                 totalFans: 0,
@@ -1823,12 +2021,87 @@
         }
 
         function handleReferenceImageError(img, key) {
+            const candidates = getTileImageCandidates(key);
+            const attemptedIndex = Number(img.dataset.attemptIndex || 0);
+            if (attemptedIndex + 1 < candidates.length) {
+                img.dataset.attemptIndex = String(attemptedIndex + 1);
+                img.src = candidates[attemptedIndex + 1];
+                return;
+            }
+
             const tile = img.closest(".reference-tile");
             if (!tile) {
                 return;
             }
             tile.classList.add("fallback");
             tile.innerHTML = `<span>${tileLabelMap[key] || key}</span>`;
+        }
+
+        function getViewerName() {
+            return localStorage.getItem(roomViewerNameStorageKey)?.trim() || "";
+        }
+
+        function ensureViewerName() {
+            let viewerName = getViewerName();
+            while (!viewerName) {
+                const input = window.prompt("请输入你的名字，让房间内其他玩家看得到你是谁。", "");
+                if (input === null) {
+                    return "";
+                }
+                viewerName = input.trim();
+            }
+            localStorage.setItem(roomViewerNameStorageKey, viewerName);
+            return viewerName;
+        }
+
+        function renderRoomMembers(presence = {}) {
+            currentPresence = presence || {};
+            const wrap = document.getElementById("room-members-wrap");
+            const list = document.getElementById("room-members-list");
+            if (!wrap || !list) {
+                return;
+            }
+
+            const names = Object.values(currentPresence)
+                .map(entry => entry?.name?.trim())
+                .filter(Boolean);
+
+            if (!names.length || !currentRoomId) {
+                wrap.classList.add("hidden");
+                list.innerHTML = "";
+                return;
+            }
+
+            wrap.classList.remove("hidden");
+            list.innerHTML = names.map(name => `<span class="room-member-chip">${name}</span>`).join("");
+        }
+
+        async function syncRoomPresence(roomId = currentRoomId) {
+            if (!roomId || !(await ensureFirebaseReady())) {
+                return;
+            }
+
+            const viewerName = ensureViewerName();
+            if (!viewerName) {
+                return;
+            }
+
+            const currentUser = await window.firebaseRoomApi.authReady;
+            const presenceRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/presence/${currentUser.uid}`);
+            await window.firebaseRoomApi.set(presenceRef, {
+                name: viewerName,
+                joinedAt: Date.now()
+            });
+            window.firebaseRoomApi.onDisconnect(presenceRef).remove();
+        }
+
+        async function removeRoomPresence(roomId = currentRoomId) {
+            if (!roomId || !(await ensureFirebaseReady())) {
+                return;
+            }
+            const currentUser = await window.firebaseRoomApi.authReady;
+            const presenceRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/presence/${currentUser.uid}`);
+            await window.firebaseRoomApi.remove(presenceRef);
         }
 
         function switchMainTab(tab) {
@@ -1876,11 +2149,11 @@
             const buildReferenceTiles = item => {
                 const sample = fanReferenceSamples[item.name];
                 if (!sample) {
-                    return `<p class="text-sm muted mt-3">这个牌型暂时未整理到维基页面中的对应示例图。</p>`;
+                    return "";
                 }
 
                 if (sample.note) {
-                    return `<p class="text-sm muted mt-3">${sample.note}</p>`;
+                    return "";
                 }
 
                 const tileKeys = sample.tiles;
@@ -1888,7 +2161,7 @@
                     <div class="reference-tiles">
                         ${tileKeys.map(key => `
                             <div class="reference-tile">
-                                <img src="${tileImageMap[key] || "data:,"}" alt="${item.name} 参考牌" loading="lazy" onerror="handleReferenceImageError(this, '${key}')">
+                                <img src="${getTileImageSrc(key)}" data-attempt-index="0" alt="${item.name} 参考牌" loading="lazy" onerror="handleReferenceImageError(this, '${key}')">
                             </div>
                         `).join("")}
                     </div>
@@ -1978,13 +2251,27 @@
         }
 
         function leaveRoom() {
+            const previousRoomId = currentRoomId;
+            if (roomStateUnsubscribe) {
+                roomStateUnsubscribe();
+                roomStateUnsubscribe = null;
+            }
+            if (roomPresenceUnsubscribe) {
+                roomPresenceUnsubscribe();
+                roomPresenceUnsubscribe = null;
+            }
+            removeRoomPresence(previousRoomId).catch(() => {});
             currentRoomId = "";
+            currentPresence = {};
             localStorage.removeItem(roomStorageKey);
             const url = new URL(window.location.href);
             url.searchParams.delete("room");
             window.history.replaceState({}, "", url.toString());
             document.getElementById("room-id-input").value = "";
             setRoomStatus("已离开共享房间，现在回到单机模式。");
+            renderRoomMembers({});
+            switchMainTab("lobby");
+            refreshRoomLobby();
         }
 
         function formatRoomUpdatedAt(timestamp) {
@@ -2024,6 +2311,7 @@
                         <span class="room-lobby-tag">${room.roundLabel}</span>
                         <span class="room-lobby-tag">${formatRoomUpdatedAt(room.updatedAt)}</span>
                     </div>
+                    ${room.memberNames.length ? `<div class="room-members">${room.memberNames.map(name => `<span class="room-member-chip">${name}</span>`).join("")}</div>` : ""}
                     <button type="button" onclick="joinListedRoom('${room.id}')" class="action-button w-full mt-4 bg-emerald-700 text-white">加入房间</button>
                 </div>
             `).join("");
@@ -2035,33 +2323,52 @@
             joinRoom();
         }
 
+        function subscribeToRoomLobby() {
+            if (!window.firebaseRoomApi) {
+                renderRoomLobby([]);
+                return;
+            }
+            if (roomCatalogUnsubscribe) {
+                roomCatalogUnsubscribe();
+                roomCatalogUnsubscribe = null;
+            }
+
+            const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
+            roomCatalogUnsubscribe = window.firebaseRoomApi.onValue(roomsRef, snapshot => {
+                if (!snapshot.exists()) {
+                    renderRoomLobby([]);
+                    return;
+                }
+
+                const rooms = Object.entries(snapshot.val() || {}).map(([id, room]) => {
+                    const state = room?.state || {};
+                    const presence = room?.presence || {};
+                    const memberNames = Object.values(presence)
+                        .map(entry => entry?.name?.trim())
+                        .filter(Boolean);
+                    const playerCount = Object.keys(state.players || {}).length;
+                    const roundNumber = Number(state.round || 0);
+                    const isPlaying = playerCount > 0 || (state.history || []).length > 0;
+                    return {
+                        id,
+                        updatedAt: room?.updatedAt || 0,
+                        playerCount,
+                        memberNames,
+                        roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
+                        status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
+                    };
+                }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+
+                renderRoomLobby(rooms);
+            });
+        }
+
         async function refreshRoomLobby() {
             if (!(await ensureFirebaseReady())) {
                 renderRoomLobby([]);
                 return;
             }
-
-            const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
-            const snapshot = await window.firebaseRoomApi.get(roomsRef);
-            if (!snapshot.exists()) {
-                renderRoomLobby([]);
-                return;
-            }
-
-            const rooms = Object.entries(snapshot.val() || {}).map(([id, room]) => {
-                const state = room?.state || {};
-                const playerCount = Object.keys(state.players || {}).length;
-                const roundNumber = Number(state.round || 0);
-                return {
-                    id,
-                    updatedAt: room?.updatedAt || 0,
-                    playerCount,
-                    roundLabel: playerCount > 0 ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
-                    status: playerCount > 0 ? "进行中" : "可加入"
-                };
-            }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
-
-            renderRoomLobby(rooms);
+            subscribeToRoomLobby();
         }
 
         function buildCameraHelperHtml() {
@@ -2085,8 +2392,8 @@
                             <p id="camera-fan-total-shared" class="text-3xl font-black">0</p>
                         </div>
                     </div>
-                    <div id="camera-fan-checklist-shared" class="grid gap-3 mt-4 md:grid-cols-2"></div>
-                    <div class="flex flex-wrap gap-2 mt-4">
+                    <div id="camera-fan-checklist-shared" class="manual-fan-grid mt-4"></div>
+                    <div class="compact-action-row mt-4 sm:flex sm:flex-wrap sm:gap-2">
                         <button type="button" onclick="applyCameraFanTotal()" class="action-button bg-emerald-700 text-white">套用到本局番数</button>
                         <button type="button" onclick="resetCameraFanChecklist()" class="action-button bg-slate-200 text-slate-800">清空选择</button>
                     </div>
@@ -2097,10 +2404,12 @@
         function renderCameraFanChecklist() {
             const items = fanReferenceSections.flatMap(section => section.items);
             const checklistHtml = items.map(item => `
-                <label class="fan-chip flex items-center gap-3 cursor-pointer">
+                <label class="fan-chip manual-fan-item cursor-pointer">
                     <input type="checkbox" class="camera-fan-item" data-fans="${item.fans}" onchange="updateCameraFanTotal()">
-                    <span class="flex-1 font-bold">${item.name}</span>
-                    <span class="text-lg font-black text-emerald-700">${item.fans} 番</span>
+                    <span class="manual-fan-copy flex-1">
+                        <span class="manual-fan-name">${item.name}</span>
+                    </span>
+                    <span class="manual-fan-value">${item.fans} 番</span>
                 </label>
             `).join("");
             [
@@ -2346,6 +2655,36 @@
             }
         }
 
+        function showSetupScreen() {
+            document.getElementById("summary-section").classList.add("hidden");
+            document.getElementById("game-section").classList.add("hidden");
+            document.getElementById("setup-section").classList.remove("hidden");
+        }
+
+        function resetGameStateForEmptyRoom() {
+            players = {};
+            playerStats = {};
+            history = [];
+            round = 0;
+            editingIndex = null;
+            lastRoundTimestamp = null;
+            roundResultType = "win";
+            roundStartedAt = null;
+            pauseStartedAt = null;
+            pausedDurationMs = 0;
+            isTimerPaused = false;
+            document.getElementById("price-input").value = "";
+            document.getElementById("player-1-input").value = "";
+            document.getElementById("player-2-input").value = "";
+            document.getElementById("player-3-input").value = "";
+            document.getElementById("player-4-input").value = "";
+            localStorage.removeItem(localStorageKey);
+            updateGameUI();
+            syncRoundFormState();
+            updateTimerUI();
+            showSetupScreen();
+        }
+
         function generateRoomId() {
             return Math.random().toString(36).slice(2, 8).toUpperCase();
         }
@@ -2369,16 +2708,24 @@
             if (!(await ensureFirebaseReady())) {
                 return;
             }
+            if (!ensureViewerName()) {
+                return;
+            }
             currentRoomId = generateRoomId();
             localStorage.setItem(roomStorageKey, currentRoomId);
             document.getElementById("room-id-input").value = currentRoomId;
             await ensureRoomStateExists();
             subscribeToRoom(currentRoomId);
+            await syncRoomPresence(currentRoomId);
             setRoomStatus(`已创建共享房间 ${currentRoomId}，现在可以开始游戏并分享链接。`, true);
+            refreshRoomLobby();
         }
 
         async function joinRoom() {
             if (!(await ensureFirebaseReady())) {
+                return;
+            }
+            if (!ensureViewerName()) {
                 return;
             }
             const roomInput = document.getElementById("room-id-input").value.trim().toUpperCase();
@@ -2391,11 +2738,14 @@
             localStorage.setItem(roomStorageKey, currentRoomId);
             const exists = await loadRoomState(currentRoomId);
             subscribeToRoom(currentRoomId);
+            await syncRoomPresence(currentRoomId);
             if (exists) {
                 setRoomStatus(`已加入共享房间 ${currentRoomId}，正在同步最新分数。`, true);
             } else {
+                resetGameStateForEmptyRoom();
                 setRoomStatus(`房间 ${currentRoomId} 目前还是空的。你可以先开始游戏，再把链接分享给朋友。`, true);
             }
+            refreshRoomLobby();
         }
 
         async function copyRoomLink() {
@@ -2416,6 +2766,7 @@
             if (!snapshot.exists()) {
                 await window.firebaseRoomApi.set(roomRef, {
                     state: buildGameStatePayload(),
+                    presence: {},
                     updatedAt: window.firebaseRoomApi.serverTimestamp()
                 });
             }
@@ -2425,14 +2776,22 @@
             if (!roomId || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
                 return false;
             }
-            const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/state`);
+            const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}`);
             const snapshot = await window.firebaseRoomApi.get(roomRef);
             if (!snapshot.exists()) {
                 return false;
             }
 
+            const roomData = snapshot.val() || {};
+            const state = roomData.state || {};
+            renderRoomMembers(roomData.presence || {});
+            const hasGameData = Object.keys(state.players || {}).length > 0 || (state.history || []).length > 0;
+            if (!hasGameData) {
+                return false;
+            }
+
             applyingRemoteState = true;
-            applyGameStatePayload(snapshot.val());
+            applyGameStatePayload(state);
             localStorage.setItem(localStorageKey, JSON.stringify(buildGameStatePayload()));
             document.getElementById("setup-section").classList.add("hidden");
             document.getElementById("game-section").classList.remove("hidden");
@@ -2446,8 +2805,19 @@
             if (!roomId || !window.firebaseRoomApi) {
                 return;
             }
-            roomListenerRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/state`);
-            window.firebaseRoomApi.onValue(roomListenerRef, snapshot => {
+            if (roomStateUnsubscribe) {
+                roomStateUnsubscribe();
+                roomStateUnsubscribe = null;
+            }
+            if (roomPresenceUnsubscribe) {
+                roomPresenceUnsubscribe();
+                roomPresenceUnsubscribe = null;
+            }
+
+            const roomStateRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/state`);
+            const roomPresenceRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}/presence`);
+
+            roomStateUnsubscribe = window.firebaseRoomApi.onValue(roomStateRef, snapshot => {
                 if (!snapshot.exists()) {
                     return;
                 }
@@ -2462,6 +2832,10 @@
                 updateGameUI();
                 applyingRemoteState = false;
             });
+
+            roomPresenceUnsubscribe = window.firebaseRoomApi.onValue(roomPresenceRef, snapshot => {
+                renderRoomMembers(snapshot.exists() ? snapshot.val() : {});
+            });
         }
 
         async function syncRoomState() {
@@ -2469,7 +2843,7 @@
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
-            await window.firebaseRoomApi.set(roomRef, {
+            await window.firebaseRoomApi.update(roomRef, {
                 state: buildGameStatePayload(),
                 updatedAt: window.firebaseRoomApi.serverTimestamp()
             });
@@ -2487,6 +2861,7 @@
             switchMainTab(currentMainTab);
             switchGameTool(currentGameTool);
             const roomFromUrl = new URL(window.location.href).searchParams.get("room");
+            refreshRoomLobby();
 
             if (!loadGameData()) {
                 document.getElementById("setup-section").classList.remove("hidden");
@@ -2500,9 +2875,11 @@
                 if (await ensureFirebaseReady()) {
                     loadRoomState(currentRoomId).then(() => {
                         subscribeToRoom(currentRoomId);
+                        syncRoomPresence(currentRoomId);
                         setRoomStatus(`已连接共享房间 ${currentRoomId}。`, true);
                     }).catch(() => {
                         subscribeToRoom(currentRoomId);
+                        syncRoomPresence(currentRoomId);
                         setRoomStatus(`已连接共享房间 ${currentRoomId}，等待第一局开始。`, true);
                     });
                 }
@@ -2513,6 +2890,12 @@
             syncRoundFormState();
             updateTimerUI();
         };
+
+        window.addEventListener("beforeunload", () => {
+            if (currentRoomId) {
+                removeRoomPresence(currentRoomId).catch(() => {});
+            }
+        });
 
         function startGame() {
             const priceInput = document.getElementById("price-input").value;
@@ -3283,15 +3666,6 @@
             syncRoundFormState();
         }
 
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/service-worker.js").then(registration => {
-                    console.log("Service Worker registered:", registration);
-                }).catch(registrationError => {
-                    console.log("Service Worker registration failed:", registrationError);
-                });
-            });
-        }
     </script>
 </body>
 </html>
