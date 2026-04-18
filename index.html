@@ -550,6 +550,18 @@
             box-shadow: 0 14px 28px rgba(39, 126, 88, 0.22);
         }
 
+        #main-tab-lobby {
+            background: rgba(148, 163, 184, 0.22);
+            color: #526273;
+            border-color: rgba(148, 163, 184, 0.34);
+        }
+
+        #main-tab-lobby.active {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            color: white;
+            box-shadow: 0 14px 28px rgba(100, 116, 139, 0.22);
+        }
+
         .feature-card {
             border-radius: 24px;
             border: 1px solid var(--glass-border);
@@ -573,7 +585,6 @@
         .fan-static {
             border-radius: 0;
             border: none;
-            border-top: 1px solid rgba(15, 81, 50, 0.12);
             background: transparent;
             overflow: visible;
             box-shadow: none;
@@ -581,7 +592,7 @@
         }
 
         .fan-static-head {
-            padding: 10px 0;
+            padding: 8px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -599,9 +610,28 @@
 
         .fan-family-header {
             display: block;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(15, 81, 50, 0.12);
+            margin-bottom: 16px;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .fan-family-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(20, 97, 66, 0.08);
+            color: var(--text-strong);
+            padding: 14px 16px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .fan-family-toggle:hover {
+            background: rgba(20, 97, 66, 0.12);
         }
 
         .fan-family-title {
@@ -609,6 +639,26 @@
             font-weight: 900;
             line-height: 1.1;
             color: var(--text-strong);
+        }
+
+        .fan-family-meta {
+            display: grid;
+            gap: 4px;
+        }
+
+        .fan-family-arrow {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #176c4a;
+            flex-shrink: 0;
+        }
+
+        .fan-family-body {
+            display: grid;
+        }
+
+        .fan-family-body.hidden {
+            display: none;
         }
 
         .reference-title-row {
@@ -672,7 +722,7 @@
 
         .fan-directory-layout {
             display: grid;
-            gap: 10px;
+            gap: 16px;
         }
 
         .fan-directory-chip {
@@ -689,11 +739,14 @@
         .fan-level-card {
             border-radius: 0;
             border: none;
-            border-top: 1px solid rgba(15, 81, 50, 0.12);
             background: transparent;
-            padding: 10px 0 0;
+            padding: 14px 0 0;
             box-shadow: none;
             backdrop-filter: none;
+        }
+
+        .fan-level-card + .fan-level-card {
+            margin-top: 4px;
         }
 
         .fan-level-head {
@@ -701,20 +754,23 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(15, 81, 50, 0.14);
         }
 
         .fan-level-bar {
             display: inline-flex;
             align-items: center;
-            min-height: 34px;
             padding: 7px 14px;
-            border-radius: 999px;
-            font-size: 0.86rem;
             font-weight: 900;
+            font-size: 0.9rem;
             line-height: 1;
             color: white;
-            box-shadow: 0 10px 20px rgba(21, 128, 61, 0.16);
+            background: linear-gradient(135deg, #176c4a, #1f8f62) !important;
+            box-shadow: none;
+            border-radius: 999px;
+            min-height: 34px;
         }
 
         .fan-level-name {
@@ -737,11 +793,11 @@
 
         .fan-items-grid {
             display: grid;
-            gap: 0;
+            gap: 6px;
         }
 
         .fan-items-grid.compact {
-            gap: 0;
+            gap: 6px;
         }
 
         .fan-accordion-body {
@@ -850,6 +906,15 @@
             --glass-overlay: radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 32%);
         }
 
+        .dark-mode body,
+        body.dark-mode {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(22, 163, 74, 0.12), transparent 20%),
+                radial-gradient(circle at 82% 10%, rgba(56, 189, 248, 0.08), transparent 22%),
+                radial-gradient(circle at 78% 84%, rgba(20, 184, 166, 0.1), transparent 24%),
+                linear-gradient(145deg, #06110d 0%, #0b1713 48%, #12211b 100%);
+        }
+
         .dark-mode .shell {
             background: linear-gradient(180deg, rgba(10,18,15,0.56), rgba(10,18,15,0.26));
             border-color: rgba(255,255,255,0.08);
@@ -882,7 +947,24 @@
         }
 
         .dark-mode .fan-family-header {
-            border-bottom-color: rgba(148, 163, 184, 0.16);
+            border-bottom: none;
+        }
+
+        .dark-mode .fan-level-head {
+            border-top-color: rgba(148, 163, 184, 0.18);
+        }
+
+        .dark-mode .fan-family-toggle {
+            background: rgba(255,255,255,0.06);
+            color: #edf3f1;
+        }
+
+        .dark-mode .fan-family-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .dark-mode .fan-family-arrow {
+            color: #d7f6ea;
         }
 
         .dark-mode .reference-source-pill {
@@ -913,11 +995,6 @@
             color: #d7f6ea;
             background: rgba(16, 185, 129, 0.14);
         }
-
-        .dark-mode .fan-level-bar {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
-        }
-
 
         .dark-mode .field,
         .dark-mode .select,
@@ -953,8 +1030,12 @@
             color: #cfe9dd;
         }
 
+        .dark-mode .brand-title {
+            color: #f3faf7;
+        }
+
         .dark-mode .brand-subtitle {
-            color: #dff5ea;
+            color: #bfe7d5;
         }
 
         .dark-mode .room-copy {
@@ -983,6 +1064,17 @@
 
         .dark-mode .main-tab.active {
             background: rgba(243,250,247,0.95);
+            color: #0b1120;
+        }
+
+        .dark-mode #main-tab-lobby {
+            background: rgba(148, 163, 184, 0.16);
+            color: #dbe4ec;
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+
+        .dark-mode #main-tab-lobby.active {
+            background: linear-gradient(135deg, #7c8da3, #a8b4c4);
             color: #0b1120;
         }
 
@@ -1648,41 +1740,12 @@
             <div class="flex flex-wrap hero-nav">
                 <button type="button" id="main-tab-play" class="main-tab active" onclick="switchMainTab('play')">记分主页</button>
                 <button type="button" id="main-tab-reference" class="main-tab" onclick="switchMainTab('reference')">番数参考</button>
-                <button type="button" id="main-tab-lobby" class="main-tab" onclick="switchMainTab('lobby')">房间大厅</button>
+                <button type="button" id="main-tab-lobby" class="main-tab" onclick="switchMainTab('lobby')">房间大厅 (WIP)</button>
             </div>
         </div>
 
         <div id="play-page" class="page-stack">
         <div id="setup-section" class="section-stack">
-            <section class="room-box">
-                <div class="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.25em] room-copy font-bold">Shared Room</p>
-                        <h2 class="text-2xl font-black mt-1">记分房间</h2>
-                        <p class="text-sm room-copy-soft mt-3 max-w-[34rem]">创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。</p>
-                    </div>
-                    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto]">
-                        <input type="text" id="viewer-name-input" placeholder="输入你的名字" class="field">
-                        <input type="text" id="room-id-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="输入 6 位数字房号" class="field">
-                        <button type="button" onclick="createRoom()" class="action-button bg-white text-emerald-900">创建房间</button>
-                        <button type="button" onclick="joinRoom()" class="action-button bg-emerald-700 text-white">加入房间</button>
-                    </div>
-                </div>
-                <div class="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div id="room-status-text" class="room-status-pill">
-                        <span class="room-status-dot" aria-hidden="true"></span>
-                        <span class="text-sm">当前未连接共享房间，仍可单机使用。</span>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" id="copy-room-link-button" onclick="copyRoomLink()" class="action-button bg-amber-400 text-emerald-950 hidden">复制分享链接</button>
-                        <button type="button" id="leave-room-button" onclick="leaveRoom()" class="action-button bg-slate-200 text-slate-800 hidden">离开房间</button>
-                    </div>
-                </div>
-                <div id="room-members-wrap" class="hidden mt-4">
-                    <p class="text-xs uppercase tracking-[0.22em] room-copy font-bold">Room Members</p>
-                    <div id="room-members-list" class="room-members mt-3"></div>
-                </div>
-            </section>
             <div class="section-grid lg:grid-cols-[1.1fr_1.4fr]">
                 <section class="panel panel-strong p-5 md:p-7">
                     <div class="flex items-center justify-between gap-3 section-header">
@@ -1716,6 +1779,34 @@
                     </button>
                 </section>
             </div>
+            <section class="room-box">
+                <div class="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.25em] room-copy font-bold">Shared Room (WIP)</p>
+                        <h2 class="text-2xl font-black mt-1">记分房间</h2>
+                        <p class="text-sm room-copy-soft mt-3 max-w-[34rem]">创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。</p>
+                    </div>
+                    <div class="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+                        <input type="text" id="room-id-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="输入 6 位数字房号" class="field">
+                        <button type="button" onclick="createRoom()" class="action-button bg-white text-emerald-900">创建房间</button>
+                        <button type="button" onclick="joinRoom()" class="action-button bg-emerald-700 text-white">加入房间</button>
+                    </div>
+                </div>
+                <div class="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div id="room-status-text" class="room-status-pill">
+                        <span class="room-status-dot" aria-hidden="true"></span>
+                        <span class="text-sm">当前未连接共享房间，仍可单机使用。</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="copy-room-link-button" onclick="copyRoomLink()" class="action-button bg-amber-400 text-emerald-950 hidden">复制分享链接</button>
+                        <button type="button" id="leave-room-button" onclick="leaveRoom()" class="action-button bg-slate-200 text-slate-800 hidden">离开房间</button>
+                    </div>
+                </div>
+                <div id="room-members-wrap" class="hidden mt-4">
+                    <p class="text-xs uppercase tracking-[0.22em] room-copy font-bold">Room Members</p>
+                    <div id="room-members-list" class="room-members mt-3"></div>
+                </div>
+            </section>
         </div>
 
         <div id="game-section" class="hidden section-stack">
@@ -1860,7 +1951,7 @@
             </section>
         </div>
 
-        <p class="text-center text-sm mt-8" style="color: #285240;">Created by Bernard Boo<br>Have Fun :)</p>
+        <p class="text-center text-sm mt-8" style="color: #285240;">Created by BB. Have Fun :)</p>
         <div id="end-game-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
             <div class="relative bg-white rounded-3xl p-8 shadow-xl mx-4 max-w-sm w-full modal">
                 <h3 class="text-xl font-semibold mb-4 text-center">结束游戏？</h3>
@@ -2049,6 +2140,7 @@
 
         const themeStorageKey = "mahjongTheme";
         const roomViewerNameStorageKey = "mahjongViewerName";
+        const fanReferenceStateStorageKey = "mahjongFanReferenceState";
         const fanReferenceSections = [
             {
                 title: "正统牌型 · 一番",
@@ -2118,7 +2210,7 @@
                     { name: "地和", fans: 13 },
                     { name: "人和", fans: 13 },
                     { name: "大四喜", fans: 13 },
-                    { name: "十三幺（国士无双）", fans: 13 },
+                    { name: "十三幺（靠腰！）", fans: 13 },
                     { name: "十八罗汉（四杠子）", fans: 13 }
                 ]
             },
@@ -2150,13 +2242,8 @@
                     { name: "三杠子", fans: 3 },
                     { name: "三喜临门（三风刻）", fans: 3 },
                     { name: "七对子（哩咕哩咕）", fans: 3 },
-                    { name: "双色同刻", fans: 3 }
-                ]
-            },
-            {
-                title: "自订牌型 · 三番",
-                items: [
-                    { name: "四归四", fans: 3 }
+                    { name: "双色同刻（两组相同刻子）", fans: 3 },
+                    { name: "四归四（四只相同的牌落到四个顺子上）", fans: 3 }
                 ]
             },
             {
@@ -2243,10 +2330,22 @@
                 ]
             },
             "花和（七只花）": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum"] },
-            "对对和（碰碰糊）": { tiles: ["s1", "s1", "s1", "w6", "w6", "w6", "w8", "w8", "w8", "w9", "w9", "w9", "west", "west"] },
-            "混一色": { tiles: ["w1", "w1", "w3", "w4", "w5", "w7", "w7", "w7", "w9", "w9", "w9", "west", "west", "west"] },
+            "对对和（碰碰糊）": {
+                rows: [
+                    ["s1", "s1", "s1", "|", "w6", "w6", "w6", "|", "w8", "w8", "w8", "|", "w9", "w9", "w9", "|", "west", "west"]
+                ]
+            },
+            "混一色": {
+                rows: [
+                    ["w3", "w4", "w5", "|", "w7", "w7", "w7", "|", "w9", "w9", "w9", "|", "west", "west", "west", "|", "w1", "w1"]
+                ]
+            },
             "花幺九（混老头）": { tiles: ["s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1", "w1", "west", "west", "west", "green", "green"] },
-            "小三元": { tiles: ["s1", "s2", "s3", "t5", "red", "green", "white"] },
+            "小三元": {
+                rows: [
+                    ["s1", "s2", "s3", "|", "t5", "t6", "t7", "|", "red", "red", "red", "|", "green", "green", "green", "|", "white", "white"]
+                ]
+            },
             "小四喜": { tiles: ["t4", "t5", "t6", "east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north"] },
             "清一色": { tiles: ["w1", "w2", "w3", "w5", "w5", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w4", "w4"] },
             "大三元": { tiles: ["s1", "s2", "s3", "red", "red", "red", "green", "green", "green", "white", "white", "white", "t5", "t5"] },
@@ -2255,12 +2354,21 @@
             "坎坎胡（四暗刻）": { note: "文字说明" },
             "字一色（全字糊）": { tiles: ["east", "east", "east", "south", "south", "south", "north", "north", "north", "red", "red", "red", "green", "green"] },
             "清幺九（清老头）": { tiles: ["t1", "t1", "t1", "t9", "t9", "t9", "s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1"] },
-            "九莲宝灯（九子连环）": { tiles: ["w1", "w1", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w7"] },
+            "九莲宝灯（九子连环）": {
+                rows: [
+                    ["w1", "w1", "w1", "|", "w2", "w3", "w4", "|", "w5", "w6", "w7", "|", "w8", "w9", "|", "w9", "w9", "|", "w7"],
+                    ["w1", "w1", "w1", "|", "w2", "w3", "w4", "|", "w6", "w7", "|", "w8", "w8", "|", "w9", "w9", "w9", "|", "w5"]
+                ]
+            },
             "天和": { note: "文字说明" },
             "地和": { note: "文字说明" },
             "人和": { note: "文字说明" },
             "大四喜": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north", "north", "t5", "t5"] },
-            "十三幺（国士无双）": { tiles: ["t1", "t9", "s1", "s9", "w1", "w9", "east", "south", "west", "north", "red", "green", "white", "white"] },
+            "十三幺（靠腰！）": {
+                rows: [
+                    ["t1", "t9", "s1", "s9", "w1", "w9", "east", "south", "west", "north", "red", "green", "white", "white"]
+                ]
+            },
             "十八罗汉（四杠子）": {
                 rows: [
                     ["s1", "s1", "s1", "s1", "|", "t2", "t2", "t2", "t2", "|", "w3", "w3", "w3", "w3"],
@@ -2279,40 +2387,45 @@
             "镜糊糊": { tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "s1", "s2", "s3", "s4", "s5", "s6", "east", "east"] },
             "四般高（四同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "east", "east"] },
             "四般低（步步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "t4", "t5", "t6", "east", "east"] },
-            "三杠子": { tiles: ["t1", "t1", "t1", "t1", "s2", "s2", "s2", "s2", "w3", "w3", "w3", "w3", "green", "green"] },
+            "三杠子": {
+                rows: [
+                    ["t1", "t1", "t1", "t1", "|", "s2", "s2", "s2", "s2", "|", "w3", "w3", "w3", "w3", "|", "t6", "t7", "t8", "|", "green", "green"]
+                ]
+            },
             "三喜临门（三风刻）": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "w1", "w2", "w3", "t5", "t5"] },
             "七对子（哩咕哩咕）": { tiles: ["t1", "t1", "s2", "s2", "w3", "w3", "t4", "t4", "s5", "s5", "w6", "w6", "green", "green"] },
-            "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"] },
-            "四归四": {
+            "双色同刻（两组相同刻子）": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"] },
+            "四归四（四只相同的牌落到四个顺子上）": {
                 rows: [
-                    ["t1", "s2", "t3", "t1", "s2", "t3", "s2", "t3", "s4", "t1", "s2", "s3", "red", "red"]
+                    ["t1", "t2", "t3", "|", "t1", "t2", "t3", "|", "t2", "t3", "t4", "|", "t3", "t4", "t5", "|", "red", "red"]
                 ]
             },
             "万绿丛中一点红": {
                 rows: [
-                    ["s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4", "s6", "s6", "s8", "red", "red"],
-                    ["s2", "s3", "s4", "|", "s2", "s3", "s4", "|", "s6", "s6", "s8", "s8", "red", "red"]
+                    ["s2", "s3", "s4", "|", "s3", "s3", "s3", "|", "s6", "s6", "s6", "|", "red", "red", "red", "|", "s8", "s8"],
+                    ["s2", "s3", "s4", "|", "s3", "s3", "s3", "|", "s4", "s5", "s6", "|", "s8", "s8", "s8", "|", "green", "green"],
+                    ["s2", "s3", "s4", "|", "s3", "s3", "s3", "|", "s5", "s5", "s5", "|", "green", "green", "green", "|", "s6", "s6"]
                 ]
             },
             "百万石（百万雄兵）": {
                 rows: [
-                    ["w9", "w9", "w9", "w8", "w8", "w8", "w7", "w7", "w7", "w6", "w6", "w6", "w5", "w5"],
-                    ["w9", "w9", "w9", "|", "w9", "w8", "w7", "|", "w9", "w8", "w7", "|", "w8", "w8"]
+                    ["w6", "w7", "w8", "w6", "w7", "w8", "w7", "w8", "w9", "w9", "w9", "w9", "w4", "w4"],
+                    ["t6", "t6", "t6", "|", "t7", "t7", "t7", "|", "t8", "t8", "t8", "|", "t9", "t9", "t9", "|", "t5", "t5"]
                 ]
             },
             "蓝一色": {
                 rows: [
-                    ["t8", "t8", "t8", "|", "east", "east", "east", "|", "south", "south", "south", "|", "white", "white"]
+                    ["t8", "t8", "t8", "|", "east", "east", "east", "|", "south", "south", "south", "|", "white", "white", "white", "|", "north", "north"]
                 ]
             },
             "绿一色": {
                 rows: [
-                    ["s2", "s2", "s2", "|", "s3", "s3", "s3", "|", "s4", "s4", "s4", "|", "green", "green"]
+                    ["s2", "s2", "s2", "|", "s3", "s3", "s3", "|", "s4", "s4", "s4", "|", "s6", "s6", "s6", "|", "green", "green"]
                 ]
             },
             "红孔雀": {
                 rows: [
-                    ["s1", "s1", "s1", "|", "s5", "s5", "s5", "|", "s7", "s7", "s7", "|", "red", "red"]
+                    ["s5", "s5", "s5", "|", "s7", "s7", "s7", "|", "s9", "s9", "s9", "|", "red", "red", "red", "|", "s1", "s1"]
                 ]
             }
         };
@@ -2356,6 +2469,25 @@
             };
         }
 
+        function getFirebaseErrorText(error) {
+            const code = error?.code || "";
+            const message = error?.message || "";
+
+            if (code.includes("permission-denied")) {
+                return "Firebase 权限被拒绝，请检查 Realtime Database Rules。";
+            }
+            if (code.includes("auth")) {
+                return "Firebase 登录失败，请确认已启用匿名登录。";
+            }
+            if (code.includes("network")) {
+                return "Firebase 网络连接失败，请检查网络或数据库地址。";
+            }
+            if (message) {
+                return `Firebase 错误：${message}`;
+            }
+            return "Firebase 发生未知错误。";
+        }
+
         function setTheme(theme) {
             currentTheme = theme;
             document.body.classList.toggle("dark-mode", theme === "dark");
@@ -2393,11 +2525,10 @@
 
             setText("#main-tab-play", "记分主页");
             setText("#main-tab-reference", "番数参考");
-            setText("#main-tab-lobby", "房间大厅");
+            setText("#main-tab-lobby", "房间大厅 (WIP)");
 
             setText(".room-box h2", "记分房间");
             setText(".room-copy-soft", "创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。");
-            setPlaceholder("#viewer-name-input", "输入你的名字");
             setPlaceholder("#room-id-input", "输入 6 位数字房号");
             setText('.room-box button[onclick="createRoom()"]', "创建房间");
             setText('.room-box button[onclick="joinRoom()"]', "加入房间");
@@ -2504,25 +2635,39 @@
         }
 
         function getViewerName() {
-            const input = document.getElementById("viewer-name-input");
-            const value = input?.value?.trim() || localStorage.getItem(roomViewerNameStorageKey)?.trim() || "";
-            if (input && value && input.value.trim() !== value) {
-                input.value = value;
-            }
-            return value;
+            return localStorage.getItem(roomViewerNameStorageKey)?.trim() || "";
         }
 
         function ensureViewerName() {
-            const input = document.getElementById("viewer-name-input");
             let viewerName = getViewerName();
             if (!viewerName) {
-                if (input) {
-                    viewerName = `访客${String(Date.now()).slice(-4)}`;
-                    input.value = viewerName;
-                }
+                viewerName = `访客${String(Date.now()).slice(-4)}`;
             }
             localStorage.setItem(roomViewerNameStorageKey, viewerName);
             return viewerName;
+        }
+
+        function getFanReferenceState() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(fanReferenceStateStorageKey) || "{}");
+                return {
+                    classic: parsed.classic !== false,
+                    custom: parsed.custom !== false
+                };
+            } catch {
+                return { classic: true, custom: true };
+            }
+        }
+
+        function setFanReferenceState(nextState) {
+            localStorage.setItem(fanReferenceStateStorageKey, JSON.stringify(nextState));
+        }
+
+        function toggleFanReferenceFamily(familyKey) {
+            const state = getFanReferenceState();
+            state[familyKey] = !state[familyKey];
+            setFanReferenceState(state);
+            renderFanReference();
         }
 
         function renderRoomMembers(presence = {}) {
@@ -2598,6 +2743,7 @@
         }
 
         function buildFanReferenceHtml() {
+            const fanReferenceState = getFanReferenceState();
             const fanFamilies = [
                 {
                     key: "classic",
@@ -2615,10 +2761,6 @@
                 }
             ];
 
-            const getFanLevelBarStyle = () => {
-                return "linear-gradient(135deg, #176c4a, #1f8f62)";
-            };
-
             const buildReferenceTiles = item => {
                 const sample = fanReferenceSamples[item.name];
                 if (!sample) {
@@ -2629,7 +2771,28 @@
                     return "";
                 }
 
-                const tileRows = sample.rows || [sample.tiles || []];
+                const tileRows = (sample.rows || [sample.tiles || []]).map(row => {
+                    if (!Array.isArray(row)) {
+                        return row;
+                    }
+                    if (item.name === "十三幺（靠腰！）") {
+                        return row;
+                    }
+                    if (row.includes("|") || row.length !== 14) {
+                        return row;
+                    }
+                    return [
+                        ...row.slice(0, 3),
+                        "|",
+                        ...row.slice(3, 6),
+                        "|",
+                        ...row.slice(6, 9),
+                        "|",
+                        ...row.slice(9, 12),
+                        "|",
+                        ...row.slice(12)
+                    ];
+                });
                 return `
                     <div class="reference-tiles-stack">
                         ${tileRows.map(row => `
@@ -2682,17 +2845,24 @@
             };
 
             const buildFamily = family => {
+                const isOpen = fanReferenceState[family.key] !== false;
                 return `
                     <section class="fan-family">
                         <div class="fan-family-header">
-                            <h4 class="fan-family-title">${family.title}</h4>
+                            <button type="button" class="fan-family-toggle" onclick="toggleFanReferenceFamily('${family.key}')">
+                                <span class="fan-family-meta">
+                                    <span class="fan-family-title">${family.title}</span>
+                                </span>
+                                <span class="fan-family-arrow" aria-hidden="true">${isOpen ? "▾" : "▸"}</span>
+                            </button>
                         </div>
+                        <div class="fan-family-body ${isOpen ? "" : "hidden"}">
                         <div class="fan-directory-layout">
                             ${family.sections.map(section => `
                                 <div class="fan-level-card">
                                     <div class="fan-level-head">
                                         <div>
-                                            <span class="fan-level-bar" style="background:${getFanLevelBarStyle()};">
+                                            <span class="fan-level-bar">
                                                 ${section.title.replace(/^.*?·\s*/, "")}
                                             </span>
                                             ${section.note ? `<p class="mt-1 text-sm muted">${section.note}</p>` : ""}
@@ -2703,6 +2873,7 @@
                                     </div>
                                 </div>
                             `).join("")}
+                        </div>
                         </div>
                     </section>
                 `;
@@ -2810,7 +2981,59 @@
             }
 
             const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
-            roomCatalogUnsubscribe = window.firebaseRoomApi.onValue(roomsRef, snapshot => {
+            roomCatalogUnsubscribe = window.firebaseRoomApi.onValue(
+                roomsRef,
+                snapshot => {
+                    if (!snapshot.exists()) {
+                        renderRoomLobby([]);
+                        return;
+                    }
+
+                    const rooms = Object.entries(snapshot.val() || {}).map(([id, room]) => {
+                        const state = room?.state || {};
+                        const presence = room?.presence || {};
+                        const memberNames = Object.values(presence)
+                            .map(entry => entry?.name?.trim())
+                            .filter(Boolean);
+                        const playerCount = Object.keys(state.players || {}).length;
+                        const roundNumber = Number(state.round || 0);
+                        const isPlaying = playerCount > 0 || (state.history || []).length > 0;
+                        const scorePreview = Object.entries(state.players || {})
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 4)
+                            .map(([name, score]) => `<div class="snapshot-history-item flex items-center justify-between gap-2"><span class="font-bold">${name}</span><span class="font-black">${Number(score).toFixed(2)}</span></div>`)
+                            .join("");
+                        return {
+                            id,
+                            updatedAt: room?.updatedAt || 0,
+                            playerCount,
+                            memberNames,
+                            scorePreview,
+                            roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
+                            status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
+                        };
+                    }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+
+                    renderRoomLobby(rooms);
+                },
+                error => {
+                    console.error("Room lobby subscription failed:", error);
+                    renderRoomLobby([]);
+                    setRoomStatus(getFirebaseErrorText(error));
+                }
+            );
+        }
+
+        async function refreshRoomLobby() {
+            try {
+                const ready = await ensureFirebaseReady();
+                if (!ready) {
+                    renderRoomLobby([]);
+                    return;
+                }
+                subscribeToRoomLobby();
+                const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
+                const snapshot = await window.firebaseRoomApi.get(roomsRef);
                 if (!snapshot.exists()) {
                     renderRoomLobby([]);
                     return;
@@ -2842,49 +3065,11 @@
                 }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
 
                 renderRoomLobby(rooms);
-            });
-        }
-
-        async function refreshRoomLobby() {
-            const ready = await ensureFirebaseReady();
-            if (!ready) {
+            } catch (error) {
+                console.error("Room lobby refresh failed:", error);
                 renderRoomLobby([]);
-                return;
+                setRoomStatus(getFirebaseErrorText(error));
             }
-            subscribeToRoomLobby();
-            const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
-            const snapshot = await window.firebaseRoomApi.get(roomsRef);
-            if (!snapshot.exists()) {
-                renderRoomLobby([]);
-                return;
-            }
-
-            const rooms = Object.entries(snapshot.val() || {}).map(([id, room]) => {
-                const state = room?.state || {};
-                const presence = room?.presence || {};
-                const memberNames = Object.values(presence)
-                    .map(entry => entry?.name?.trim())
-                    .filter(Boolean);
-                const playerCount = Object.keys(state.players || {}).length;
-                const roundNumber = Number(state.round || 0);
-                const isPlaying = playerCount > 0 || (state.history || []).length > 0;
-                const scorePreview = Object.entries(state.players || {})
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 4)
-                    .map(([name, score]) => `<div class="snapshot-history-item flex items-center justify-between gap-2"><span class="font-bold">${name}</span><span class="font-black">${Number(score).toFixed(2)}</span></div>`)
-                    .join("");
-                return {
-                    id,
-                    updatedAt: room?.updatedAt || 0,
-                    playerCount,
-                    memberNames,
-                    scorePreview,
-                    roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
-                    status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
-                };
-            }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
-
-            renderRoomLobby(rooms);
         }
 
         function buildCameraHelperHtml() {
@@ -3218,7 +3403,7 @@
                 return true;
             } catch (error) {
                 console.error("Firebase auth is not ready:", error);
-                setRoomStatus("Firebase 连接失败，暂时无法使用共享房间。");
+                setRoomStatus(getFirebaseErrorText(error));
                 return false;
             }
         }
@@ -3310,8 +3495,9 @@
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
-            await window.firebaseRoomApi.update(roomRef, {
+            await window.firebaseRoomApi.set(roomRef, {
                 state: buildGameStatePayload(),
+                presence: currentPresence || {},
                 updatedAt: Date.now()
             });
         }
@@ -3375,10 +3561,16 @@
                 updateAllStats();
                 updateGameUI();
                 applyingRemoteState = false;
+            }, error => {
+                console.error("Room state subscription failed:", error);
+                setRoomStatus(getFirebaseErrorText(error));
             });
 
             roomPresenceUnsubscribe = window.firebaseRoomApi.onValue(roomPresenceRef, snapshot => {
                 renderRoomMembers(snapshot.exists() ? snapshot.val() : {});
+            }, error => {
+                console.error("Room presence subscription failed:", error);
+                setRoomStatus(getFirebaseErrorText(error));
             });
         }
 
@@ -3387,8 +3579,9 @@
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
-            await window.firebaseRoomApi.update(roomRef, {
+            await window.firebaseRoomApi.set(roomRef, {
                 state: buildGameStatePayload(),
+                presence: currentPresence || {},
                 updatedAt: Date.now()
             });
         }
@@ -3396,11 +3589,6 @@
         window.onload = async () => {
             ensureTimerInterval();
             setTheme(localStorage.getItem(themeStorageKey) || "light");
-            const savedViewerName = localStorage.getItem(roomViewerNameStorageKey) || "";
-            const viewerNameInput = document.getElementById("viewer-name-input");
-            if (viewerNameInput) {
-                viewerNameInput.value = savedViewerName;
-            }
             normalizeStaticUiText();
             renderFanReference();
             switchMainTab(currentMainTab);
@@ -3920,11 +4108,6 @@
         function hideFansDecimalErrorModal() { hideModal("fans-decimal-error-modal"); }
         function showPriceErrorModal() { showModal("price-error-modal"); }
         function hidePriceErrorModal() { hideModal("price-error-modal"); }
-        function showSnapshotModal() {
-            renderSnapshotSheet();
-            showModal("snapshot-modal");
-        }
-        function hideSnapshotModal() { hideModal("snapshot-modal"); }
         function hideEditRoundModal() {
             editingIndex = null;
             hideModal("edit-round-modal");
@@ -4330,3 +4513,4 @@
     </script>
 </body>
 </html>
+
