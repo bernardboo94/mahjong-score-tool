@@ -1356,6 +1356,8 @@
             opacity: 0;
             max-height: min(82vh, 720px);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
 
         .modal.active {
@@ -1377,9 +1379,13 @@
             inset: 0;
             z-index: 60;
             padding: 16px;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-top: clamp(12px, 4vh, 40px);
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
 
         @media (max-width: 768px) {
@@ -1533,6 +1539,7 @@
             #edit-round-modal,
             #snapshot-modal {
                 padding: 12px;
+                padding-top: max(12px, env(safe-area-inset-top));
             }
 
             #score-display,
@@ -2183,7 +2190,11 @@
             "小和": { tiles: ["t1", "t2", "t3", "s3", "s3", "s3", "s5", "s6", "s7", "w6", "w7", "w8", "east", "east"] },
             "平和": { tiles: ["t1", "t2", "t3", "t5", "t6", "t7", "s2", "s3", "s4", "w6", "w7", "w8", "east", "east"] },
             "无花": { note: "文字说明" },
-            "正花": { tiles: ["spring", "plum", "summer", "orchid", "autumn", "chrysanthemum", "winter", "bamboo"] },
+            "正花": {
+                rows: [
+                    ["spring", "plum", "|", "summer", "orchid", "|", "autumn", "chrysanthemum", "|", "winter", "bamboo"]
+                ]
+            },
             "自摸": { note: "文字说明" },
             "门前清（门清）": { note: "文字说明" },
             "番牌（三元牌 / 风牌）": { note: "文字说明" },
@@ -2192,8 +2203,7 @@
             "杠上开花（杠上自摸）": { note: "文字说明" },
             "一台花": {
                 rows: [
-                    ["spring", "summer", "autumn", "winter", "|", "plum", "orchid", "chrysanthemum", "bamboo"],
-                    ["spring", "plum", "|", "summer", "orchid", "|", "autumn", "chrysanthemum", "|", "winter", "bamboo"]
+                    ["spring", "summer", "autumn", "winter", "|", "plum", "orchid", "chrysanthemum", "bamboo"]
                 ]
             },
             "花和（七只花）": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum"] },
@@ -2237,12 +2247,36 @@
             "三喜临门（三风刻）": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "w1", "w2", "w3", "t5", "t5"] },
             "七对子（哩咕哩咕）": { tiles: ["t1", "t1", "s2", "s2", "w3", "w3", "t4", "t4", "s5", "s5", "w6", "w6", "green", "green"] },
             "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"] },
-            "四归四": { note: "四只相同牌分别落在四组顺子上。" },
-            "万绿丛中一点红": { note: "绿一色中只带五索或红中其一。" },
-            "百万石（百万雄兵）": { note: "清一色手牌数字总和达到或超过一百。" },
-            "蓝一色": { note: "只由东南西北、白板或八筒组成。" },
-            "绿一色": { note: "只由二三四六八索或发财组成。" },
-            "红孔雀": { note: "只由一五七九索或红中组成。" }
+            "四归四": {
+                rows: [
+                    ["t4", "t4", "t4", "t4", "|", "s4", "s4", "s4", "s4", "|", "w4", "w4", "east", "east"]
+                ]
+            },
+            "万绿丛中一点红": {
+                rows: [
+                    ["s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4", "s6", "s6", "s8", "red", "red"]
+                ]
+            },
+            "百万石（百万雄兵）": {
+                rows: [
+                    ["w9", "w9", "w9", "w9", "|", "w8", "w8", "w8", "|", "w7", "w7", "w7", "w6", "w6"]
+                ]
+            },
+            "蓝一色": {
+                rows: [
+                    ["east", "south", "west", "north", "|", "white", "white", "white", "|", "t8", "t8", "t8", "t8", "t8"]
+                ]
+            },
+            "绿一色": {
+                rows: [
+                    ["s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4", "s6", "s6", "s8", "green", "green"]
+                ]
+            },
+            "红孔雀": {
+                rows: [
+                    ["s1", "s1", "s5", "s5", "s7", "s7", "s9", "s9", "|", "red", "red", "red", "s1", "s1"]
+                ]
+            }
         };
 
         const tileLabelMap = {
@@ -2734,6 +2768,7 @@
                 return;
             }
             if (roomCatalogUnsubscribe) {
+                roomCatalogUnsubscribe();
                 roomCatalogUnsubscribe = null;
             }
 
@@ -3151,6 +3186,7 @@
 
             currentRoomId = roomInput;
             localStorage.setItem(roomStorageKey, currentRoomId);
+            document.getElementById("room-id-input").value = roomInput;
             const exists = await loadRoomState(currentRoomId);
             subscribeToRoom(currentRoomId);
             await syncRoomPresence(currentRoomId);
