@@ -986,8 +986,20 @@
         }
 
         .dark-mode .room-lobby-tag {
-            background: rgba(16, 185, 129, 0.14);
-            color: #d7f6ea;
+            background: rgba(16, 185, 129, 0.08);
+            color: #cfe9dd;
+        }
+
+        .dark-mode .room-member-chip {
+            background: rgba(24, 39, 33, 0.88);
+            border-color: rgba(148, 163, 184, 0.16);
+            color: #e6f5ee;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .dark-mode .room-member-chip::before {
+            background: #1f8f62;
+            box-shadow: 0 0 0 5px rgba(31, 143, 98, 0.16);
         }
 
         .dark-mode .room-lobby-empty {
@@ -1038,6 +1050,10 @@
             background: rgba(243, 250, 247, 0.12);
             border-color: rgba(243, 250, 247, 0.12);
             color: #f3faf7;
+        }
+
+        .dark-mode .snapshot-modal-close-row {
+            background: linear-gradient(180deg, rgba(17,29,24,0), rgba(17,29,24,0.96) 28%);
         }
 
         .dark-mode .brand-kicker {
@@ -1321,6 +1337,7 @@
             display: flex;
             align-items: flex-start;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .room-delete-button {
@@ -1329,6 +1346,8 @@
             border-radius: 14px;
             font-size: 0.76rem;
             box-shadow: 0 10px 20px rgba(185, 28, 28, 0.12);
+            min-height: 32px;
+            line-height: 1;
         }
 
         .room-members {
@@ -1364,12 +1383,16 @@
         .room-lobby-tag {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             padding: 6px 10px;
             border-radius: 999px;
             background: rgba(15, 81, 50, 0.08);
             color: #0f5132;
             font-size: 0.78rem;
             font-weight: 800;
+            line-height: 1;
+            min-height: 32px;
+            white-space: nowrap;
         }
 
         .room-lobby-empty {
@@ -1464,7 +1487,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            overflow: auto;
+            overflow: visible;
             flex: 1;
             max-height: none;
             padding-bottom: 4px;
@@ -1538,7 +1561,7 @@
         .snapshot-kpi-grid {
             display: grid;
             gap: 8px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .snapshot-insight-grid {
@@ -1574,7 +1597,15 @@
         .snapshot-analysis-grid {
             display: grid;
             gap: 8px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .snapshot-modal-close-row {
+            position: sticky;
+            bottom: 0;
+            padding-top: 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.96) 28%);
+            margin-top: 12px;
         }
 
         .snapshot-history-item {
@@ -1602,10 +1633,11 @@
 
         .snapshot-modal-panel {
             width: min(1120px, calc(100vw - 24px));
-            min-height: calc(100vh - 24px);
-            max-height: calc(100vh - 24px);
+            min-height: 100%;
+            max-height: none;
             display: flex;
             flex-direction: column;
+            margin: 0 auto;
         }
 
         .toast-notice {
@@ -1668,6 +1700,10 @@
             padding-top: clamp(12px, 4vh, 40px);
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
+        }
+
+        #snapshot-modal {
+            padding: 0;
         }
 
         @media (max-width: 768px) {
@@ -1874,9 +1910,10 @@
 
             .snapshot-modal-panel {
                 width: calc(100vw - 12px);
-                min-height: calc(100vh - 12px);
-                max-height: calc(100vh - 12px);
+                min-height: 100vh;
+                max-height: none;
                 padding: 14px;
+                border-radius: 24px 24px 0 0;
             }
 
             .room-code-badge {
@@ -2119,7 +2156,7 @@
                         <h2 class="text-2xl md:text-4xl font-black">房间大厅</h2>
                         <p class="mt-2 muted">查看目前开放的房间，直接加入朋友的牌局。</p>
                     </div>
-                    <button type="button" onclick="refreshRoomLobby()" class="action-button bg-white text-emerald-900">刷新列表</button>
+                    <button type="button" id="refresh-room-lobby-button" onclick="refreshRoomLobby(true)" class="action-button bg-white text-emerald-900">刷新列表</button>
                 </div>
                 <div id="room-lobby-list" class="room-lobby-grid"></div>
             </section>
@@ -2243,7 +2280,7 @@
                 <div id="snapshot-sheet-frame" class="snapshot-sheet-frame">
                     <div id="snapshot-sheet" class="snapshot-sheet"></div>
                 </div>
-                <div class="pt-3">
+                <div class="snapshot-modal-close-row">
                     <button type="button" onclick="hideSnapshotModal()" class="action-button w-full bg-slate-200 text-slate-800">关闭</button>
                 </div>
             </div>
@@ -2837,6 +2874,20 @@
             return viewerName;
         }
 
+        function promptViewerName() {
+            let viewerName = getViewerName();
+            const input = window.prompt("请输入你的名字后再进入房间观看实时分数。", viewerName);
+            if (input === null) {
+                return "";
+            }
+            viewerName = input.trim();
+            if (!viewerName) {
+                return "";
+            }
+            localStorage.setItem(roomViewerNameStorageKey, viewerName);
+            return viewerName;
+        }
+
         function getFanReferenceState() {
             try {
                 const parsed = JSON.parse(localStorage.getItem(fanReferenceStateStorageKey) || "{}");
@@ -3338,18 +3389,30 @@
             );
         }
 
-        async function refreshRoomLobby() {
+        async function refreshRoomLobby(notify = false) {
+            const refreshButton = document.getElementById("refresh-room-lobby-button");
             try {
+                if (refreshButton) {
+                    refreshButton.disabled = true;
+                    refreshButton.innerText = "刷新中...";
+                }
                 const ready = await ensureFirebaseReady();
                 if (!ready) {
                     renderRoomLobby([]);
                     return;
+                }
+                const lobbyList = document.getElementById("room-lobby-list");
+                if (lobbyList) {
+                    lobbyList.innerHTML = '<div class="room-lobby-empty">正在刷新房间列表...</div>';
                 }
                 subscribeToRoomLobby();
                 const roomsRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, "rooms");
                 const snapshot = await window.firebaseRoomApi.get(roomsRef);
                 if (!snapshot.exists()) {
                     renderRoomLobby([]);
+                    if (notify) {
+                        showToast("房间列表已刷新。");
+                    }
                     return;
                 }
 
@@ -3379,10 +3442,18 @@
                 }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
 
                 renderRoomLobby(rooms);
+                if (notify) {
+                    showToast("房间列表已刷新。");
+                }
             } catch (error) {
                 console.error("Room lobby refresh failed:", error);
                 renderRoomLobby([]);
                 setRoomStatus(getFirebaseErrorText(error));
+            } finally {
+                if (refreshButton) {
+                    refreshButton.disabled = false;
+                    refreshButton.innerText = "刷新列表";
+                }
             }
         }
 
@@ -3552,8 +3623,8 @@
             saveGameData();
         }
 
-        function saveGameData() {
-            localStorage.setItem(localStorageKey, JSON.stringify({
+        function buildStoredGamePayload(source = currentRoomId ? "room" : "local") {
+            return {
                 players,
                 perFanPrice,
                 round,
@@ -3564,8 +3635,14 @@
                     pauseStartedAt,
                     pausedDurationMs,
                     isTimerPaused
-                }
-            }));
+                },
+                storageSource: source,
+                roomId: source === "room" ? currentRoomId : ""
+            };
+        }
+
+        function saveGameData() {
+            localStorage.setItem(localStorageKey, JSON.stringify(buildStoredGamePayload()));
 
             if (!applyingRemoteState && currentRoomId) {
                 syncRoomState();
@@ -3579,6 +3656,10 @@
             }
 
             const data = JSON.parse(savedData);
+            if (data.storageSource === "room") {
+                localStorage.removeItem(localStorageKey);
+                return false;
+            }
             players = data.players || {};
             perFanPrice = data.perFanPrice || 0;
             round = data.round || 0;
@@ -3657,7 +3738,7 @@
             const activeRoomText = document.getElementById("active-room-text");
             const roomCodeDisplay = document.getElementById("room-code-display");
             const showHostShare = Boolean(isConnected && currentRoomId && !isRoomViewer);
-            const showViewerLeave = Boolean(isConnected && currentRoomId && isRoomViewer);
+            const showLiveLeave = Boolean(isConnected && currentRoomId);
 
             roomStatus.classList.toggle("connected", Boolean(isConnected && currentRoomId));
             roomStatus.innerHTML = `<span class="room-status-dot" aria-hidden="true"></span><span class="text-sm">${text}</span>`;
@@ -3666,7 +3747,7 @@
                 setupCopyButton.classList.toggle("hidden", !showHostShare);
                 leaveRoomButton.classList.add("hidden");
                 liveCopyButton.classList.toggle("hidden", !showHostShare);
-                liveLeaveButton.classList.toggle("hidden", !showViewerLeave);
+                liveLeaveButton.classList.toggle("hidden", !showLiveLeave);
                 activeRoomText.classList.remove("hidden");
                 activeRoomText.innerText = isRoomViewer ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中";
                 if (roomCodeDisplay) {
@@ -3802,7 +3883,10 @@
                 if (!(await ensureFirebaseReady())) {
                     return;
                 }
-                ensureViewerName();
+                if (!promptViewerName()) {
+                    setRoomStatus("请先输入名字后再加入房间。");
+                    return;
+                }
                 const roomInput = document.getElementById("room-id-input").value.trim().toUpperCase();
                 if (!roomInput) {
                     setRoomStatus("请输入房号后再加入。");
@@ -3816,22 +3900,27 @@
                 currentRoomId = roomInput;
                 localStorage.setItem(roomStorageKey, currentRoomId);
                 document.getElementById("room-id-input").value = roomInput;
-                const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
+                const requestedRoomId = currentRoomId;
+                const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${requestedRoomId}`);
                 const roomSnapshot = await window.firebaseRoomApi.get(roomRef);
                 if (!roomSnapshot.exists()) {
-                    setRoomStatus(`找不到房间 ${currentRoomId}，请确认房号。`);
+                    currentRoomId = "";
+                    currentRoomOwnerUid = "";
+                    isRoomViewer = false;
+                    localStorage.removeItem(roomStorageKey);
+                    setRoomStatus(`找不到房间 ${requestedRoomId}，请确认房号。`);
                     return;
                 }
 
-                const exists = await loadRoomState(currentRoomId);
-                await syncRoomPresence(currentRoomId);
-                subscribeToRoom(currentRoomId);
+                const exists = await loadRoomState(requestedRoomId);
+                await syncRoomPresence(requestedRoomId);
+                subscribeToRoom(requestedRoomId);
                 applyRoomInteractionState();
                 if (exists) {
-                    setRoomStatus(`已加入共享房间 ${currentRoomId}，正在同步最新分数。`, true);
+                    setRoomStatus(`已加入共享房间 ${requestedRoomId}，正在同步最新分数。`, true);
                 } else {
                     resetGameStateForEmptyRoom();
-                    setRoomStatus(`已加入共享房间 ${currentRoomId}，等待房主开始第一局。`, true);
+                    setRoomStatus(`已加入共享房间 ${requestedRoomId}，等待房主开始第一局。`, true);
                 }
                 await refreshRoomLobby();
                 switchMainTab("play");
@@ -3894,7 +3983,7 @@
 
             applyingRemoteState = true;
             applyGameStatePayload(state);
-            localStorage.setItem(localStorageKey, JSON.stringify(buildGameStatePayload()));
+            localStorage.setItem(localStorageKey, JSON.stringify(buildStoredGamePayload("room")));
             document.getElementById("setup-section").classList.add("hidden");
             document.getElementById("game-section").classList.remove("hidden");
             updateAllStats();
@@ -3926,7 +4015,7 @@
                 }
                 applyingRemoteState = true;
                 applyGameStatePayload(snapshot.val());
-                localStorage.setItem(localStorageKey, JSON.stringify(buildGameStatePayload()));
+                localStorage.setItem(localStorageKey, JSON.stringify(buildStoredGamePayload("room")));
                 if (Object.keys(players).length > 0) {
                     document.getElementById("setup-section").classList.add("hidden");
                     document.getElementById("game-section").classList.remove("hidden");
@@ -3968,9 +4057,14 @@
             switchMainTab(currentMainTab);
             switchGameTool(currentGameTool);
             const roomFromUrl = new URL(window.location.href).searchParams.get("room");
+            if (!roomFromUrl) {
+                localStorage.removeItem(roomStorageKey);
+            }
             await refreshRoomLobby();
 
-            if (!loadGameData()) {
+            if (!roomFromUrl && !loadGameData()) {
+                document.getElementById("setup-section").classList.remove("hidden");
+            } else if (roomFromUrl) {
                 document.getElementById("setup-section").classList.remove("hidden");
             }
 
@@ -3980,6 +4074,10 @@
                 document.getElementById("room-id-input").value = currentRoomId;
                 setRoomStatus(`正在连接共享房间 ${currentRoomId}...`, true);
                 if (await ensureFirebaseReady()) {
+                    if (!promptViewerName()) {
+                        stopSharedRoomForSoloMode();
+                        return;
+                    }
                     loadRoomState(currentRoomId).then(() => {
                         subscribeToRoom(currentRoomId);
                         syncRoomPresence(currentRoomId);
@@ -4469,19 +4567,23 @@
 
         function showModal(id) {
             const modal = document.getElementById(id);
+            const modalPanel = modal?.querySelector(".modal");
             document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
             modal.classList.remove("hidden");
             modal.scrollTop = 0;
+            if (modalPanel) {
+                modalPanel.scrollTop = 0;
+            }
             window.scrollTo({ top: 0, behavior: "auto" });
             setTimeout(() => {
-                modal.querySelector(".modal").classList.add("active");
+                modalPanel?.classList.add("active");
             }, 10);
         }
 
         function hideModal(id) {
             const modal = document.getElementById(id);
-            modal.querySelector(".modal").classList.remove("active");
+            modal.querySelector(".modal")?.classList.remove("active");
             setTimeout(() => {
                 modal.classList.add("hidden");
                 document.documentElement.style.overflow = "";
@@ -4616,19 +4718,6 @@
                 { title: "点炮之王", value: `${pickLeaders("paos").names} (${pickLeaders("paos").value} 次)` }
             ];
 
-            const playerCards = ranking.map(([name, score]) => {
-                let scoreClass = "snapshot-score-neutral";
-                if (score > 0) scoreClass = "snapshot-score-positive";
-                if (score < 0) scoreClass = "snapshot-score-negative";
-                return `
-                    <div class="snapshot-score-card ${scoreClass}">
-                        <p class="text-[0.64rem] uppercase tracking-[0.16em] text-white/75 font-bold">Player</p>
-                        <p class="text-base md:text-lg font-black mt-1 break-words">${name}</p>
-                        <p class="text-[1.2rem] md:text-[1.5rem] font-black mt-3 leading-none">${Number(score).toFixed(2)}</p>
-                    </div>
-                `;
-            }).join("");
-
             const playerAnalysisCards = Object.keys(playerStats).map(name => {
                 const stats = playerStats[name];
                 const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
@@ -4662,12 +4751,6 @@
                             <p>流局次数 ${totalDraws}</p>
                             <p>平均每局 ${avgDuration} 秒</p>
                         </div>
-                    </div>
-                </div>
-                <div>
-                    <p class="snapshot-section-title mb-2">Final Score</p>
-                    <div class="snapshot-player-grid">
-                        ${playerCards}
                     </div>
                 </div>
                 <div>
@@ -4709,7 +4792,7 @@
                 </div>
                 <div>
                     <p class="snapshot-section-title mb-2">玩家数据</p>
-                    <div class="snapshot-player-grid">
+                    <div class="snapshot-analysis-grid">
                         ${playerAnalysisCards}
                     </div>
                 </div>
