@@ -1428,13 +1428,29 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,251,248,0.9));
             color: var(--text-strong);
             display: grid;
-            gap: 14px;
+            gap: 12px;
+            transform-origin: top center;
+        }
+
+        .snapshot-sheet-frame {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            max-height: min(72vh, 920px);
+            padding-bottom: 4px;
         }
 
         .snapshot-mini-grid {
             display: grid;
             gap: 10px;
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .snapshot-player-grid {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
         .snapshot-mini-card {
@@ -1444,9 +1460,67 @@
             border: 1px solid rgba(15, 81, 50, 0.1);
         }
 
-        .snapshot-history {
+        .snapshot-share-button {
+            width: 52px;
+            height: 52px;
+            padding: 0;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            background: rgba(12, 24, 21, 0.9);
+            color: #f4fff9;
+        }
+
+        .snapshot-sheet-header {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+            align-items: start;
+        }
+
+        .snapshot-room-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.08);
+            border: 1px solid rgba(15, 81, 50, 0.12);
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #0f5132;
+        }
+
+        .snapshot-kpi-grid {
             display: grid;
             gap: 8px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .snapshot-insight-grid {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .snapshot-section-title {
+            font-size: 0.82rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+        }
+
+        .snapshot-tight-text {
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
+
+        .snapshot-history {
+            display: grid;
+            gap: 6px;
         }
 
         .snapshot-history-item {
@@ -1454,6 +1528,22 @@
             padding: 10px 12px;
             background: rgba(240,247,243,0.95);
             border: 1px solid rgba(15, 81, 50, 0.08);
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
+
+        .room-code-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.09);
+            border: 1px solid rgba(15, 81, 50, 0.14);
+            color: #0f5132;
+            font-size: 0.86rem;
+            font-weight: 900;
         }
 
         .toast-notice {
@@ -1600,6 +1690,12 @@
                 grid-template-columns: 1fr;
             }
 
+            .snapshot-kpi-grid,
+            .snapshot-insight-grid,
+            .snapshot-sheet-header {
+                grid-template-columns: 1fr;
+            }
+
             .room-member-chip,
             .room-lobby-tag,
             .fan-level-tag,
@@ -1702,6 +1798,11 @@
             .history-edit-button {
                 padding: 6px 8px;
                 font-size: 0.72rem;
+            }
+
+            .snapshot-share-button {
+                width: 48px;
+                height: 48px;
             }
 
             .chart-row {
@@ -1815,6 +1916,7 @@
                         <h2 class="text-2xl md:text-3xl font-black mt-1">
                             <span id="current-round-text">第1圈，东风局</span>
                         </h2>
+                        <div id="room-code-display" class="room-code-badge hidden">房间号码：-</div>
                         <p class="mt-2 text-sm md:text-base muted">每番价格：<span id="per-fan-price-display" class="font-bold text-emerald-900"></span></p>
                         <p class="mt-2 text-sm md:text-base muted">本局计时：<span id="round-timer-text" class="font-bold text-emerald-900">00:00</span></p>
                         <p id="timer-status-text" class="mt-1 text-sm text-amber-700 hidden">计时已暂停</p>
@@ -1914,6 +2016,10 @@
                 <div>
                     <h3 class="text-lg font-bold mb-3">完整历史记录</h3>
                     <div id="final-history-list" class="space-y-3"></div>
+                </div>
+
+                <div class="flex items-center justify-center">
+                    <button type="button" onclick="showSnapshotModal()" class="action-button snapshot-share-button" aria-label="打开分享截图页" title="打开分享截图页">📷</button>
                 </div>
 
                 <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
@@ -2050,12 +2156,14 @@
             </div>
         </div>
         <div id="snapshot-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
-            <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-4 max-w-2xl w-full modal">
+            <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-4 max-w-5xl w-full modal">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                    <h3 class="text-xl font-semibold">截图总览</h3>
+                    <h3 class="text-xl font-semibold">分享总结</h3>
                     <button type="button" onclick="hideSnapshotModal()" class="action-button bg-slate-200 text-slate-800">关闭</button>
                 </div>
-                <div id="snapshot-sheet" class="snapshot-sheet"></div>
+                <div id="snapshot-sheet-frame" class="snapshot-sheet-frame">
+                    <div id="snapshot-sheet" class="snapshot-sheet"></div>
+                </div>
             </div>
         </div>
         <div id="toast-notice" class="toast-notice"></div>
@@ -2538,7 +2646,7 @@
             setText("#setup-section .panel-strong h2", "开局设置");
             setText('#setup-section label[for="price-input"]', "每番价格");
             setPlaceholder("#price-input", "例如：10");
-            setText("#setup-section .panel-strong .muted", "系统会按你输入的每番价格自动结算每局得失。");
+            setText("#setup-section .panel-strong .muted", "");
             setText("#setup-section .panel:last-of-type h2", "玩家名字");
             setPlaceholder("#player-1-input", "玩家一");
             setPlaceholder("#player-2-input", "玩家二");
@@ -2573,7 +2681,7 @@
             setText('#summary-section h3:nth-of-type(3)', "完整历史记录");
             setText('#summary-section button[onclick="resetGame()"]', "新的一局");
 
-            setText("#snapshot-modal h3", "截图总览");
+            setText("#snapshot-modal h3", "分享总结");
             setText('#snapshot-modal button[onclick="hideSnapshotModal()"]', "关闭");
             setText("#edit-round-modal h3", "编辑本局");
             setText("#edit-result-win", "胡牌");
@@ -2715,10 +2823,16 @@
             });
 
             const activeRoomText = document.getElementById("active-room-text");
+            const roomCodeDisplay = document.getElementById("room-code-display");
             if (activeRoomText) {
                 activeRoomText.textContent = currentRoomId
-                    ? `房间号码：${currentRoomId}${isReadOnly ? " · 访客只读" : ""}`
+                    ? `${isReadOnly ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中"}`
                     : "";
+                activeRoomText.classList.toggle("hidden", !currentRoomId);
+            }
+            if (roomCodeDisplay) {
+                roomCodeDisplay.textContent = currentRoomId ? `房间号码：${currentRoomId}` : "房间号码：-";
+                roomCodeDisplay.classList.toggle("hidden", !currentRoomId);
             }
         }
 
@@ -3374,17 +3488,24 @@
             const liveCopyButton = document.getElementById("copy-room-link-button-live");
             const liveLeaveButton = document.getElementById("leave-room-button-live");
             const activeRoomText = document.getElementById("active-room-text");
+            const roomCodeDisplay = document.getElementById("room-code-display");
+            const showHostShare = Boolean(isConnected && currentRoomId && !isRoomViewer);
+            const showViewerLeave = Boolean(isConnected && currentRoomId && isRoomViewer);
 
             roomStatus.classList.toggle("connected", Boolean(isConnected && currentRoomId));
             roomStatus.innerHTML = `<span class="room-status-dot" aria-hidden="true"></span><span class="text-sm">${text}</span>`;
 
             if (isConnected && currentRoomId) {
-                setupCopyButton.classList.remove("hidden");
-                leaveRoomButton.classList.remove("hidden");
-                liveCopyButton.classList.remove("hidden");
-                liveLeaveButton.classList.remove("hidden");
+                setupCopyButton.classList.toggle("hidden", !showHostShare);
+                leaveRoomButton.classList.add("hidden");
+                liveCopyButton.classList.toggle("hidden", !showHostShare);
+                liveLeaveButton.classList.toggle("hidden", !showViewerLeave);
                 activeRoomText.classList.remove("hidden");
-                activeRoomText.innerText = `共享房号：${currentRoomId}`;
+                activeRoomText.innerText = isRoomViewer ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中";
+                if (roomCodeDisplay) {
+                    roomCodeDisplay.classList.remove("hidden");
+                    roomCodeDisplay.innerText = `房间号码：${currentRoomId}`;
+                }
             } else {
                 setupCopyButton.classList.add("hidden");
                 leaveRoomButton.classList.add("hidden");
@@ -3392,6 +3513,10 @@
                 liveLeaveButton.classList.add("hidden");
                 activeRoomText.classList.add("hidden");
                 activeRoomText.innerText = "";
+                if (roomCodeDisplay) {
+                    roomCodeDisplay.classList.add("hidden");
+                    roomCodeDisplay.innerText = "房间号码：-";
+                }
             }
         }
 
@@ -3694,6 +3819,12 @@
         window.addEventListener("beforeunload", () => {
             if (currentRoomId) {
                 removeRoomPresence(currentRoomId).catch(() => {});
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (!document.getElementById("snapshot-modal")?.classList.contains("hidden")) {
+                scaleSnapshotSheetToFit();
             }
         });
 
@@ -4252,48 +4383,170 @@
             if (!sheet) {
                 return;
             }
+
             const ranking = Object.entries(players).sort((a, b) => b[1] - a[1]);
-            const leader = ranking[0];
-            const recentHistory = [...history].slice(-6).reverse();
+            const totalDraws = history.filter(record => record.resultType === "draw").length;
+            const winRounds = history.filter(record => record.resultType !== "draw");
+            const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
+            const avgDuration = history.length ? (totalDuration / history.length).toFixed(1) : "0.0";
+            const minDuration = history.length ? history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1) : "0.0";
+            const maxDuration = history.length ? history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1) : "0.0";
             const currentRoundLabel = document.getElementById("current-round-text")?.innerText || "尚未开局";
+            const leadingName = ranking[0]?.[0] || "暂无";
+            const leadingScore = ranking[0]?.[1] ?? 0;
+
+            const pickLeaders = key => {
+                let maxValue = -Infinity;
+                let names = [];
+                Object.keys(playerStats).forEach(name => {
+                    const value = playerStats[name][key] || 0;
+                    if (value > maxValue) {
+                        maxValue = value;
+                        names = [name];
+                    } else if (value === maxValue) {
+                        names.push(name);
+                    }
+                });
+                return { names: names.join("、") || "暂无", value: maxValue < 0 ? 0 : maxValue };
+            };
+
+            let highestFanText = "尚无胡牌记录";
+            if (winRounds.length > 0) {
+                const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
+                const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
+                highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
+            }
+
+            const compactStats = [
+                { label: "总局次数", value: `${history.length}` },
+                { label: "流局次数", value: `${totalDraws}` },
+                { label: "平均每局", value: `${avgDuration} 秒` },
+                { label: "最长 / 最短", value: `${maxDuration} / ${minDuration}` }
+            ];
+
+            const spotlightRows = [
+                { title: "单局番王", value: highestFanText },
+                { title: "胡牌之王", value: `${pickLeaders("wins").names} (${pickLeaders("wins").value} 次)` },
+                { title: "自摸之王", value: `${pickLeaders("selfDraws").names} (${pickLeaders("selfDraws").value} 次)` },
+                { title: "点炮之王", value: `${pickLeaders("paos").names} (${pickLeaders("paos").value} 次)` }
+            ];
+
+            const playerCards = ranking.map(([name, score]) => {
+                const stats = playerStats[name] || createEmptyPlayerStats();
+                const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
+                return `
+                    <div class="snapshot-mini-card">
+                        <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
+                        <p class="text-base font-black mt-1">${name}</p>
+                        <p class="text-[1.35rem] font-black mt-2 leading-none">${Number(score).toFixed(2)}</p>
+                        <div class="mt-3 snapshot-tight-text">
+                            <p>胡牌 ${stats.wins} 次</p>
+                            <p>自摸 ${stats.selfDraws} 次</p>
+                            <p>平均番数 ${avgFans}</p>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            const historyRows = history.length
+                ? history.map(record => `
+                    <div class="snapshot-history-item">
+                        <p class="font-bold">${`第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`}</p>
+                        <p class="mt-1">${record.description}</p>
+                    </div>
+                `).join("")
+                : `<div class="snapshot-history-item">还没有记录</div>`;
+
             sheet.innerHTML = `
-                <div class="flex items-start justify-between gap-3">
+                <div class="snapshot-sheet-header">
                     <div>
                         <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/60 font-bold">Four-Player Mahjong Scorer</p>
-                        <h4 class="text-2xl font-black mt-1">截图总览</h4>
-                        <p class="muted mt-2">${currentRoomId ? `房号 ${currentRoomId}` : "单机模式"} · ${currentRoundLabel}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">Top Winner</p>
-                        <p class="text-3xl font-black mt-1">${leader ? leader[0] : "-"}</p>
-                    </div>
-                </div>
-                <div class="snapshot-mini-grid">
-                    ${ranking.map(([name, score]) => `
-                        <div class="snapshot-mini-card">
-                            <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
-                            <p class="text-xl font-black mt-2">${name}</p>
-                            <p class="text-2xl font-black mt-2">${Number(score).toFixed(2)}</p>
+                        <h4 class="text-[1.8rem] font-black mt-1">分享总结</h4>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="snapshot-room-pill">${currentRoomId ? `房间号码 ${currentRoomId}` : "单机模式"}</span>
+                            <span class="snapshot-room-pill">${currentRoundLabel}</span>
                         </div>
-                    `).join("")}
-                </div>
-                <div class="snapshot-mini-grid">
-                    <div class="snapshot-mini-card">
-                        <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">总局数</p>
-                        <p class="text-2xl font-black mt-2">${history.length}</p>
                     </div>
                     <div class="snapshot-mini-card">
-                        <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">流局</p>
-                        <p class="text-2xl font-black mt-2">${history.filter(record => record.resultType === "draw").length}</p>
+                        <p class="snapshot-section-title">Top Winner</p>
+                        <p class="text-2xl font-black mt-2">${leadingName}</p>
+                        <p class="text-lg font-black mt-2">${Number(leadingScore).toFixed(2)}</p>
+                        <p class="snapshot-tight-text mt-2">GLHF :)</p>
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold mb-2">最近记录</p>
+                    <p class="snapshot-section-title mb-2">Final Score</p>
+                    <div class="snapshot-player-grid">
+                        ${playerCards}
+                    </div>
+                </div>
+                <div>
+                    <p class="snapshot-section-title mb-2">Game Snapshot</p>
+                    <div class="snapshot-kpi-grid">
+                        ${compactStats.map(item => `
+                            <div class="snapshot-mini-card">
+                                <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">${item.label}</p>
+                                <p class="text-[1.18rem] font-black mt-2 leading-tight">${item.value}</p>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+                <div>
+                    <p class="snapshot-section-title mb-2">Highlights</p>
+                    <div class="snapshot-insight-grid">
+                        ${spotlightRows.map(item => `
+                            <div class="snapshot-mini-card">
+                                <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">${item.title}</p>
+                                <p class="text-sm font-black mt-2 leading-snug break-words">${item.value}</p>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+                <div>
+                    <p class="snapshot-section-title mb-2">Full History</p>
                     <div class="snapshot-history">
-                        ${recentHistory.length ? recentHistory.map(record => `<div class="snapshot-history-item"><p class="font-bold">${`第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`}</p><p class="mt-1">${record.description}</p></div>`).join("") : '<div class="snapshot-history-item">还没有记录</div>'}
+                        ${historyRows}
                     </div>
                 </div>
             `;
+
+            scaleSnapshotSheetToFit();
+        }
+
+        function scaleSnapshotSheetToFit() {
+            const frame = document.getElementById("snapshot-sheet-frame");
+            const sheet = document.getElementById("snapshot-sheet");
+            if (!frame || !sheet) {
+                return;
+            }
+
+            sheet.style.transform = "scale(1)";
+            sheet.style.width = "100%";
+
+            const frameWidth = frame.clientWidth - 4;
+            const frameHeight = frame.clientHeight - 4;
+            if (!frameWidth || !frameHeight) {
+                return;
+            }
+
+            const widthScale = Math.min(1, frameWidth / sheet.scrollWidth);
+            const heightScale = Math.min(1, frameHeight / sheet.scrollHeight);
+            const scale = Math.max(Math.min(widthScale, heightScale), 0.58);
+
+            sheet.style.width = `${Math.min(sheet.scrollWidth, 1200)}px`;
+            sheet.style.transform = `scale(${scale})`;
+            frame.style.minHeight = `${Math.max(sheet.scrollHeight * scale, 320)}px`;
+        }
+
+        function showSnapshotModal() {
+            showModal("snapshot-modal");
+            window.setTimeout(() => {
+                renderSnapshotSheet();
+            }, 30);
+        }
+
+        function hideSnapshotModal() {
+            hideModal("snapshot-modal");
         }
 
         function showSummary() {
