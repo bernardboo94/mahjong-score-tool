@@ -890,6 +890,13 @@
             backdrop-filter: blur(16px) saturate(150%);
         }
 
+        .header-action-stack {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
         .dark-mode {
             --bg-dark: #0f1c18;
             --bg-mid: #142721;
@@ -1023,6 +1030,13 @@
 
         .dark-mode .theme-toggle {
             background: rgba(243, 250, 247, 0.14);
+            color: #f3faf7;
+        }
+
+        .dark-mode .room-code-badge,
+        .dark-mode .snapshot-room-pill {
+            background: rgba(243, 250, 247, 0.12);
+            border-color: rgba(243, 250, 247, 0.12);
             color: #f3faf7;
         }
 
@@ -1437,7 +1451,8 @@
             justify-content: center;
             align-items: flex-start;
             overflow: auto;
-            max-height: min(72vh, 920px);
+            flex: 1;
+            max-height: none;
             padding-bottom: 4px;
         }
 
@@ -1451,6 +1466,7 @@
             display: grid;
             gap: 8px;
             grid-template-columns: repeat(4, minmax(0, 1fr));
+            align-items: stretch;
         }
 
         .snapshot-mini-card {
@@ -1523,6 +1539,12 @@
             gap: 6px;
         }
 
+        .snapshot-history-grid {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .snapshot-history-item {
             border-radius: 16px;
             padding: 10px 12px;
@@ -1536,14 +1558,22 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-top: 10px;
+            margin-bottom: 10px;
             padding: 10px 14px;
-            border-radius: 999px;
+            border-radius: 18px;
             background: rgba(15, 81, 50, 0.09);
             border: 1px solid rgba(15, 81, 50, 0.14);
             color: #0f5132;
-            font-size: 0.86rem;
+            font-size: 0.92rem;
             font-weight: 900;
+        }
+
+        .snapshot-modal-panel {
+            width: min(1200px, calc(100vw - 24px));
+            min-height: calc(100vh - 24px);
+            max-height: calc(100vh - 24px);
+            display: flex;
+            flex-direction: column;
         }
 
         .toast-notice {
@@ -1672,6 +1702,10 @@
             .main-tab {
                 padding: 10px 14px;
                 font-size: 0.88rem;
+            }
+
+            .header-action-stack {
+                gap: 8px;
             }
 
             .room-status-pill {
@@ -1805,6 +1839,19 @@
                 height: 48px;
             }
 
+            .snapshot-modal-panel {
+                width: calc(100vw - 12px);
+                min-height: calc(100vh - 12px);
+                max-height: calc(100vh - 12px);
+                padding: 14px;
+            }
+
+            .room-code-badge {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 8px;
+            }
+
             .chart-row {
                 grid-template-columns: 1fr;
                 gap: 6px;
@@ -1835,7 +1882,10 @@
                             <p class="brand-subtitle">四人麻将计番</p>
                         </div>
                     </div>
-                    <button type="button" id="theme-toggle-button" onclick="toggleTheme()" class="theme-toggle shrink-0" aria-label="切换深浅色模式" title="切换深浅色模式">◐</button>
+                    <div class="header-action-stack shrink-0">
+                        <button type="button" id="theme-toggle-button" onclick="toggleTheme()" class="theme-toggle" aria-label="切换深浅色模式" title="切换深浅色模式">◐</button>
+                        <button type="button" id="summary-camera-button" onclick="showSnapshotModal()" class="theme-toggle hidden" aria-label="打开分享总结" title="打开分享总结">📷</button>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-wrap hero-nav">
@@ -1913,10 +1963,10 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/55 font-bold">Live Table</p>
+                        <div id="room-code-display" class="room-code-badge hidden">房间号码：-</div>
                         <h2 class="text-2xl md:text-3xl font-black mt-1">
                             <span id="current-round-text">第1圈，东风局</span>
                         </h2>
-                        <div id="room-code-display" class="room-code-badge hidden">房间号码：-</div>
                         <p class="mt-2 text-sm md:text-base muted">每番价格：<span id="per-fan-price-display" class="font-bold text-emerald-900"></span></p>
                         <p class="mt-2 text-sm md:text-base muted">本局计时：<span id="round-timer-text" class="font-bold text-emerald-900">00:00</span></p>
                         <p id="timer-status-text" class="mt-1 text-sm text-amber-700 hidden">计时已暂停</p>
@@ -2156,7 +2206,7 @@
             </div>
         </div>
         <div id="snapshot-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
-            <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-4 max-w-5xl w-full modal">
+            <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-0 modal snapshot-modal-panel">
                 <div class="flex items-center justify-between gap-3 mb-4">
                     <h3 class="text-xl font-semibold">分享总结</h3>
                     <button type="button" onclick="hideSnapshotModal()" class="action-button bg-slate-200 text-slate-800">关闭</button>
@@ -2836,6 +2886,16 @@
             }
         }
 
+        function updateSummaryCameraButtonVisibility() {
+            const button = document.getElementById("summary-camera-button");
+            const summaryVisible = !document.getElementById("summary-section")?.classList.contains("hidden");
+            const playVisible = !document.getElementById("play-page")?.classList.contains("hidden");
+            if (!button) {
+                return;
+            }
+            button.classList.toggle("hidden", !(summaryVisible && playVisible));
+        }
+
         async function syncRoomPresence(roomId = currentRoomId) {
             if (!roomId || !(await ensureFirebaseReady())) {
                 return;
@@ -2872,6 +2932,7 @@
             document.getElementById("main-tab-play").classList.toggle("active", tab === "play");
             document.getElementById("main-tab-reference").classList.toggle("active", tab === "reference");
             document.getElementById("main-tab-lobby").classList.toggle("active", tab === "lobby");
+            updateSummaryCameraButtonVisibility();
         }
 
         function switchGameTool(tool) {
@@ -3524,6 +3585,7 @@
             document.getElementById("summary-section").classList.add("hidden");
             document.getElementById("game-section").classList.add("hidden");
             document.getElementById("setup-section").classList.remove("hidden");
+            updateSummaryCameraButtonVisibility();
         }
 
         function resetGameStateForEmptyRoom() {
@@ -3600,26 +3662,31 @@
         }
 
         async function ensureActiveRoomForGame() {
-            if (!(await ensureFirebaseReady())) {
-                return;
-            }
-            const currentUser = await window.firebaseRoomApi.authReady;
-            currentRoomOwnerUid = currentUser.uid;
-            isRoomViewer = false;
+            try {
+                if (!(await ensureFirebaseReady())) {
+                    return;
+                }
+                const currentUser = await window.firebaseRoomApi.authReady;
+                currentRoomOwnerUid = currentUser.uid;
+                isRoomViewer = false;
 
-            if (!currentRoomId) {
-                currentRoomId = generateRoomId();
-                localStorage.setItem(roomStorageKey, currentRoomId);
-            }
+                if (!currentRoomId) {
+                    currentRoomId = generateRoomId();
+                    localStorage.setItem(roomStorageKey, currentRoomId);
+                }
 
-            document.getElementById("room-id-input").value = currentRoomId;
-            await ensureRoomStateExists();
-            await syncRoomPresence(currentRoomId);
-            subscribeToRoom(currentRoomId);
-            await syncRoomState();
-            setRoomStatus(`共享房间 ${currentRoomId} 已自动开启，可以把房号分享给朋友。`, true);
-            applyRoomInteractionState();
-            await refreshRoomLobby();
+                document.getElementById("room-id-input").value = currentRoomId;
+                await ensureRoomStateExists();
+                await syncRoomPresence(currentRoomId);
+                subscribeToRoom(currentRoomId);
+                await syncRoomState();
+                setRoomStatus(`共享房间 ${currentRoomId} 已自动开启，可以把房号分享给朋友。`, true);
+                applyRoomInteractionState();
+                await refreshRoomLobby();
+            } catch (error) {
+                console.error("Ensure active room failed:", error);
+                setRoomStatus(getFirebaseErrorText(error));
+            }
         }
 
         async function joinRoom() {
@@ -3662,7 +3729,7 @@
                 switchMainTab("play");
             } catch (error) {
                 console.error("Join room failed:", error);
-                setRoomStatus("加入房间失败，请稍后再试。");
+                setRoomStatus(getFirebaseErrorText(error));
             }
         }
 
@@ -3814,6 +3881,7 @@
             syncRoundFormState();
             updateTimerUI();
             applyRoomInteractionState();
+            updateSummaryCameraButtonVisibility();
         };
 
         window.addEventListener("beforeunload", () => {
@@ -4391,7 +4459,6 @@
             const avgDuration = history.length ? (totalDuration / history.length).toFixed(1) : "0.0";
             const minDuration = history.length ? history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1) : "0.0";
             const maxDuration = history.length ? history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1) : "0.0";
-            const currentRoundLabel = document.getElementById("current-round-text")?.innerText || "尚未开局";
             const leadingName = ranking[0]?.[0] || "暂无";
             const leadingScore = ranking[0]?.[1] ?? 0;
 
@@ -4436,10 +4503,10 @@
                 const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
                 return `
                     <div class="snapshot-mini-card">
-                        <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
-                        <p class="text-base font-black mt-1">${name}</p>
-                        <p class="text-[1.35rem] font-black mt-2 leading-none">${Number(score).toFixed(2)}</p>
-                        <div class="mt-3 snapshot-tight-text">
+                        <p class="text-[0.64rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
+                        <p class="text-sm md:text-base font-black mt-1 break-words">${name}</p>
+                        <p class="text-[1.08rem] md:text-[1.28rem] font-black mt-2 leading-none">${Number(score).toFixed(2)}</p>
+                        <div class="mt-2 snapshot-tight-text">
                             <p>胡牌 ${stats.wins} 次</p>
                             <p>自摸 ${stats.selfDraws} 次</p>
                             <p>平均番数 ${avgFans}</p>
@@ -4448,13 +4515,22 @@
                 `;
             }).join("");
 
-            const historyRows = history.length
-                ? history.map(record => `
+            const historyColumns = [[], []];
+            history.forEach((record, index) => {
+                historyColumns[index % 2].push(`
                     <div class="snapshot-history-item">
                         <p class="font-bold">${`第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`}</p>
                         <p class="mt-1">${record.description}</p>
                     </div>
-                `).join("")
+                `);
+            });
+            const historyRows = history.length
+                ? `
+                    <div class="snapshot-history-grid">
+                        <div class="snapshot-history">${historyColumns[0].join("")}</div>
+                        <div class="snapshot-history">${historyColumns[1].join("")}</div>
+                    </div>
+                `
                 : `<div class="snapshot-history-item">还没有记录</div>`;
 
             sheet.innerHTML = `
@@ -4462,16 +4538,13 @@
                     <div>
                         <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/60 font-bold">Four-Player Mahjong Scorer</p>
                         <h4 class="text-[1.8rem] font-black mt-1">分享总结</h4>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="snapshot-room-pill">${currentRoomId ? `房间号码 ${currentRoomId}` : "单机模式"}</span>
-                            <span class="snapshot-room-pill">${currentRoundLabel}</span>
-                        </div>
+                        <p class="snapshot-tight-text mt-3">今晚牌局完整总结，适合截图分享。</p>
                     </div>
                     <div class="snapshot-mini-card">
                         <p class="snapshot-section-title">Top Winner</p>
                         <p class="text-2xl font-black mt-2">${leadingName}</p>
                         <p class="text-lg font-black mt-2">${Number(leadingScore).toFixed(2)}</p>
-                        <p class="snapshot-tight-text mt-2">GLHF :)</p>
+                        <p class="snapshot-tight-text mt-2">最高得分玩家</p>
                     </div>
                 </div>
                 <div>
@@ -4520,22 +4593,9 @@
                 return;
             }
 
-            sheet.style.transform = "scale(1)";
+            sheet.style.transform = "none";
             sheet.style.width = "100%";
-
-            const frameWidth = frame.clientWidth - 4;
-            const frameHeight = frame.clientHeight - 4;
-            if (!frameWidth || !frameHeight) {
-                return;
-            }
-
-            const widthScale = Math.min(1, frameWidth / sheet.scrollWidth);
-            const heightScale = Math.min(1, frameHeight / sheet.scrollHeight);
-            const scale = Math.max(Math.min(widthScale, heightScale), 0.58);
-
-            sheet.style.width = `${Math.min(sheet.scrollWidth, 1200)}px`;
-            sheet.style.transform = `scale(${scale})`;
-            frame.style.minHeight = `${Math.max(sheet.scrollHeight * scale, 320)}px`;
+            frame.style.minHeight = "0";
         }
 
         function showSnapshotModal() {
@@ -4552,6 +4612,7 @@
         function showSummary() {
             document.getElementById("game-section").classList.add("hidden");
             document.getElementById("summary-section").classList.remove("hidden");
+            updateSummaryCameraButtonVisibility();
 
             const finalScoreDisplay = document.getElementById("final-score-display");
             const statsDisplay = document.getElementById("stats-display");
@@ -4763,6 +4824,7 @@
             document.getElementById("summary-section").classList.add("hidden");
             document.getElementById("setup-section").classList.remove("hidden");
             document.getElementById("game-section").classList.add("hidden");
+            updateSummaryCameraButtonVisibility();
 
             document.getElementById("price-input").value = "";
             document.getElementById("player-1-input").value = "";
