@@ -704,6 +704,19 @@
             margin-bottom: 8px;
         }
 
+        .fan-level-bar {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.86rem;
+            font-weight: 900;
+            line-height: 1;
+            color: white;
+            box-shadow: 0 10px 20px rgba(21, 128, 61, 0.16);
+        }
+
         .fan-level-name {
             font-size: 1rem;
             font-weight: 900;
@@ -899,6 +912,10 @@
         .dark-mode .fan-level-tag {
             color: #d7f6ea;
             background: rgba(16, 185, 129, 0.14);
+        }
+
+        .dark-mode .fan-level-bar {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
         }
 
 
@@ -1810,9 +1827,6 @@
                     <div id="final-history-list" class="space-y-3"></div>
                 </div>
 
-                <button type="button" onclick="showSnapshotModal()" class="action-button w-full bg-white text-emerald-900 shadow-lg">
-                    打开截图总览
-                </button>
                 <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
                     新的一局
                 </button>
@@ -2140,9 +2154,14 @@
                 ]
             },
             {
+                title: "自订牌型 · 三番",
+                items: [
+                    { name: "四归四", fans: 3 }
+                ]
+            },
+            {
                 title: "自订牌型 · 十番",
                 items: [
-                    { name: "四归四", fans: 10 },
                     { name: "万绿丛中一点红", fans: 10 },
                     { name: "百万石（百万雄兵）", fans: 10 }
                 ]
@@ -2266,8 +2285,7 @@
             "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"] },
             "四归四": {
                 rows: [
-                    ["t1", "t2", "t3", "|", "t4", "t5", "t6", "|", "t7", "t8", "t9", "|", "t4", "t4"],
-                    ["s1", "s2", "s3", "|", "s4", "s5", "s6", "|", "s7", "s8", "s9", "|", "s4", "s4"]
+                    ["t1", "s2", "t3", "t1", "s2", "t3", "s2", "t3", "s4", "t1", "s2", "s3", "red", "red"]
                 ]
             },
             "万绿丛中一点红": {
@@ -2284,20 +2302,17 @@
             },
             "蓝一色": {
                 rows: [
-                    ["t8", "t8", "t8", "|", "east", "east", "east", "|", "south", "south", "south", "|", "white", "white"],
-                    ["t8", "t8", "t8", "|", "west", "west", "west", "|", "north", "north", "north", "|", "white", "white"]
+                    ["t8", "t8", "t8", "|", "east", "east", "east", "|", "south", "south", "south", "|", "white", "white"]
                 ]
             },
             "绿一色": {
                 rows: [
-                    ["s2", "s2", "s2", "|", "s3", "s3", "s3", "|", "s4", "s4", "s4", "|", "green", "green"],
-                    ["s6", "s6", "s6", "|", "s8", "s8", "s8", "|", "green", "green", "green", "|", "s2", "s2"]
+                    ["s2", "s2", "s2", "|", "s3", "s3", "s3", "|", "s4", "s4", "s4", "|", "green", "green"]
                 ]
             },
             "红孔雀": {
                 rows: [
-                    ["s1", "s1", "s1", "|", "s5", "s5", "s5", "|", "s7", "s7", "s7", "|", "red", "red"],
-                    ["s9", "s9", "s9", "|", "s1", "s5", "s7", "|", "red", "red", "red", "|", "s9", "s9"]
+                    ["s1", "s1", "s1", "|", "s5", "s5", "s5", "|", "s7", "s7", "s7", "|", "red", "red"]
                 ]
             }
         };
@@ -2426,7 +2441,6 @@
             setText('#summary-section h3:nth-of-type(1)', "最终得分");
             setText('#summary-section h3:nth-of-type(2)', "数据分析");
             setText('#summary-section h3:nth-of-type(3)', "完整历史记录");
-            setText('#summary-section button[onclick="showSnapshotModal()"]', "打开截图总览");
             setText('#summary-section button[onclick="resetGame()"]', "新的一局");
 
             setText("#snapshot-modal h3", "截图总览");
@@ -2500,13 +2514,12 @@
 
         function ensureViewerName() {
             const input = document.getElementById("viewer-name-input");
-            const viewerName = getViewerName();
+            let viewerName = getViewerName();
             if (!viewerName) {
-                showNameErrorModal("请输入你的名字后再创建或加入房间。");
                 if (input) {
-                    input.focus();
+                    viewerName = `访客${String(Date.now()).slice(-4)}`;
+                    input.value = viewerName;
                 }
-                return "";
             }
             localStorage.setItem(roomViewerNameStorageKey, viewerName);
             return viewerName;
@@ -2602,6 +2615,10 @@
                 }
             ];
 
+            const getFanLevelBarStyle = () => {
+                return "linear-gradient(135deg, #176c4a, #1f8f62)";
+            };
+
             const buildReferenceTiles = item => {
                 const sample = fanReferenceSamples[item.name];
                 if (!sample) {
@@ -2675,7 +2692,9 @@
                                 <div class="fan-level-card">
                                     <div class="fan-level-head">
                                         <div>
-                                            <h5 class="fan-level-name">${section.title.replace(/^.*?·\s*/, "")}</h5>
+                                            <span class="fan-level-bar" style="background:${getFanLevelBarStyle()};">
+                                                ${section.title.replace(/^.*?·\s*/, "")}
+                                            </span>
                                             ${section.note ? `<p class="mt-1 text-sm muted">${section.note}</p>` : ""}
                                         </div>
                                     </div>
@@ -3205,53 +3224,76 @@
         }
 
         async function createRoom() {
-            if (!(await ensureFirebaseReady())) {
-                return;
+            try {
+                if (!(await ensureFirebaseReady())) {
+                    return;
+                }
+                ensureViewerName();
+                currentRoomId = generateRoomId();
+                localStorage.setItem(roomStorageKey, currentRoomId);
+                document.getElementById("room-id-input").value = currentRoomId;
+                await ensureRoomStateExists();
+                await syncRoomPresence(currentRoomId);
+                subscribeToRoom(currentRoomId);
+                setRoomStatus(`已创建共享房间 ${currentRoomId}，现在可以开始游戏并分享链接。`, true);
+                renderRoomLobby([{
+                    id: currentRoomId,
+                    updatedAt: Date.now(),
+                    playerCount: Object.keys(players || {}).length,
+                    memberNames: [getViewerName()],
+                    scorePreview: "",
+                    roundLabel: Object.keys(players || {}).length ? `第${Math.floor(Number(round || 0) / 4) + 1}圈` : "等待开局",
+                    status: "等待开局"
+                }]);
+                await refreshRoomLobby();
+                switchMainTab("lobby");
+            } catch (error) {
+                console.error("Create room failed:", error);
+                setRoomStatus("创建房间失败，请稍后再试。");
             }
-            if (!ensureViewerName()) {
-                return;
-            }
-            currentRoomId = generateRoomId();
-            localStorage.setItem(roomStorageKey, currentRoomId);
-            document.getElementById("room-id-input").value = currentRoomId;
-            await ensureRoomStateExists();
-            subscribeToRoom(currentRoomId);
-            await syncRoomPresence(currentRoomId);
-            setRoomStatus(`已创建共享房间 ${currentRoomId}，现在可以开始游戏并分享链接。`, true);
-            await refreshRoomLobby();
-            switchMainTab("lobby");
         }
 
         async function joinRoom() {
-            if (!(await ensureFirebaseReady())) {
-                return;
-            }
-            if (!ensureViewerName()) {
-                return;
-            }
-            const roomInput = document.getElementById("room-id-input").value.trim().toUpperCase();
-            if (!roomInput) {
-                setRoomStatus("请输入房号后再加入。");
-                return;
-            }
-            if (!/^\d{6}$/.test(roomInput)) {
-                setRoomStatus("请输入 6 位数字房号后再加入。");
-                return;
-            }
+            try {
+                if (!(await ensureFirebaseReady())) {
+                    return;
+                }
+                ensureViewerName();
+                const roomInput = document.getElementById("room-id-input").value.trim().toUpperCase();
+                if (!roomInput) {
+                    setRoomStatus("请输入房号后再加入。");
+                    return;
+                }
+                if (!/^\d{6}$/.test(roomInput)) {
+                    setRoomStatus("请输入 6 位数字房号后再加入。");
+                    return;
+                }
 
-            currentRoomId = roomInput;
-            localStorage.setItem(roomStorageKey, currentRoomId);
-            document.getElementById("room-id-input").value = roomInput;
-            const exists = await loadRoomState(currentRoomId);
-            subscribeToRoom(currentRoomId);
-            await syncRoomPresence(currentRoomId);
-            if (exists) {
-                setRoomStatus(`已加入共享房间 ${currentRoomId}，正在同步最新分数。`, true);
-            } else {
-                resetGameStateForEmptyRoom();
-                setRoomStatus(`房间 ${currentRoomId} 目前还是空的。你可以先开始游戏，再把链接分享给朋友。`, true);
+                currentRoomId = roomInput;
+                localStorage.setItem(roomStorageKey, currentRoomId);
+                document.getElementById("room-id-input").value = roomInput;
+                const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
+                const roomSnapshot = await window.firebaseRoomApi.get(roomRef);
+                if (!roomSnapshot.exists()) {
+                    setRoomStatus(`找不到房间 ${currentRoomId}，请确认房号。`);
+                    return;
+                }
+
+                const exists = await loadRoomState(currentRoomId);
+                await syncRoomPresence(currentRoomId);
+                subscribeToRoom(currentRoomId);
+                if (exists) {
+                    setRoomStatus(`已加入共享房间 ${currentRoomId}，正在同步最新分数。`, true);
+                } else {
+                    resetGameStateForEmptyRoom();
+                    setRoomStatus(`已加入共享房间 ${currentRoomId}，等待房主开始第一局。`, true);
+                }
+                await refreshRoomLobby();
+                switchMainTab("play");
+            } catch (error) {
+                console.error("Join room failed:", error);
+                setRoomStatus("加入房间失败，请稍后再试。");
             }
-            await refreshRoomLobby();
         }
 
         async function copyRoomLink() {
@@ -3268,14 +3310,10 @@
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
-            const snapshot = await window.firebaseRoomApi.get(roomRef);
-            if (!snapshot.exists()) {
-                await window.firebaseRoomApi.set(roomRef, {
-                    state: buildGameStatePayload(),
-                    presence: {},
-                    updatedAt: window.firebaseRoomApi.serverTimestamp()
-                });
-            }
+            await window.firebaseRoomApi.update(roomRef, {
+                state: buildGameStatePayload(),
+                updatedAt: Date.now()
+            });
         }
 
         async function loadRoomState(roomId) {
@@ -3351,7 +3389,7 @@
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
             await window.firebaseRoomApi.update(roomRef, {
                 state: buildGameStatePayload(),
-                updatedAt: window.firebaseRoomApi.serverTimestamp()
+                updatedAt: Date.now()
             });
         }
 
