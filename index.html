@@ -559,7 +559,7 @@
         }
 
         .fan-static-head {
-            padding: 12px 14px;
+            padding: 13px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -567,21 +567,21 @@
         }
 
         .fan-family {
-            border-radius: 24px;
-            border: 1px solid var(--panel-border);
-            background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(245,250,247,0.44));
-            padding: 16px;
+            border-radius: 26px;
+            border: 1px solid rgba(57, 126, 90, 0.14);
+            background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,250,247,0.58));
+            padding: 18px;
             box-shadow: var(--glass-shadow), var(--glass-highlight);
             backdrop-filter: blur(18px) saturate(145%);
         }
 
         .fan-family-header {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
             border-bottom: 1px solid rgba(15, 81, 50, 0.12);
         }
 
@@ -644,13 +644,29 @@
             gap: 14px;
         }
 
+        .fan-directory-layout {
+            display: grid;
+            gap: 16px;
+        }
+
+        .fan-directory-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(15, 81, 50, 0.08);
+            color: #0f5132;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
         .fan-level-card {
-            border-radius: 20px;
-            border: 1px solid var(--panel-border);
-            background: rgba(255,255,255,0.48);
+            border-radius: 22px;
+            border: 1px solid rgba(57, 126, 90, 0.1);
+            background: rgba(255,255,255,0.52);
             padding: 14px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
-            backdrop-filter: blur(14px) saturate(140%);
+            box-shadow: 0 10px 24px rgba(63, 98, 77, 0.06);
+            backdrop-filter: blur(16px) saturate(140%);
         }
 
         .fan-level-head {
@@ -677,6 +693,14 @@
             gap: 10px;
         }
 
+        .fan-items-grid.compact {
+            gap: 8px;
+        }
+
+        .fan-level-grid {
+            gap: 18px;
+        }
+
         .fan-accordion-body {
             padding: 0 14px 14px;
             border-top: 1px solid var(--panel-border);
@@ -695,12 +719,24 @@
             font-size: 0.82rem;
         }
 
-        .reference-tiles {
+        .reference-tiles-stack {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 48px));
-            gap: 8px;
+            gap: 10px;
             margin-top: 12px;
-            justify-content: start;
+        }
+
+        .reference-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .reference-gap {
+            width: 14px;
+            height: 1px;
+            flex: 0 0 14px;
         }
 
         .reference-tile {
@@ -1223,6 +1259,88 @@
             white-space: nowrap;
         }
 
+        .fan-section-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .fan-section-block {
+            display: grid;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(15, 81, 50, 0.1);
+        }
+
+        .fan-section-block:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .fan-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .snapshot-sheet {
+            border-radius: 28px;
+            padding: 18px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,251,248,0.9));
+            color: var(--text-strong);
+            display: grid;
+            gap: 14px;
+        }
+
+        .snapshot-mini-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .snapshot-mini-card {
+            border-radius: 18px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.72);
+            border: 1px solid rgba(15, 81, 50, 0.1);
+        }
+
+        .snapshot-history {
+            display: grid;
+            gap: 8px;
+        }
+
+        .snapshot-history-item {
+            border-radius: 16px;
+            padding: 10px 12px;
+            background: rgba(240,247,243,0.95);
+            border: 1px solid rgba(15, 81, 50, 0.08);
+        }
+
+        .toast-notice {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translate(-50%, -16px);
+            z-index: 70;
+            min-width: min(90vw, 340px);
+            max-width: min(90vw, 360px);
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(15, 81, 50, 0.94);
+            color: #fff;
+            box-shadow: 0 18px 42px rgba(15, 81, 50, 0.22);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            text-align: center;
+        }
+
+        .toast-notice.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
         .modal {
             transition: transform 0.28s ease, opacity 0.28s ease;
             transform: translateY(-18px);
@@ -1312,6 +1430,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .snapshot-mini-grid {
+                grid-template-columns: 1fr;
+            }
+
             .room-member-chip,
             .room-lobby-tag,
             .fan-level-tag,
@@ -1322,6 +1444,10 @@
 
             .fan-family {
                 padding: 14px;
+            }
+
+            .fan-directory-layout {
+                gap: 12px;
             }
 
             .fan-family-header,
@@ -1340,8 +1466,12 @@
             }
 
             .reference-tiles {
-                grid-template-columns: repeat(auto-fit, minmax(34px, 42px));
                 gap: 6px;
+            }
+
+            .reference-gap {
+                width: 10px;
+                flex-basis: 10px;
             }
 
             .reference-tile {
@@ -1351,7 +1481,41 @@
 
             #score-display,
             #final-score-display {
-                gap: 12px;
+                gap: 10px;
+            }
+
+            .score-card {
+                border-radius: 22px;
+                padding: 14px;
+            }
+
+            .summary-spotlight {
+                border-radius: 22px;
+                padding: 16px;
+            }
+
+            .summary-kpi,
+            .chart-card,
+            .history-item,
+            .feature-card {
+                padding: 12px;
+            }
+
+            .chart-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+                align-items: stretch;
+            }
+
+            .result-chip {
+                min-height: 54px;
+                border-radius: 16px;
+                font-size: 0.9rem;
+            }
+
+            .toast-notice {
+                top: 12px;
+                min-width: calc(100vw - 24px);
             }
         }
     </style>
@@ -1387,7 +1551,8 @@
                         <h2 class="text-2xl font-black mt-1">记分房间</h2>
                         <p class="text-sm room-copy-soft mt-3 max-w-[34rem]">创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。</p>
                     </div>
-                    <div class="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+                    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto]">
+                        <input type="text" id="viewer-name-input" placeholder="输入你的名字" class="field">
                         <input type="text" id="room-id-input" placeholder="输入朋友分享的房号" class="field">
                         <button type="button" onclick="createRoom()" class="action-button bg-white text-emerald-900">创建房间</button>
                         <button type="button" onclick="joinRoom()" class="action-button bg-emerald-700 text-white">加入房间</button>
@@ -1459,6 +1624,7 @@
                     <div class="flex flex-wrap gap-2">
                         <button type="button" id="pause-timer-button" onclick="togglePauseTimer()" class="action-button bg-amber-400 text-emerald-950">暂停计时</button>
                         <button type="button" id="copy-room-link-button-live" onclick="copyRoomLink()" class="action-button bg-white text-emerald-900 hidden">复制链接</button>
+                        <button type="button" id="leave-room-button-live" onclick="leaveRoom()" class="action-button bg-slate-200 text-slate-800 hidden">离开房间</button>
                         <button onclick="showEndGameModal()" class="action-button bg-rose-500 hover:bg-rose-600 text-white">
                             结束游戏
                         </button>
@@ -1554,6 +1720,9 @@
                     <div id="final-history-list" class="space-y-3"></div>
                 </div>
 
+                <button type="button" onclick="showSnapshotModal()" class="action-button w-full bg-white text-emerald-900 shadow-lg">
+                    打开截图总览
+                </button>
                 <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
                     新的一局
                 </button>
@@ -1678,6 +1847,35 @@
                 </div>
             </div>
         </div>
+        <div id="edit-round-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-6 shadow-xl mx-4 max-w-md w-full modal">
+                <h3 class="text-xl font-semibold mb-4 text-center">编辑本局</h3>
+                <div class="grid gap-4">
+                    <div class="result-chip-group">
+                        <button type="button" id="edit-result-win" class="result-chip win active" onclick="setEditRoundResult('win')">胡牌</button>
+                        <button type="button" id="edit-result-draw" class="result-chip draw" onclick="setEditRoundResult('draw')">流局</button>
+                    </div>
+                    <select id="edit-winner-select" class="select"></select>
+                    <select id="edit-pao-select" class="select"></select>
+                    <input type="number" id="edit-fans-input" class="field" min="1" placeholder="番数">
+                    <p id="edit-round-hint" class="text-sm muted">修改后会重新计算所有分数。</p>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                        <button type="button" onclick="saveEditedRound()" class="action-button bg-emerald-700 text-white">保存修改</button>
+                        <button type="button" onclick="hideEditRoundModal()" class="action-button bg-slate-200 text-slate-800">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="snapshot-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-4 max-w-2xl w-full modal">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <h3 class="text-xl font-semibold">截图总览</h3>
+                    <button type="button" onclick="hideSnapshotModal()" class="action-button bg-slate-200 text-slate-800">关闭</button>
+                </div>
+                <div id="snapshot-sheet" class="snapshot-sheet"></div>
+            </div>
+        </div>
+        <div id="toast-notice" class="toast-notice"></div>
     </div>
 
     <script type="module">
@@ -1765,8 +1963,8 @@
                     { name: "无花", fans: 1 },
                     { name: "正花", fans: 1 },
                     { name: "自摸", fans: 1 },
-                    { name: "门前清", fans: 1 },
-                    { name: "番牌", fans: 1 },
+                    { name: "门前清（门清）", fans: 1 },
+                    { name: "番牌（三元牌 / 风牌）", fans: 1 },
                     { name: "抢杠", fans: 1 },
                     { name: "海底捞月", fans: 1 }
                 ]
@@ -1774,15 +1972,15 @@
             {
                 title: "正统牌型 · 两番",
                 items: [
-                    { name: "杠上开花", fans: 2 },
+                    { name: "杠上开花（杠上自摸）", fans: 2 },
                     { name: "一台花", fans: 2 }
                 ]
             },
             {
                 title: "正统牌型 · 三番",
                 items: [
-                    { name: "花和", fans: 3 },
-                    { name: "对对和", fans: 3 },
+                    { name: "花和（七只花）", fans: 3 },
+                    { name: "对对和（碰碰糊）", fans: 3 },
                     { name: "混一色", fans: 3 }
                 ]
             },
@@ -1806,32 +2004,33 @@
                 title: "正统牌型 · 八番",
                 items: [
                     { name: "大三元", fans: 8 },
-                    { name: "坎坎糊 / 全刻子", fans: 8 },
-                    { name: "字一色", fans: 8 }
+                    { name: "连杠开花（杠上杠自摸）", fans: 8 },
+                    { name: "大花和（八仙过海）", fans: 8 }
                 ]
             },
             {
                 title: "正统牌型 · 十番（例牌）",
                 items: [
-                    { name: "九莲宝灯", fans: 10 },
-                    { name: "天和", fans: 10 },
-                    { name: "地和", fans: 10 },
-                    { name: "人和", fans: 10 }
+                    { name: "坎坎胡（四暗刻）", fans: 10 },
+                    { name: "字一色（全字糊）", fans: 10 },
+                    { name: "清幺九（清老头）", fans: 10 },
+                    { name: "九莲宝灯（九子连环）", fans: 10 }
                 ]
             },
             {
                 title: "正统牌型 · 十三番（例牌）",
                 items: [
+                    { name: "天和", fans: 13 },
+                    { name: "地和", fans: 13 },
+                    { name: "人和", fans: 13 },
                     { name: "大四喜", fans: 13 },
-                    { name: "十三幺", fans: 13 },
-                    { name: "十八罗汉", fans: 13 }
+                    { name: "十三幺（国士无双）", fans: 13 },
+                    { name: "十八罗汉（四杠子）", fans: 13 }
                 ]
             },
             {
                 title: "自订牌型 · 一番",
-                note: "以下多为开局前自订规则，不一定适用于所有牌局。",
                 items: [
-                    { name: "哑仔（打出牌时没有讲出相对应的牌名）", fans: 1 },
                     { name: "一般高（二同顺）", fans: 1 },
                     { name: "一般低（二步高）", fans: 1 },
                     { name: "缺门", fans: 1 }
@@ -1840,7 +2039,6 @@
             {
                 title: "自订牌型 · 二番",
                 items: [
-                    { name: "冧手胡", fans: 2 },
                     { name: "三般高（三同顺）", fans: 2 },
                     { name: "三般低（三步高）", fans: 2 },
                     { name: "一条龙（一气通贯）", fans: 2 }
@@ -1857,12 +2055,27 @@
                     { name: "四般低（步步高）", fans: 3 },
                     { name: "三杠子", fans: 3 },
                     { name: "三喜临门（三风刻）", fans: 3 },
-                    { name: "七对子（呖咕呖咕）", fans: 3 },
+                    { name: "七对子（哩咕哩咕）", fans: 3 },
                     { name: "双色同刻", fans: 3 }
+                ]
+            },
+            {
+                title: "自订牌型 · 十番",
+                items: [
+                    { name: "四归四", fans: 10 },
+                    { name: "万绿丛中一点红", fans: 10 },
+                    { name: "百万石（百万雄兵）", fans: 10 }
+                ]
+            },
+            {
+                title: "自订牌型 · 十三番",
+                items: [
+                    { name: "蓝一色", fans: 13 },
+                    { name: "绿一色", fans: 13 },
+                    { name: "红孔雀", fans: 13 }
                 ]
             }
         ];
-
         const localStorageKey = "mahjongScoreboard";
         const roomStorageKey = "mahjongScoreboardRoomId";
         const tileImageMap = {
@@ -1911,57 +2124,74 @@
         };
 
         const fanReferenceSamples = {
-            "小和": { tiles: ["t1", "t2", "t3", "s3", "s3", "s3", "s5", "s6", "s7", "w6", "w7", "w8", "east", "east"], source: "Wikipedia 小和样例" },
-            "平和": { tiles: ["t1", "t2", "t3", "t5", "t6", "t7", "s2", "s3", "s4", "w6", "w7", "w8", "east", "east"], source: "Wikipedia 平和样例" },
-            "无花": { note: "维基百科对“无花”只有文字说明，没有独立示例牌图。" },
-            "正花": { tiles: ["spring", "plum"], source: "Wikipedia 正花（东位示例）" },
-            "自摸": { note: "维基百科对“自摸”只有文字说明，没有独立示例牌图。" },
-            "门前清": { note: "维基百科对“门前清”只有文字说明，没有独立示例牌图。" },
-            "番牌": { note: "维基百科对“番牌”只有文字说明，没有独立示例牌图。" },
-            "抢杠": { note: "维基百科对“抢杠”只有文字说明，没有独立示例牌图。" },
-            "海底捞月": { note: "维基百科对“海底捞月”只有文字说明，没有独立示例牌图。" },
-            "杠上开花": { note: "维基百科对“杠上开花”只有文字说明，没有独立示例牌图。" },
-            "一台花": { tiles: ["spring", "summer", "autumn", "winter"], source: "Wikipedia 一台花样例" },
-            "花和": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum"], source: "Wikipedia 花和样例" },
-            "对对和": { tiles: ["s1", "s1", "s1", "w6", "w6", "w6", "w8", "w8", "w8", "w9", "w9", "w9", "west", "west"], source: "Wikipedia 对对和样例" },
-            "混一色": { tiles: ["w1", "w1", "w3", "w4", "w5", "w7", "w7", "w7", "w9", "w9", "w9", "west", "west", "west"], source: "Wikipedia 混一色样例" },
-            "花幺九（混老头）": { tiles: ["s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1", "w1", "west", "west", "west", "green", "green"], source: "Wikipedia 花幺九样例" },
-            "小三元": { tiles: ["s1", "s2", "s3", "t5", "red", "green", "white"], source: "Wikipedia 小三元样例" },
-            "小四喜": { tiles: ["t4", "t5", "t6", "east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north"], source: "Wikipedia 小四喜样例" },
-            "清一色": { tiles: ["w1", "w2", "w3", "w5", "w5", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w4", "w4"], source: "Wikipedia 清一色样例" },
-            "大三元": { tiles: ["s1", "s2", "s3", "red", "red", "red", "green", "green", "green", "white", "white", "white", "t5", "t5"], source: "Wikipedia 大三元样例" },
-            "坎坎糊 / 全刻子": { note: "维基百科在“坎坎胡”条目仅给文字说明，这里不再放错误示例。" },
-            "字一色": { tiles: ["east", "east", "east", "south", "south", "south", "north", "north", "north", "red", "red", "red", "green", "green"], source: "Wikipedia 字一色样例" },
-            "九莲宝灯": { tiles: ["w1", "w1", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w7"], source: "Wikipedia 九莲宝灯样例" },
-            "天和": { note: "维基百科对“天和”只有文字说明，没有独立示例牌图。" },
-            "地和": { note: "维基百科对“地和”只有文字说明，没有独立示例牌图。" },
-            "人和": { note: "维基百科对“人和”只有文字说明，没有独立示例牌图。" },
-            "大四喜": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north", "north", "t5", "t5"], source: "Wikipedia 大四喜样例" },
-            "十三幺": { tiles: ["t1", "t9", "s1", "s9", "w1", "w9", "east", "south", "west", "north", "red", "green", "white", "white"], source: "Wikipedia 十三幺样例" },
-            "十八罗汉": { note: "维基百科对“十八罗汉”在该页只有文字说明，没有独立示例牌图。" },
-            "哑仔": { note: "维基百科对“哑仔”只有文字说明，没有独立示例牌图。" },
-            "一般高（二同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 一般高样例" },
-            "一般低（二步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 一般低样例" },
-            "缺门": { tiles: ["s3", "s3", "s3", "s5", "s6", "s7", "w1", "w2", "w3", "w6", "w7", "w8", "s1", "s1"], source: "Wikipedia 缺门样例" },
-            "冧手胡": { note: "维基百科对“冧手胡”只有文字说明，没有独立示例牌图。" },
-            "三般高（三同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 三般高样例" },
-            "三般低（三步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "s7", "s7", "s7", "east", "east"], source: "Wikipedia 三般低样例" },
-            "一条龙（一气通贯）": { tiles: ["w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "t2", "t2", "t2", "east", "east"], source: "Wikipedia 一条龙样例" },
-            "钟鼓齐鸣（杠爆）": { note: "维基百科对“钟鼓齐鸣”只有文字说明，没有独立示例牌图。" },
-            "两般高（双龙抱）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s2", "s3", "s1", "s2", "s3", "east", "east"], source: "Wikipedia 两般高样例" },
-            "两般低（双蛇抱）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s2", "s3", "s2", "s3", "s4", "east", "east"], source: "Wikipedia 两般低样例" },
-            "镜糊糊": { tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "s1", "s2", "s3", "s4", "s5", "s6", "east", "east"], source: "Wikipedia 镜糊糊样例" },
-            "四般高（四同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "east", "east"], source: "Wikipedia 四般高样例" },
-            "四般低（步步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "t4", "t5", "t6", "east", "east"], source: "Wikipedia 四般低样例" },
-            "三杠子": { tiles: ["t1", "t1", "t1", "s2", "s2", "s2", "w3", "w3", "w3", "t6", "t7", "t8", "green", "green"], source: "Wikipedia 三杠子样例" },
-            "三喜临门（三风刻）": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "w1", "w2", "w3", "t5", "t5"], source: "Wikipedia 三喜临门样例" },
-            "七对子（呖咕呖咕）": { tiles: ["t1", "t1", "s2", "s2", "w3", "w3", "t4", "t4", "s5", "s5", "w6", "w6", "green", "green"], source: "Wikipedia 七对子样例" },
-            "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"], source: "Wikipedia 双色同刻样例" }
+            "小和": { tiles: ["t1", "t2", "t3", "s3", "s3", "s3", "s5", "s6", "s7", "w6", "w7", "w8", "east", "east"] },
+            "平和": { tiles: ["t1", "t2", "t3", "t5", "t6", "t7", "s2", "s3", "s4", "w6", "w7", "w8", "east", "east"] },
+            "无花": { note: "文字说明" },
+            "正花": { tiles: ["spring", "plum", "summer", "orchid", "autumn", "chrysanthemum", "winter", "bamboo"] },
+            "自摸": { note: "文字说明" },
+            "门前清（门清）": { note: "文字说明" },
+            "番牌（三元牌 / 风牌）": { note: "文字说明" },
+            "抢杠": { note: "文字说明" },
+            "海底捞月": { note: "文字说明" },
+            "杠上开花（杠上自摸）": { note: "文字说明" },
+            "一台花": {
+                rows: [
+                    ["spring", "summer", "autumn", "winter", "|", "plum", "orchid", "chrysanthemum", "bamboo"],
+                    ["spring", "plum", "|", "summer", "orchid", "|", "autumn", "chrysanthemum", "|", "winter", "bamboo"]
+                ]
+            },
+            "花和（七只花）": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum"] },
+            "对对和（碰碰糊）": { tiles: ["s1", "s1", "s1", "w6", "w6", "w6", "w8", "w8", "w8", "w9", "w9", "w9", "west", "west"] },
+            "混一色": { tiles: ["w1", "w1", "w3", "w4", "w5", "w7", "w7", "w7", "w9", "w9", "w9", "west", "west", "west"] },
+            "花幺九（混老头）": { tiles: ["s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1", "w1", "west", "west", "west", "green", "green"] },
+            "小三元": { tiles: ["s1", "s2", "s3", "t5", "red", "green", "white"] },
+            "小四喜": { tiles: ["t4", "t5", "t6", "east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north"] },
+            "清一色": { tiles: ["w1", "w2", "w3", "w5", "w5", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w4", "w4"] },
+            "大三元": { tiles: ["s1", "s2", "s3", "red", "red", "red", "green", "green", "green", "white", "white", "white", "t5", "t5"] },
+            "连杠开花（杠上杠自摸）": { note: "文字说明" },
+            "大花和（八仙过海）": { tiles: ["spring", "summer", "autumn", "winter", "plum", "orchid", "chrysanthemum", "bamboo"] },
+            "坎坎胡（四暗刻）": { note: "文字说明" },
+            "字一色（全字糊）": { tiles: ["east", "east", "east", "south", "south", "south", "north", "north", "north", "red", "red", "red", "green", "green"] },
+            "清幺九（清老头）": { tiles: ["t1", "t1", "t1", "t9", "t9", "t9", "s1", "s1", "s1", "s9", "s9", "s9", "w1", "w1"] },
+            "九莲宝灯（九子连环）": { tiles: ["w1", "w1", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w9", "w9", "w7"] },
+            "天和": { note: "文字说明" },
+            "地和": { note: "文字说明" },
+            "人和": { note: "文字说明" },
+            "大四喜": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "north", "north", "north", "t5", "t5"] },
+            "十三幺（国士无双）": { tiles: ["t1", "t9", "s1", "s9", "w1", "w9", "east", "south", "west", "north", "red", "green", "white", "white"] },
+            "十八罗汉（四杠子）": {
+                rows: [
+                    ["s1", "s1", "s1", "s1", "|", "t2", "t2", "t2", "t2", "|", "w3", "w3", "w3", "w3"],
+                    ["east", "east", "east", "east", "|", "green", "green"]
+                ]
+            },
+            "一般高（二同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"] },
+            "一般低（二步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s1", "s1", "s7", "s7", "s7", "east", "east"] },
+            "缺门": { tiles: ["s3", "s3", "s3", "s5", "s6", "s7", "w1", "w2", "w3", "w6", "w7", "w8", "s1", "s1"] },
+            "三般高（三同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "s7", "s7", "s7", "east", "east"] },
+            "三般低（三步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "s7", "s7", "s7", "east", "east"] },
+            "一条龙（一气通贯）": { tiles: ["w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "t2", "t2", "t2", "east", "east"] },
+            "钟鼓齐鸣（杠爆）": { note: "海底捞月兼杠上开花。" },
+            "两般高（双龙抱）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "s1", "s2", "s3", "s1", "s2", "s3", "east", "east"] },
+            "两般低（双蛇抱）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "s1", "s2", "s3", "s2", "s3", "s4", "east", "east"] },
+            "镜糊糊": { tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "s1", "s2", "s3", "s4", "s5", "s6", "east", "east"] },
+            "四般高（四同顺）": { tiles: ["t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "t1", "t2", "t3", "east", "east"] },
+            "四般低（步步高）": { tiles: ["t1", "t2", "t3", "t2", "t3", "t4", "t3", "t4", "t5", "t4", "t5", "t6", "east", "east"] },
+            "三杠子": { tiles: ["t1", "t1", "t1", "t1", "s2", "s2", "s2", "s2", "w3", "w3", "w3", "w3", "green", "green"] },
+            "三喜临门（三风刻）": { tiles: ["east", "east", "east", "south", "south", "south", "west", "west", "west", "w1", "w2", "w3", "t5", "t5"] },
+            "七对子（哩咕哩咕）": { tiles: ["t1", "t1", "s2", "s2", "w3", "w3", "t4", "t4", "s5", "s5", "w6", "w6", "green", "green"] },
+            "双色同刻": { tiles: ["t1", "t1", "t1", "t6", "t6", "t6", "s1", "s1", "s1", "s6", "s6", "s6", "red", "red"] },
+            "四归四": { note: "四只相同牌分别落在四组顺子上。" },
+            "万绿丛中一点红": { note: "绿一色中只带五索或红中其一。" },
+            "百万石（百万雄兵）": { note: "清一色手牌数字总和达到或超过一百。" },
+            "蓝一色": { note: "只由东南西北、白板或八筒组成。" },
+            "绿一色": { note: "只由二三四六八索或发财组成。" },
+            "红孔雀": { note: "只由一五七九索或红中组成。" }
         };
 
         const tileLabelMap = {
-            t1: "1饼", t2: "2饼", t3: "3饼", t4: "4饼", t5: "5饼", t6: "6饼", t7: "7饼", t8: "8饼", t9: "9饼",
-            s1: "1条", s2: "2条", s3: "3条", s4: "4条", s5: "5条", s6: "6条", s7: "7条", s8: "8条", s9: "9条",
+            t1: "1筒", t2: "2筒", t3: "3筒", t4: "4筒", t5: "5筒", t6: "6筒", t7: "7筒", t8: "8筒", t9: "9筒",
+            s1: "1索", s2: "2索", s3: "3索", s4: "4索", s5: "5索", s6: "6索", s7: "7索", s8: "8索", s9: "9索",
             w1: "1万", w2: "2万", w3: "3万", w4: "4万", w5: "5万", w6: "6万", w7: "7万", w8: "8万", w9: "9万",
             east: "东", south: "南", west: "西", north: "北",
             red: "中", green: "发", white: "白",
@@ -2012,7 +2242,119 @@
             setTheme(currentTheme === "dark" ? "light" : "dark");
         }
 
-        function showNameErrorModal(message = "请输入全部玩家名字。") {
+        function normalizeStaticUiText() {
+            const setText = (selector, text) => {
+                const node = document.querySelector(selector);
+                if (node) node.textContent = text;
+            };
+            const setHtml = (selector, html) => {
+                const node = document.querySelector(selector);
+                if (node) node.innerHTML = html;
+            };
+            const setPlaceholder = (selector, text) => {
+                const node = document.querySelector(selector);
+                if (node) node.setAttribute("placeholder", text);
+            };
+
+            setText(".brand-subtitle", "四人麻将计番");
+            const themeButton = document.getElementById("theme-toggle-button");
+            if (themeButton) {
+                themeButton.setAttribute("aria-label", "切换深浅色模式");
+                themeButton.setAttribute("title", "切换深浅色模式");
+            }
+
+            setText("#main-tab-play", "记分主页");
+            setText("#main-tab-lobby", "房间大厅");
+            setText("#main-tab-reference", "番数参考");
+            setText("#main-tab-photo", "拍照辅助");
+
+            setText(".room-box h2", "记分房间");
+            setText(".room-copy-soft", "创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。");
+            setPlaceholder("#viewer-name-input", "输入你的名字");
+            setPlaceholder("#room-id-input", "输入朋友分享的房号");
+            setText('.room-box button[onclick="createRoom()"]', "创建房间");
+            setText('.room-box button[onclick="joinRoom()"]', "加入房间");
+            setHtml("#room-status-text", '<span class="room-status-dot" aria-hidden="true"></span><span class="text-sm">当前未连接共享房间，仍可单机使用。</span>');
+            setText("#copy-room-link-button", "复制分享链接");
+            setText("#leave-room-button", "离开房间");
+
+            setText("#setup-section .panel-strong h2", "开局设置");
+            setText('#setup-section label[for="price-input"]', "每番价格");
+            setPlaceholder("#price-input", "例如：10");
+            setText("#setup-section .panel-strong .muted", "系统会按你输入的每番价格自动结算每局得失。");
+            setText("#setup-section .panel:last-of-type h2", "玩家名字");
+            setPlaceholder("#player-1-input", "玩家一");
+            setPlaceholder("#player-2-input", "玩家二");
+            setPlaceholder("#player-3-input", "玩家三");
+            setPlaceholder("#player-4-input", "玩家四");
+            setText('button[onclick="startGame()"]', "开始游戏");
+
+            setText("#lobby-page h2", "房间大厅");
+            setText("#lobby-page .muted", "查看目前开放的房间，直接加入朋友的牌局。");
+            setText('#lobby-page button[onclick="refreshRoomLobby()"]', "刷新列表");
+
+            setText("#reference-page h2", "番数参考");
+            setText("#reference-page .reference-source-pill a", "维基百科");
+
+            setText("#photo-page h2", "拍照参考");
+            setText("#photo-page .muted", "拍下牌面作参考，再勾选番种来辅助计算。现在是手动辅助模式，不会自动识别牌型。");
+            setText('#pause-timer-button', '暂停计时');
+            setText('#copy-room-link-button-live', '复制链接');
+            setText('#leave-room-button-live', '离开房间');
+            setText('#game-section .section-grid .panel:first-child h2', '本局记录');
+            setText('#game-section .section-grid .panel:last-child h2', '历史记录');
+            setText('#tool-tab-history', '历史记录');
+            setText('#result-win', '胡牌');
+            setText('#result-draw', '流局 / 无人胡');
+            setText('label[for="winner-select"]', '赢家');
+            setText('label[for="pao-select"]', '点炮者');
+            setText('label[for="fans-input"]', '番数');
+            setPlaceholder('#fans-input', '胡了多少番？');
+            setText('#record-button', '记录本局');
+
+            setText("#summary-section h2", "游戏总结");
+            setText('#summary-section h3:nth-of-type(1)', "最终得分");
+            setText('#summary-section h3:nth-of-type(2)', "数据分析");
+            setText('#summary-section h3:nth-of-type(3)', "完整历史记录");
+            setText('#summary-section button[onclick="showSnapshotModal()"]', "打开截图总览");
+            setText('#summary-section button[onclick="resetGame()"]', "新的一局");
+
+            setText("#snapshot-modal h3", "截图总览");
+            setText('#snapshot-modal button[onclick="hideSnapshotModal()"]', "关闭");
+            setText("#edit-round-modal h3", "编辑本局");
+            setText("#edit-result-win", "胡牌");
+            setText("#edit-result-draw", "流局");
+            setText('#edit-round-modal button[onclick="saveEditedRound()"]', "保存修改");
+            setText('#edit-round-modal button[onclick="hideEditRoundModal()"]', "取消");
+            setText("#name-error-modal h3", "输入错误");
+            setText("#selection-error-modal h3", "选择错误");
+            setText("#price-error-modal h3", "输入错误");
+            setText("#winner-error-modal h3", "选择错误");
+            setText("#pao-error-modal h3", "选择错误");
+            setText("#fans-low-error-modal h3", "番数错误");
+            setText("#fans-decimal-error-modal h3", "番数错误");
+            setText("#end-game-modal h3", "结束游戏？");
+            setText('#end-game-modal button[onclick="confirmEndGame()"]', "确定");
+            setText('#end-game-modal button[onclick="hideEndGameModal()"]', "取消");
+            setText('#name-error-modal button[onclick="hideNameErrorModal()"]', "确定");
+            setText('#selection-error-modal button[onclick="hideSelectionErrorModal()"]', "确定");
+            setText('#price-error-modal button[onclick="hidePriceErrorModal()"]', "确定");
+            setText('#winner-error-modal button[onclick="hideWinnerErrorModal()"]', "确定");
+            setText('#pao-error-modal button[onclick="hidePaoErrorModal()"]', "确定");
+            setText('#fans-low-error-modal button[onclick="hideFansLowErrorModal()"]', "确定");
+            setText('#fans-decimal-error-modal button[onclick="hideFansDecimalErrorModal()"]', "确定");
+            setText('#name-error-message', "请先输入完整资料。");
+            setText('#selection-error-modal p', "不能选择自己作为点炮者。");
+            setText('#price-error-modal p', "请输入有效的每番价格。");
+            setText('#winner-error-modal p', "请选择赢家。");
+            setText('#pao-error-modal p', "请选择点炮者或自摸。");
+            setText('#fans-low-error-modal p', "最低三番起胡。");
+            setText('#fans-decimal-error-modal p', "请输入正确的整数番数。");
+            setText('#edit-round-hint', "修改后会立刻重算全部分数。");
+            setPlaceholder('#edit-fans-input', '番数');
+        }
+
+        function showNameErrorModal(message = "请先输入完整资料。") {
             const messageNode = document.getElementById("name-error-message");
             if (messageNode) {
                 messageNode.innerText = message;
@@ -2038,17 +2380,23 @@
         }
 
         function getViewerName() {
-            return localStorage.getItem(roomViewerNameStorageKey)?.trim() || "";
+            const input = document.getElementById("viewer-name-input");
+            const value = input?.value?.trim() || localStorage.getItem(roomViewerNameStorageKey)?.trim() || "";
+            if (input && value && input.value.trim() !== value) {
+                input.value = value;
+            }
+            return value;
         }
 
         function ensureViewerName() {
-            let viewerName = getViewerName();
-            while (!viewerName) {
-                const input = window.prompt("请输入你的名字，让房间内其他玩家看得到你是谁。", "");
-                if (input === null) {
-                    return "";
+            const input = document.getElementById("viewer-name-input");
+            const viewerName = getViewerName();
+            if (!viewerName) {
+                showNameErrorModal("请输入你的名字后再创建或加入房间。");
+                if (input) {
+                    input.focus();
                 }
-                viewerName = input.trim();
+                return "";
             }
             localStorage.setItem(roomViewerNameStorageKey, viewerName);
             return viewerName;
@@ -2156,12 +2504,19 @@
                     return "";
                 }
 
-                const tileKeys = sample.tiles;
+                const tileRows = sample.rows || [sample.tiles || []];
                 return `
-                    <div class="reference-tiles">
-                        ${tileKeys.map(key => `
-                            <div class="reference-tile">
-                                <img src="${getTileImageSrc(key)}" data-attempt-index="0" alt="${item.name} 参考牌" loading="lazy" onerror="handleReferenceImageError(this, '${key}')">
+                    <div class="reference-tiles-stack">
+                        ${tileRows.map(row => `
+                            <div class="reference-tiles">
+                                ${row.map(key => key === "|"
+                                    ? `<span class="reference-gap" aria-hidden="true"></span>`
+                                    : `
+                                        <div class="reference-tile">
+                                            <img src="${getTileImageSrc(key)}" data-attempt-index="0" alt="${item.name} 参考牌" loading="lazy" onerror="handleReferenceImageError(this, '${key}')">
+                                        </div>
+                                    `
+                                ).join("")}
                             </div>
                         `).join("")}
                     </div>
@@ -2170,7 +2525,7 @@
 
             const buildReferenceItem = item => {
                 const sample = fanReferenceSamples[item.name];
-                const hasPhotoReference = Boolean(sample && Array.isArray(sample.tiles) && sample.tiles.length);
+                const hasPhotoReference = Boolean(sample && ((Array.isArray(sample.tiles) && sample.tiles.length) || (Array.isArray(sample.rows) && sample.rows.length)));
 
                 if (!hasPhotoReference) {
                     return `
@@ -2178,6 +2533,7 @@
                             <div class="fan-static-head">
                                 <div>
                                     <p class="font-bold">${item.name}</p>
+                                    ${sample && sample.note && sample.note !== "文字说明" ? `<p class="mt-2 text-sm muted">${sample.note}</p>` : ""}
                                 </div>
                                 <span class="fan-badge">${item.fans} 番</span>
                             </div>
@@ -2201,18 +2557,15 @@
             };
 
             const buildFamily = family => {
-                const totalItems = family.sections.reduce((sum, section) => sum + section.items.length, 0);
                 return `
                     <section class="fan-family">
                         <div class="fan-family-header">
                             <div>
-                                <p class="fan-family-kicker">${family.kicker}</p>
-                                <h4 class="text-2xl font-black mt-2">${family.title}</h4>
-                                ${family.description ? `<p class="mt-2 text-sm muted">${family.description}</p>` : ""}
+                                <span class="fan-directory-chip">${family.kicker}</span>
+                                <h4 class="text-2xl font-black">${family.title}</h4>
                             </div>
-                            <span class="fan-family-count">${totalItems} 项</span>
                         </div>
-                        <div class="fan-level-grid">
+                        <div class="fan-directory-layout">
                             ${family.sections.map(section => `
                                 <div class="fan-level-card">
                                     <div class="fan-level-head">
@@ -2220,9 +2573,8 @@
                                             <h5 class="text-lg font-black">${section.title.replace(/^.*?·\s*/, "")}</h5>
                                             ${section.note ? `<p class="mt-1 text-sm muted">${section.note}</p>` : ""}
                                         </div>
-                                        <span class="fan-level-tag">${section.items.length} 项</span>
                                     </div>
-                                    <div class="fan-items-grid">
+                                    <div class="fan-items-grid compact">
                                         ${section.items.map(item => buildReferenceItem(item)).join("")}
                                     </div>
                                 </div>
@@ -2233,7 +2585,7 @@
             };
 
             return `
-                <div class="grid gap-5 xl:grid-cols-2">
+                <div class="grid gap-4">
                     ${fanFamilies.map(buildFamily).join("")}
                 </div>
             `;
@@ -2312,11 +2664,11 @@
                         <span class="room-lobby-tag">${formatRoomUpdatedAt(room.updatedAt)}</span>
                     </div>
                     ${room.memberNames.length ? `<div class="room-members">${room.memberNames.map(name => `<span class="room-member-chip">${name}</span>`).join("")}</div>` : ""}
+                    ${room.scorePreview ? `<div class="snapshot-history mt-3">${room.scorePreview}</div>` : ""}
                     <button type="button" onclick="joinListedRoom('${room.id}')" class="action-button w-full mt-4 bg-emerald-700 text-white">加入房间</button>
                 </div>
             `).join("");
         }
-
         function joinListedRoom(roomId) {
             document.getElementById("room-id-input").value = roomId;
             switchMainTab("play");
@@ -2329,7 +2681,6 @@
                 return;
             }
             if (roomCatalogUnsubscribe) {
-                roomCatalogUnsubscribe();
                 roomCatalogUnsubscribe = null;
             }
 
@@ -2349,11 +2700,17 @@
                     const playerCount = Object.keys(state.players || {}).length;
                     const roundNumber = Number(state.round || 0);
                     const isPlaying = playerCount > 0 || (state.history || []).length > 0;
+                    const scorePreview = Object.entries(state.players || {})
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 4)
+                        .map(([name, score]) => `<div class="snapshot-history-item flex items-center justify-between gap-2"><span class="font-bold">${name}</span><span class="font-black">${Number(score).toFixed(2)}</span></div>`)
+                        .join("");
                     return {
                         id,
                         updatedAt: room?.updatedAt || 0,
                         playerCount,
                         memberNames,
+                        scorePreview,
                         roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
                         status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
                     };
@@ -2363,12 +2720,14 @@
             });
         }
 
-        async function refreshRoomLobby() {
-            if (!(await ensureFirebaseReady())) {
-                renderRoomLobby([]);
-                return;
-            }
-            subscribeToRoomLobby();
+        function refreshRoomLobby() {
+            return ensureFirebaseReady().then(ready => {
+                if (!ready) {
+                    renderRoomLobby([]);
+                    return;
+                }
+                subscribeToRoomLobby();
+            });
         }
 
         function buildCameraHelperHtml() {
@@ -2400,7 +2759,6 @@
                 </div>
             `;
         }
-
         function renderCameraFanChecklist() {
             const items = fanReferenceSections.flatMap(section => section.items);
             const checklistHtml = items.map(item => `
@@ -2500,6 +2858,7 @@
 
             timerText.innerText = formatDuration(getRoundElapsedMs() / 1000);
             timerStatus.classList.toggle("hidden", !isTimerPaused);
+            timerStatus.innerText = "计时已暂停";
             pauseButton.innerText = isTimerPaused ? "继续计时" : "暂停计时";
             pauseButton.classList.toggle("bg-amber-400", !isTimerPaused);
             pauseButton.classList.toggle("bg-emerald-700", isTimerPaused);
@@ -2635,6 +2994,7 @@
             const setupCopyButton = document.getElementById("copy-room-link-button");
             const leaveRoomButton = document.getElementById("leave-room-button");
             const liveCopyButton = document.getElementById("copy-room-link-button-live");
+            const liveLeaveButton = document.getElementById("leave-room-button-live");
             const activeRoomText = document.getElementById("active-room-text");
 
             roomStatus.classList.toggle("connected", Boolean(isConnected && currentRoomId));
@@ -2644,12 +3004,14 @@
                 setupCopyButton.classList.remove("hidden");
                 leaveRoomButton.classList.remove("hidden");
                 liveCopyButton.classList.remove("hidden");
+                liveLeaveButton.classList.remove("hidden");
                 activeRoomText.classList.remove("hidden");
                 activeRoomText.innerText = `共享房号：${currentRoomId}`;
             } else {
                 setupCopyButton.classList.add("hidden");
                 leaveRoomButton.classList.add("hidden");
                 liveCopyButton.classList.add("hidden");
+                liveLeaveButton.classList.add("hidden");
                 activeRoomText.classList.add("hidden");
                 activeRoomText.innerText = "";
             }
@@ -2852,6 +3214,12 @@
         window.onload = async () => {
             ensureTimerInterval();
             setTheme(localStorage.getItem(themeStorageKey) || "light");
+            const savedViewerName = localStorage.getItem(roomViewerNameStorageKey) || "";
+            const viewerNameInput = document.getElementById("viewer-name-input");
+            if (viewerNameInput) {
+                viewerNameInput.value = savedViewerName;
+            }
+            normalizeStaticUiText();
             renderFanReference();
             const referenceCameraPanel = document.getElementById("reference-camera-helper-panel");
             if (referenceCameraPanel) {
@@ -2861,7 +3229,7 @@
             switchMainTab(currentMainTab);
             switchGameTool(currentGameTool);
             const roomFromUrl = new URL(window.location.href).searchParams.get("room");
-            refreshRoomLobby();
+            await refreshRoomLobby();
 
             if (!loadGameData()) {
                 document.getElementById("setup-section").classList.remove("hidden");
@@ -3055,10 +3423,12 @@
             if (editingIndex !== null) {
                 history[editingIndex] = roundRecord;
                 editingIndex = null;
+                showToast("修改已保存");
                 document.getElementById("record-button").innerText = "记录本局";
             } else {
                 history.push(roundRecord);
                 round += 1;
+                showToast("本局已记录");
             }
 
             updateAllStats();
@@ -3068,24 +3438,116 @@
             saveGameData();
         }
 
+        function setEditRoundResult(type) {
+            editRoundResultType = type;
+            document.getElementById("edit-result-win").classList.toggle("active", type === "win");
+            document.getElementById("edit-result-draw").classList.toggle("active", type === "draw");
+            const winner = document.getElementById("edit-winner-select");
+            const pao = document.getElementById("edit-pao-select");
+            const fans = document.getElementById("edit-fans-input");
+            const hint = document.getElementById("edit-round-hint");
+            const isDraw = type === "draw";
+            winner.disabled = isDraw;
+            pao.disabled = isDraw;
+            fans.disabled = isDraw;
+            if (isDraw) {
+                winner.value = "";
+                pao.value = "";
+                fans.value = "";
+                hint.innerText = "流局只会更新记录，不会计算胡牌与点炮。";
+            } else {
+                if (!fans.value) {
+                    fans.value = "3";
+                }
+                hint.innerText = "修改后会立刻重算全部分数。";
+            }
+        }
+
+        function buildEditModalOptions(record) {
+            const winnerSelect = document.getElementById("edit-winner-select");
+            const paoSelect = document.getElementById("edit-pao-select");
+            winnerSelect.innerHTML = '<option value="" disabled selected>选择赢家</option>';
+            paoSelect.innerHTML = '<option value="" disabled selected>选择点炮者</option><option value="zimo">自摸</option>';
+            Object.keys(players).forEach(name => {
+                winnerSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                paoSelect.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+            setEditRoundResult(record.resultType || "win");
+            if (record.resultType === "draw") {
+                winnerSelect.value = "";
+                paoSelect.value = "";
+                document.getElementById("edit-fans-input").value = "";
+            } else {
+                winnerSelect.value = record.winner;
+                paoSelect.value = record.pao;
+                document.getElementById("edit-fans-input").value = record.fans;
+            }
+        }
+
+        function saveEditedRound() {
+            const record = history[editingIndex];
+            if (!record) {
+                hideEditRoundModal();
+                return;
+            }
+            if (editRoundResultType === "draw") {
+                commitRoundRecord({
+                    round: record.round,
+                    duration: record.duration || 0,
+                    resultType: "draw",
+                    winner: null,
+                    fans: 0,
+                    pao: null,
+                    description: "流局，无人胡。"
+                });
+                hideEditRoundModal();
+                return;
+            }
+            const winner = document.getElementById("edit-winner-select").value;
+            const pao = document.getElementById("edit-pao-select").value;
+            const fansValue = document.getElementById("edit-fans-input").value;
+            if (!winner) {
+                showWinnerErrorModal();
+                return;
+            }
+            if (!pao) {
+                showPaoErrorModal();
+                return;
+            }
+            const fans = parseFloat(fansValue);
+            if (isNaN(fans) || fans !== Math.floor(fans)) {
+                showFansDecimalErrorModal();
+                return;
+            }
+            if (fans < 3) {
+                showFansLowErrorModal();
+                return;
+            }
+            if (winner === pao) {
+                showSelectionErrorModal();
+                return;
+            }
+            commitRoundRecord({
+                round: record.round,
+                duration: record.duration || 0,
+                resultType: "win",
+                winner,
+                fans,
+                pao,
+                description: buildRoundDescription({ winner, fans, pao, resultType: "win" })
+            });
+            hideEditRoundModal();
+        }
+
         function editRound(index) {
             editingIndex = index;
             const record = history[index];
 
-            setRoundResult(record.resultType || "win");
+            buildEditModalOptions(record);
 
-            if (record.resultType === "draw") {
-                document.getElementById("winner-select").value = "";
-                document.getElementById("pao-select").value = "";
-                document.getElementById("fans-input").value = "";
-            } else {
-                document.getElementById("winner-select").value = record.winner;
-                document.getElementById("pao-select").value = record.pao;
-                document.getElementById("fans-input").value = record.fans;
-            }
+            showModal("edit-round-modal");
 
             document.getElementById("record-button").innerText = "更新本局";
-            window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
         function updateAllStats() {
@@ -3174,9 +3636,56 @@
             });
         }
 
+        let toastTimerId = null;
+        let editRoundResultType = "win";
+
+        function playDing() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    return;
+                }
+                const audioContext = new AudioContextClass();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = "sine";
+                oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 0.12);
+                gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.35);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.36);
+            } catch (error) {
+                console.warn("Unable to play ding sound:", error);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast-notice");
+            if (!toast) {
+                return;
+            }
+            toast.innerText = message;
+            toast.classList.add("show");
+            playDing();
+            if (toastTimerId) {
+                clearTimeout(toastTimerId);
+            }
+            toastTimerId = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
         function showModal(id) {
             const modal = document.getElementById(id);
+            document.documentElement.style.overflow = "hidden";
+            document.body.style.overflow = "hidden";
             modal.classList.remove("hidden");
+            modal.scrollTop = 0;
+            window.scrollTo({ top: 0, behavior: "auto" });
             setTimeout(() => {
                 modal.querySelector(".modal").classList.add("active");
             }, 10);
@@ -3187,6 +3696,8 @@
             modal.querySelector(".modal").classList.remove("active");
             setTimeout(() => {
                 modal.classList.add("hidden");
+                document.documentElement.style.overflow = "";
+                document.body.style.overflow = "";
             }, 280);
         }
 
@@ -3206,6 +3717,15 @@
         function hideFansDecimalErrorModal() { hideModal("fans-decimal-error-modal"); }
         function showPriceErrorModal() { showModal("price-error-modal"); }
         function hidePriceErrorModal() { hideModal("price-error-modal"); }
+        function showSnapshotModal() {
+            renderSnapshotSheet();
+            showModal("snapshot-modal");
+        }
+        function hideSnapshotModal() { hideModal("snapshot-modal"); }
+        function hideEditRoundModal() {
+            editingIndex = null;
+            hideModal("edit-round-modal");
+        }
 
         function buildScoreCard(name, score) {
             let scoreClass = "score-neutral";
@@ -3261,114 +3781,53 @@
             `;
         }
 
-        function showSummary() {
-            document.getElementById("game-section").classList.add("hidden");
-            document.getElementById("summary-section").classList.remove("hidden");
-
-            const finalScoreDisplay = document.getElementById("final-score-display");
-            finalScoreDisplay.innerHTML = "";
-            Object.keys(players).forEach(name => {
-                finalScoreDisplay.innerHTML += buildScoreCard(name, players[name]);
-            });
-
-            const statsDisplay = document.getElementById("stats-display");
-            statsDisplay.innerHTML = "";
-
-            if (history.length === 0) {
-                statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
-            } else {
-                const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
-                const avgDuration = (totalDuration / history.length).toFixed(1);
-                const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
-                const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
-                const totalDraws = history.filter(record => record.resultType === "draw").length;
-                const winRounds = history.filter(record => record.resultType !== "draw");
-
-                statsDisplay.innerHTML += `
-                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                        <div class="history-item"><p class="font-bold">总共局数</p><p class="text-2xl font-black mt-2">${history.length} 局</p></div>
-                        <div class="history-item"><p class="font-bold">流局次数</p><p class="text-2xl font-black mt-2">${totalDraws} 次</p></div>
-                        <div class="history-item"><p class="font-bold">平均每局时间</p><p class="text-2xl font-black mt-2">${avgDuration} 秒</p></div>
-                        <div class="history-item"><p class="font-bold">最短局时间</p><p class="text-2xl font-black mt-2">${minDuration} 秒</p></div>
-                        <div class="history-item"><p class="font-bold">最长局时间</p><p class="text-2xl font-black mt-2">${maxDuration} 秒</p></div>
-                    </div>
-                `;
-
-                const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
-                const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
-                const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
-
-                let highestFanText = "尚无胡牌记录";
-                if (winRounds.length > 0) {
-                    const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
-                    const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
-                    highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
-                }
-
-                const pickLeaders = key => {
-                    let maxValue = -Infinity;
-                    let names = [];
-                    Object.keys(playerStats).forEach(name => {
-                        const value = playerStats[name][key] || 0;
-                        if (value > maxValue) {
-                            maxValue = value;
-                            names = [name];
-                        } else if (value === maxValue) {
-                            names.push(name);
-                        }
-                    });
-                    return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
-                };
-
-                const consecutiveWins = pickLeaders("consecutiveWins");
-                const totalWins = pickLeaders("wins");
-                const selfDraws = pickLeaders("selfDraws");
-                const consecutivePaos = pickLeaders("consecutivePaos");
-                const totalPaos = pickLeaders("paos");
-
-                statsDisplay.innerHTML += `
-                    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        <div class="history-item"><p class="font-bold">赢家之王</p><p class="text-xl font-black mt-2">${winningPlayers}</p></div>
-                        <div class="history-item"><p class="font-bold">输家之王</p><p class="text-xl font-black mt-2">${losingPlayers}</p></div>
-                        <div class="history-item"><p class="font-bold">单局番王</p><p class="text-xl font-black mt-2">${highestFanText}</p></div>
-                        <div class="history-item"><p class="font-bold">连胡之王</p><p class="text-xl font-black mt-2">${consecutiveWins.names} (${consecutiveWins.value} 局)</p></div>
-                        <div class="history-item"><p class="font-bold">胡牌之王</p><p class="text-xl font-black mt-2">${totalWins.names} (${totalWins.value} 次)</p></div>
-                        <div class="history-item"><p class="font-bold">自摸之王</p><p class="text-xl font-black mt-2">${selfDraws.names} (${selfDraws.value} 次)</p></div>
-                        <div class="history-item"><p class="font-bold">连炮之王</p><p class="text-xl font-black mt-2">${consecutivePaos.names} (${consecutivePaos.value} 次)</p></div>
-                        <div class="history-item"><p class="font-bold">点炮之王</p><p class="text-xl font-black mt-2">${totalPaos.names} (${totalPaos.value} 次)</p></div>
-                    </div>
-                `;
-
-                let playerStatsHtml = '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">';
-                Object.keys(playerStats).forEach(name => {
-                    const stats = playerStats[name];
-                    const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
-                    playerStatsHtml += `
-                        <div class="history-item">
-                            <p class="font-bold text-lg">${name}</p>
-                            <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
-                            <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
-                            <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
-                            <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
-                            <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
-                        </div>
-                    `;
-                });
-                playerStatsHtml += "</div>";
-                statsDisplay.innerHTML += playerStatsHtml;
+        function renderSnapshotSheet() {
+            const sheet = document.getElementById("snapshot-sheet");
+            if (!sheet) {
+                return;
             }
-
-            const finalHistoryList = document.getElementById("final-history-list");
-            finalHistoryList.innerHTML = "";
-            history.forEach(record => {
-                const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
-                finalHistoryList.innerHTML += `
-                    <div class="history-item">
-                        <p class="font-bold">${displayRound}</p>
-                        <p class="mt-1">${record.description}</p>
+            const ranking = Object.entries(players).sort((a, b) => b[1] - a[1]);
+            const leader = ranking[0];
+            const recentHistory = [...history].slice(-6).reverse();
+            const currentRoundLabel = document.getElementById("current-round-text")?.innerText || "尚未开局";
+            sheet.innerHTML = `
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/60 font-bold">Four-Player Mahjong Scorer</p>
+                        <h4 class="text-2xl font-black mt-1">截图总览</h4>
+                        <p class="muted mt-2">${currentRoomId ? `房号 ${currentRoomId}` : "单机模式"} · ${currentRoundLabel}</p>
                     </div>
-                `;
-            });
+                    <div class="text-right">
+                        <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">Top Winner</p>
+                        <p class="text-3xl font-black mt-1">${leader ? leader[0] : "-"}</p>
+                    </div>
+                </div>
+                <div class="snapshot-mini-grid">
+                    ${ranking.map(([name, score]) => `
+                        <div class="snapshot-mini-card">
+                            <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
+                            <p class="text-xl font-black mt-2">${name}</p>
+                            <p class="text-2xl font-black mt-2">${Number(score).toFixed(2)}</p>
+                        </div>
+                    `).join("")}
+                </div>
+                <div class="snapshot-mini-grid">
+                    <div class="snapshot-mini-card">
+                        <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">总局数</p>
+                        <p class="text-2xl font-black mt-2">${history.length}</p>
+                    </div>
+                    <div class="snapshot-mini-card">
+                        <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold">流局</p>
+                        <p class="text-2xl font-black mt-2">${history.filter(record => record.resultType === "draw").length}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-[0.16em] text-emerald-900/60 font-bold mb-2">最近记录</p>
+                    <div class="snapshot-history">
+                        ${recentHistory.length ? recentHistory.map(record => `<div class="snapshot-history-item"><p class="font-bold">${`第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`}</p><p class="mt-1">${record.description}</p></div>`).join("") : '<div class="snapshot-history-item">还没有记录</div>'}
+                    </div>
+                </div>
+            `;
         }
 
         function showSummary() {
@@ -3383,12 +3842,12 @@
             const finalHistoryList = document.getElementById("final-history-list");
 
             finalScoreDisplay.innerHTML = "";
+            statsDisplay.innerHTML = "";
+            finalHistoryList.innerHTML = "";
+
             Object.keys(players).forEach(name => {
                 finalScoreDisplay.innerHTML += buildScoreCard(name, players[name]);
             });
-
-            statsDisplay.innerHTML = "";
-            finalHistoryList.innerHTML = "";
 
             if (history.length === 0) {
                 summaryWinnerSpotlight.innerHTML = `
@@ -3401,172 +3860,167 @@
                 summaryScoreChart.innerHTML = buildBarChart("最终分数分布", "Score Chart", [], () => "#15803d");
                 summaryWinChart.innerHTML = buildBarChart("胡牌次数分布", "Win Chart", [], () => "#d4a72c");
                 statsDisplay.innerHTML = '<p class="text-center text-gray-500">尚无数据可供分析</p>';
-            } else {
-                const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
-                const avgDuration = (totalDuration / history.length).toFixed(1);
-                const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
-                const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
-                const totalDraws = history.filter(record => record.resultType === "draw").length;
-                const winRounds = history.filter(record => record.resultType !== "draw");
-                const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
-                const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
-                const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
-                const bestScore = players[sortedScores[0]];
-
-                summaryWinnerSpotlight.innerHTML = `
-                    <div class="summary-spotlight">
-                        <p class="text-sm uppercase tracking-[0.24em] font-bold" style="color: rgba(255,255,255,0.92);">Top Performer</p>
-                        <div class="grid gap-4 lg:grid-cols-[1.35fr_0.65fr] lg:items-end mt-3">
-                            <div>
-                                <p class="text-lg md:text-xl font-black" style="color: rgba(255,255,255,0.98);">今晚最大赢家</p>
-                                <h3 class="text-6xl md:text-[5.5rem] font-black leading-none mt-2">${winningPlayers}</h3>
-                                <p class="mt-4 text-xl md:text-3xl font-black" style="color: #fff4c7;">最终得分 ${bestScore.toFixed(2)}</p>
-                            </div>
-                            <div class="grid gap-3">
-                                <div class="summary-kpi">
-                                    <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">总局数</p>
-                                    <p class="text-3xl font-black mt-2 text-emerald-950">${history.length}</p>
-                                </div>
-                                <div class="summary-kpi">
-                                    <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">流局次数</p>
-                                    <p class="text-3xl font-black mt-2 text-emerald-950">${totalDraws}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                summaryScoreChart.innerHTML = buildBarChart(
-                    "最终分数分布",
-                    "Score Chart",
-                    sortedScores.map(name => ({
-                        label: name,
-                        value: players[name],
-                        displayValue: players[name].toFixed(2)
-                    })),
-                    row => row.value >= 0
-                        ? "linear-gradient(90deg, #15803d, #22c55e)"
-                        : "linear-gradient(90deg, #b91c1c, #ef4444)"
-                );
-
-                summaryWinChart.innerHTML = buildBarChart(
-                    "胡牌次数分布",
-                    "Win Chart",
-                    Object.keys(playerStats).map(name => ({
-                        label: name,
-                        value: playerStats[name].wins,
-                        displayValue: `${playerStats[name].wins} 次`
-                    })).sort((a, b) => b.value - a.value),
-                    (_, index) => index % 2 === 0
-                        ? "linear-gradient(90deg, #d4a72c, #f59e0b)"
-                        : "linear-gradient(90deg, #0f766e, #14b8a6)"
-                );
-
-                let highestFanText = "尚无胡牌记录";
-                if (winRounds.length > 0) {
-                    const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
-                    const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
-                    highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
-                }
-
-                const pickLeaders = key => {
-                    let maxValue = -Infinity;
-                    let names = [];
-                    Object.keys(playerStats).forEach(name => {
-                        const value = playerStats[name][key] || 0;
-                        if (value > maxValue) {
-                            maxValue = value;
-                            names = [name];
-                        } else if (value === maxValue) {
-                            names.push(name);
-                        }
-                    });
-                    return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
-                };
-
-                const consecutiveWins = pickLeaders("consecutiveWins");
-                const totalWins = pickLeaders("wins");
-                const selfDraws = pickLeaders("selfDraws");
-                const consecutivePaos = pickLeaders("consecutivePaos");
-                const totalPaos = pickLeaders("paos");
-                const timeMax = Math.max(Number(maxDuration) || 0, Number(avgDuration) || 0, Number(minDuration) || 0, 1);
-                const leaderCards = [
-                    { rank: "01", title: "赢家之王", names: winningPlayers, value: `${bestScore.toFixed(2)} 分`, score: Math.max(bestScore, 0), color: "linear-gradient(90deg, #15803d, #22c55e)" },
-                    { rank: "02", title: "输家之王", names: losingPlayers, value: `${players[sortedScores[sortedScores.length - 1]].toFixed(2)} 分`, score: Math.abs(players[sortedScores[sortedScores.length - 1]]), color: "linear-gradient(90deg, #dc2626, #f87171)" },
-                    { rank: "03", title: "单局番王", names: highestFanText, value: "最高番数", score: winRounds.length ? Math.max(...winRounds.map(record => record.fans || 0)) : 0, color: "linear-gradient(90deg, #d4a72c, #f59e0b)" },
-                    { rank: "04", title: "连胡之王", names: consecutiveWins.names || "暂无", value: `${consecutiveWins.value} 局`, score: consecutiveWins.value, color: "linear-gradient(90deg, #0f766e, #14b8a6)" },
-                    { rank: "05", title: "胡牌之王", names: totalWins.names || "暂无", value: `${totalWins.value} 次`, score: totalWins.value, color: "linear-gradient(90deg, #2563eb, #60a5fa)" },
-                    { rank: "06", title: "自摸之王", names: selfDraws.names || "暂无", value: `${selfDraws.value} 次`, score: selfDraws.value, color: "linear-gradient(90deg, #7c3aed, #a78bfa)" },
-                    { rank: "07", title: "连炮之王", names: consecutivePaos.names || "暂无", value: `${consecutivePaos.value} 次`, score: consecutivePaos.value, color: "linear-gradient(90deg, #ea580c, #fb923c)" },
-                    { rank: "08", title: "点炮之王", names: totalPaos.names || "暂无", value: `${totalPaos.value} 次`, score: totalPaos.value, color: "linear-gradient(90deg, #be123c, #fb7185)" }
-                ];
-                const leaderMax = Math.max(...leaderCards.map(card => card.score), 1);
-
-                statsDisplay.innerHTML += `
-                    <div class="summary-metric-grid">
-                        <div class="summary-metric-card">
-                            <p class="summary-metric-label">总共局数</p>
-                            <p class="summary-metric-value">${history.length}</p>
-                            <p class="summary-metric-sub">今晚完成对局</p>
-                        </div>
-                        <div class="summary-metric-card">
-                            <p class="summary-metric-label">流局次数</p>
-                            <p class="summary-metric-value">${totalDraws}</p>
-                            <p class="summary-metric-sub">占比 ${((totalDraws / history.length) * 100).toFixed(0)}%</p>
-                        </div>
-                        <div class="summary-metric-card">
-                            <p class="summary-metric-label">平均每局时间</p>
-                            <p class="summary-metric-value">${avgDuration}<span class="text-base font-bold"> 秒</span></p>
-                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(avgDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#15803d,#22c55e);"></div></div>
-                        </div>
-                        <div class="summary-metric-card">
-                            <p class="summary-metric-label">最短局时间</p>
-                            <p class="summary-metric-value">${minDuration}<span class="text-base font-bold"> 秒</span></p>
-                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(minDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#0f766e,#14b8a6);"></div></div>
-                        </div>
-                        <div class="summary-metric-card">
-                            <p class="summary-metric-label">最长局时间</p>
-                            <p class="summary-metric-value">${maxDuration}<span class="text-base font-bold"> 秒</span></p>
-                            <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(maxDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#d4a72c,#f59e0b);"></div></div>
-                        </div>
-                    </div>
-                    <div class="summary-leader-grid">
-                        ${leaderCards.map(card => `
-                            <div class="summary-leader-card">
-                                <div class="summary-leader-head">
-                                    <div>
-                                        <p class="summary-leader-title">${card.title}</p>
-                                        <p class="summary-leader-name">${card.names}</p>
-                                        <p class="summary-leader-value">${card.value}</p>
-                                    </div>
-                                    <span class="summary-leader-rank">${card.rank}</span>
-                                </div>
-                                <div class="summary-leader-track">
-                                    <div class="summary-leader-fill" style="width:${(card.score / leaderMax) * 100}%;background:${card.color};"></div>
-                                </div>
-                            </div>
-                        `).join("")}
-                    </div>
-                `;
-
-                let playerStatsHtml = '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">';
-                Object.keys(playerStats).forEach(name => {
-                    const stats = playerStats[name];
-                    const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
-                    playerStatsHtml += `
-                        <div class="history-item">
-                            <p class="font-bold text-lg">${name}</p>
-                            <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
-                            <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
-                            <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
-                            <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
-                            <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
-                        </div>
-                    `;
-                });
-                playerStatsHtml += "</div>";
-                statsDisplay.innerHTML += playerStatsHtml;
+                return;
             }
+
+            const totalDuration = history.reduce((sum, record) => sum + (record.duration || 0), 0);
+            const avgDuration = (totalDuration / history.length).toFixed(1);
+            const minDuration = history.reduce((min, record) => Math.min(min, record.duration || 0), Infinity).toFixed(1);
+            const maxDuration = history.reduce((max, record) => Math.max(max, record.duration || 0), 0).toFixed(1);
+            const totalDraws = history.filter(record => record.resultType === "draw").length;
+            const winRounds = history.filter(record => record.resultType !== "draw");
+            const sortedScores = Object.keys(players).sort((a, b) => players[b] - players[a]);
+            const winningPlayers = sortedScores.filter(name => players[name] === players[sortedScores[0]]).join("、");
+            const losingPlayers = sortedScores.filter(name => players[name] === players[sortedScores[sortedScores.length - 1]]).join("、");
+            const bestScore = players[sortedScores[0]];
+
+            summaryWinnerSpotlight.innerHTML = `
+                <div class="summary-spotlight">
+                    <p class="text-sm uppercase tracking-[0.24em] font-bold" style="color: rgba(255,255,255,0.92);">Top Performer</p>
+                    <div class="grid gap-4 lg:grid-cols-[1.45fr_0.55fr] lg:items-end mt-3">
+                        <div>
+                            <p class="text-lg md:text-2xl font-black" style="color: rgba(255,255,255,0.98);">今晚最大赢家</p>
+                            <h3 class="text-[4.4rem] md:text-[7.6rem] font-black leading-[0.9] mt-3 break-words">${winningPlayers}</h3>
+                            <p class="mt-5 text-2xl md:text-4xl font-black" style="color: #fff4c7;">最终得分 ${bestScore.toFixed(2)}</p>
+                        </div>
+                        <div class="grid gap-3">
+                            <div class="summary-kpi">
+                                <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">总局数</p>
+                                <p class="text-3xl font-black mt-2 text-emerald-950">${history.length}</p>
+                            </div>
+                            <div class="summary-kpi">
+                                <p class="text-sm uppercase tracking-[0.18em] text-emerald-900/60 font-bold">流局次数</p>
+                                <p class="text-3xl font-black mt-2 text-emerald-950">${totalDraws}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            summaryScoreChart.innerHTML = buildBarChart(
+                "最终分数分布",
+                "Score Chart",
+                sortedScores.map(name => ({
+                    label: name,
+                    value: players[name],
+                    displayValue: players[name].toFixed(2)
+                })),
+                row => row.value >= 0 ? "linear-gradient(90deg, #15803d, #22c55e)" : "linear-gradient(90deg, #b91c1c, #ef4444)"
+            );
+
+            summaryWinChart.innerHTML = buildBarChart(
+                "胡牌次数分布",
+                "Win Chart",
+                Object.keys(playerStats).map(name => ({
+                    label: name,
+                    value: playerStats[name].wins,
+                    displayValue: `${playerStats[name].wins} 次`
+                })).sort((a, b) => b.value - a.value),
+                (_, index) => index % 2 === 0 ? "linear-gradient(90deg, #d4a72c, #f59e0b)" : "linear-gradient(90deg, #0f766e, #14b8a6)"
+            );
+
+            let highestFanText = "尚无胡牌记录";
+            if (winRounds.length > 0) {
+                const highestFanRound = winRounds.reduce((prev, current) => prev.fans > current.fans ? prev : current);
+                const highestFanPlayers = winRounds.filter(record => record.fans === highestFanRound.fans).map(record => record.winner);
+                highestFanText = `${[...new Set(highestFanPlayers)].join("、")} (${highestFanRound.fans} 番)`;
+            }
+
+            const pickLeaders = key => {
+                let maxValue = -Infinity;
+                let names = [];
+                Object.keys(playerStats).forEach(name => {
+                    const value = playerStats[name][key] || 0;
+                    if (value > maxValue) {
+                        maxValue = value;
+                        names = [name];
+                    } else if (value === maxValue) {
+                        names.push(name);
+                    }
+                });
+                return { names: names.join("、"), value: maxValue < 0 ? 0 : maxValue };
+            };
+
+            const consecutiveWins = pickLeaders("consecutiveWins");
+            const totalWins = pickLeaders("wins");
+            const selfDraws = pickLeaders("selfDraws");
+            const consecutivePaos = pickLeaders("consecutivePaos");
+            const totalPaos = pickLeaders("paos");
+            const timeMax = Math.max(Number(maxDuration) || 0, Number(avgDuration) || 0, Number(minDuration) || 0, 1);
+            const leaderCards = [
+                { rank: "01", title: "赢家之王", names: winningPlayers, value: `${bestScore.toFixed(2)} 分`, score: Math.max(bestScore, 0), color: "linear-gradient(90deg, #15803d, #22c55e)" },
+                { rank: "02", title: "输家之王", names: losingPlayers, value: `${players[sortedScores[sortedScores.length - 1]].toFixed(2)} 分`, score: Math.abs(players[sortedScores[sortedScores.length - 1]]), color: "linear-gradient(90deg, #dc2626, #f87171)" },
+                { rank: "03", title: "单局番王", names: highestFanText, value: "最高番数", score: winRounds.length ? Math.max(...winRounds.map(record => record.fans || 0)) : 0, color: "linear-gradient(90deg, #d4a72c, #f59e0b)" },
+                { rank: "04", title: "连胡之王", names: consecutiveWins.names || "暂无", value: `${consecutiveWins.value} 局`, score: consecutiveWins.value, color: "linear-gradient(90deg, #0f766e, #14b8a6)" },
+                { rank: "05", title: "胡牌之王", names: totalWins.names || "暂无", value: `${totalWins.value} 次`, score: totalWins.value, color: "linear-gradient(90deg, #2563eb, #60a5fa)" },
+                { rank: "06", title: "自摸之王", names: selfDraws.names || "暂无", value: `${selfDraws.value} 次`, score: selfDraws.value, color: "linear-gradient(90deg, #7c3aed, #a78bfa)" },
+                { rank: "07", title: "连炮之王", names: consecutivePaos.names || "暂无", value: `${consecutivePaos.value} 次`, score: consecutivePaos.value, color: "linear-gradient(90deg, #ea580c, #fb923c)" },
+                { rank: "08", title: "点炮之王", names: totalPaos.names || "暂无", value: `${totalPaos.value} 次`, score: totalPaos.value, color: "linear-gradient(90deg, #be123c, #fb7185)" }
+            ];
+            const leaderMax = Math.max(...leaderCards.map(card => card.score), 1);
+
+            statsDisplay.innerHTML = `
+                <div class="summary-metric-grid">
+                    <div class="summary-metric-card">
+                        <p class="summary-metric-label">总共局数</p>
+                        <p class="summary-metric-value">${history.length}</p>
+                        <p class="summary-metric-sub">今晚完成对局</p>
+                    </div>
+                    <div class="summary-metric-card">
+                        <p class="summary-metric-label">流局次数</p>
+                        <p class="summary-metric-value">${totalDraws}</p>
+                        <p class="summary-metric-sub">占比 ${((totalDraws / history.length) * 100).toFixed(0)}%</p>
+                    </div>
+                    <div class="summary-metric-card">
+                        <p class="summary-metric-label">平均每局时间</p>
+                        <p class="summary-metric-value">${avgDuration}<span class="text-base font-bold"> 秒</span></p>
+                        <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(avgDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#15803d,#22c55e);"></div></div>
+                    </div>
+                    <div class="summary-metric-card">
+                        <p class="summary-metric-label">最短局时间</p>
+                        <p class="summary-metric-value">${minDuration}<span class="text-base font-bold"> 秒</span></p>
+                        <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(minDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#0f766e,#14b8a6);"></div></div>
+                    </div>
+                    <div class="summary-metric-card">
+                        <p class="summary-metric-label">最长局时间</p>
+                        <p class="summary-metric-value">${maxDuration}<span class="text-base font-bold"> 秒</span></p>
+                        <div class="summary-leader-track"><div class="summary-leader-fill" style="width:${(Number(maxDuration) / timeMax) * 100}%;background:linear-gradient(90deg,#d4a72c,#f59e0b);"></div></div>
+                    </div>
+                </div>
+                <div class="summary-leader-grid">
+                    ${leaderCards.map(card => `
+                        <div class="summary-leader-card">
+                            <div class="summary-leader-head">
+                                <div>
+                                    <p class="summary-leader-title">${card.title}</p>
+                                    <p class="summary-leader-name">${card.names}</p>
+                                    <p class="summary-leader-value">${card.value}</p>
+                                </div>
+                                <span class="summary-leader-rank">${card.rank}</span>
+                            </div>
+                            <div class="summary-leader-track">
+                                <div class="summary-leader-fill" style="width:${(card.score / leaderMax) * 100}%;background:${card.color};"></div>
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    ${Object.keys(playerStats).map(name => {
+                        const stats = playerStats[name];
+                        const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
+                        return `
+                            <div class="history-item">
+                                <p class="font-bold text-lg">${name}</p>
+                                <p class="mt-3">平均番数：<span class="font-black">${avgFans}</span></p>
+                                <p>最高番数：<span class="font-black">${stats.maxFans}</span></p>
+                                <p>胡牌次数：<span class="font-black">${stats.wins}</span></p>
+                                <p>自摸次数：<span class="font-black">${stats.selfDraws}</span></p>
+                                <p>点炮次数：<span class="font-black">${stats.paos}</span></p>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            `;
 
             history.forEach(record => {
                 const displayRound = `第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`;
@@ -3669,3 +4123,4 @@
     </script>
 </body>
 </html>
+
