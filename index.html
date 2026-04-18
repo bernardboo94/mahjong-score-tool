@@ -991,15 +991,26 @@
         }
 
         .dark-mode .room-member-chip {
-            background: rgba(24, 39, 33, 0.88);
-            border-color: rgba(148, 163, 184, 0.16);
-            color: #e6f5ee;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            background: rgba(17, 27, 23, 0.94);
+            border-color: rgba(111, 139, 125, 0.16);
+            color: #d8ebe2;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
         }
 
         .dark-mode .room-member-chip::before {
-            background: #1f8f62;
-            box-shadow: 0 0 0 5px rgba(31, 143, 98, 0.16);
+            background: #176f4d;
+            box-shadow: 0 0 0 5px rgba(23, 111, 77, 0.14);
+        }
+
+        .dark-mode .snapshot-history-item {
+            background: rgba(14, 24, 20, 0.96);
+            border-color: rgba(111, 139, 125, 0.12);
+            color: #dcece5;
+        }
+
+        .dark-mode .snapshot-history-item .font-bold,
+        .dark-mode .snapshot-history-item .font-black {
+            color: #f1fbf6;
         }
 
         .dark-mode .room-lobby-empty {
@@ -1338,6 +1349,8 @@
             align-items: flex-start;
             gap: 8px;
             flex-shrink: 0;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .room-delete-button {
@@ -1640,6 +1653,13 @@
             margin: 0 auto;
         }
 
+        #snapshot-modal .snapshot-modal-panel {
+            max-height: none;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+
         .toast-notice {
             position: fixed;
             top: 18px;
@@ -1805,6 +1825,18 @@
             .fan-family-count,
             .fan-badge {
                 font-size: 0.74rem;
+            }
+
+            .room-lobby-actions {
+                flex-direction: column;
+                align-items: stretch;
+                min-width: 88px;
+            }
+
+            .room-lobby-actions .room-lobby-tag,
+            .room-lobby-actions .room-delete-button {
+                width: 100%;
+                justify-content: center;
             }
 
             .fan-family {
@@ -2359,6 +2391,7 @@
         let pauseStartedAt = null;
         let pausedDurationMs = 0;
         let isTimerPaused = false;
+        let isGameFinished = false;
         let timerIntervalId = null;
         let currentTheme = "light";
         let currentGameTool = "history";
@@ -2960,7 +2993,7 @@
             const roomCodeDisplay = document.getElementById("room-code-display");
             if (activeRoomText) {
                 activeRoomText.textContent = currentRoomId
-                    ? `${isReadOnly ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中"}`
+                    ? `${isGameFinished ? "本局已结束 · 正在查看游戏总结" : (isReadOnly ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中")}`
                     : "";
                 activeRoomText.classList.toggle("hidden", !currentRoomId);
             }
@@ -3200,6 +3233,7 @@
             currentRoomId = "";
             currentRoomOwnerUid = "";
             isRoomViewer = false;
+            isGameFinished = false;
             currentPresence = {};
             localStorage.removeItem(roomStorageKey);
             const url = new URL(window.location.href);
@@ -3229,6 +3263,7 @@
             currentRoomId = "";
             currentRoomOwnerUid = "";
             isRoomViewer = false;
+            isGameFinished = false;
             currentPresence = {};
             localStorage.removeItem(roomStorageKey);
             const url = new URL(window.location.href);
@@ -3362,6 +3397,7 @@
                             .filter(Boolean);
                         const playerCount = Object.keys(state.players || {}).length;
                         const roundNumber = Number(state.round || 0);
+                        const isFinished = Boolean(state.gameFinished);
                         const isPlaying = playerCount > 0 || (state.history || []).length > 0;
                         const scorePreview = Object.entries(state.players || {})
                             .sort((a, b) => b[1] - a[1])
@@ -3374,8 +3410,8 @@
                             playerCount,
                             memberNames,
                             scorePreview,
-                            roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
-                            status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
+                            roundLabel: isFinished ? "游戏总结" : (isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局"),
+                            status: isFinished ? "游戏结束" : (isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入"))
                         };
                     }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
 
@@ -3424,6 +3460,7 @@
                         .filter(Boolean);
                     const playerCount = Object.keys(state.players || {}).length;
                     const roundNumber = Number(state.round || 0);
+                    const isFinished = Boolean(state.gameFinished);
                     const isPlaying = playerCount > 0 || (state.history || []).length > 0;
                     const scorePreview = Object.entries(state.players || {})
                         .sort((a, b) => b[1] - a[1])
@@ -3436,8 +3473,8 @@
                         playerCount,
                         memberNames,
                         scorePreview,
-                        roundLabel: isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局",
-                        status: isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入")
+                        roundLabel: isFinished ? "游戏总结" : (isPlaying ? `第${Math.floor(roundNumber / 4) + 1}圈` : "等待开局"),
+                        status: isFinished ? "游戏结束" : (isPlaying ? "进行中" : (memberNames.length ? "等待开局" : "可加入"))
                     };
                 }).sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
 
@@ -3630,6 +3667,7 @@
                 round,
                 history,
                 playerStats,
+                gameFinished: isGameFinished,
                 timerState: {
                     roundStartedAt,
                     pauseStartedAt,
@@ -3665,6 +3703,7 @@
             round = data.round || 0;
             history = data.history || [];
             playerStats = data.playerStats || {};
+            isGameFinished = Boolean(data.gameFinished);
             roundStartedAt = data.timerState?.roundStartedAt || Date.now();
             pauseStartedAt = data.timerState?.pauseStartedAt || null;
             pausedDurationMs = data.timerState?.pausedDurationMs || 0;
@@ -3693,6 +3732,7 @@
                 round,
                 history,
                 playerStats,
+                gameFinished: isGameFinished,
                 timerState: {
                     roundStartedAt,
                     pauseStartedAt,
@@ -3708,6 +3748,7 @@
             round = data.round || 0;
             history = data.history || [];
             playerStats = data.playerStats || {};
+            isGameFinished = Boolean(data.gameFinished);
             roundStartedAt = data.timerState?.roundStartedAt || Date.now();
             pauseStartedAt = data.timerState?.pauseStartedAt || null;
             pausedDurationMs = data.timerState?.pausedDurationMs || 0;
@@ -3749,7 +3790,9 @@
                 liveCopyButton.classList.toggle("hidden", !showHostShare);
                 liveLeaveButton.classList.toggle("hidden", !showLiveLeave);
                 activeRoomText.classList.remove("hidden");
-                activeRoomText.innerText = isRoomViewer ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中";
+                activeRoomText.innerText = isGameFinished
+                    ? "本局已结束 · 正在查看游戏总结"
+                    : (isRoomViewer ? "访客模式 · 实时观看中" : "房主模式 · 实时同步中");
                 if (roomCodeDisplay) {
                     roomCodeDisplay.classList.remove("hidden");
                     roomCodeDisplay.innerText = `房间号码：${currentRoomId}`;
@@ -3783,6 +3826,7 @@
             editingIndex = null;
             lastRoundTimestamp = null;
             roundResultType = "win";
+            isGameFinished = false;
             roundStartedAt = null;
             pauseStartedAt = null;
             pausedDurationMs = 0;
@@ -3839,6 +3883,7 @@
                     playerCount: Object.keys(players || {}).length,
                     memberNames: [getViewerName()],
                     scorePreview: "",
+                    isFinished: false,
                     roundLabel: Object.keys(players || {}).length ? `第${Math.floor(Number(round || 0) / 4) + 1}圈` : "等待开局",
                     status: "等待开局"
                 }]);
@@ -3917,7 +3962,12 @@
                 subscribeToRoom(requestedRoomId);
                 applyRoomInteractionState();
                 if (exists) {
-                    setRoomStatus(`已加入共享房间 ${requestedRoomId}，正在同步最新分数。`, true);
+                    setRoomStatus(
+                        isGameFinished
+                            ? `已加入共享房间 ${requestedRoomId}，正在查看游戏总结。`
+                            : `已加入共享房间 ${requestedRoomId}，正在同步最新分数。`,
+                        true
+                    );
                 } else {
                     resetGameStateForEmptyRoom();
                     setRoomStatus(`已加入共享房间 ${requestedRoomId}，等待房主开始第一局。`, true);
@@ -3989,6 +4039,9 @@
             updateAllStats();
             updateGameUI();
             applyRoomInteractionState();
+            if (isGameFinished) {
+                showSummary();
+            }
             applyingRemoteState = false;
             return true;
         }
@@ -4023,6 +4076,9 @@
                 updateAllStats();
                 updateGameUI();
                 applyRoomInteractionState();
+                if (isGameFinished) {
+                    showSummary();
+                }
                 applyingRemoteState = false;
             }, error => {
                 console.error("Room state subscription failed:", error);
@@ -4149,8 +4205,10 @@
             lastRoundTimestamp = Date.now();
             roundResultType = "win";
             isRoomViewer = false;
+            isGameFinished = false;
             resetRoundTimer();
 
+            document.getElementById("summary-section").classList.add("hidden");
             document.getElementById("setup-section").classList.add("hidden");
             document.getElementById("game-section").classList.remove("hidden");
             updateGameUI();
@@ -4827,7 +4885,14 @@
         function showSummary() {
             document.getElementById("game-section").classList.add("hidden");
             document.getElementById("summary-section").classList.remove("hidden");
+            isGameFinished = true;
+            localStorage.removeItem(localStorageKey);
             updateSummaryCameraButtonVisibility();
+            if (currentRoomId && !isRoomViewer && !applyingRemoteState) {
+                syncRoomState().catch(error => {
+                    console.error("Sync summary state failed:", error);
+                });
+            }
 
             const finalScoreDisplay = document.getElementById("final-score-display");
             const statsDisplay = document.getElementById("stats-display");
@@ -5054,6 +5119,7 @@
             editingIndex = null;
             lastRoundTimestamp = null;
             roundResultType = "win";
+            isGameFinished = false;
             roundStartedAt = null;
             pauseStartedAt = null;
             pausedDurationMs = 0;
