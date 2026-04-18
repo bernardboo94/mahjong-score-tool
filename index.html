@@ -1760,7 +1760,6 @@
                     </div>
                     <label for="price-input" class="block text-sm font-bold mb-2">每番价格</label>
                     <input type="number" id="price-input" placeholder="例如：10" class="field">
-                    <p class="mt-3 text-sm muted">系统会按你输入的每番价格自动结算每局得失。</p>
                 </section>
 
                 <section class="panel p-5 md:p-7">
@@ -1786,9 +1785,8 @@
                         <h2 class="text-2xl font-black mt-1">记分房间</h2>
                         <p class="text-sm room-copy-soft mt-3 max-w-[34rem]">创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。</p>
                     </div>
-                    <div class="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+                    <div class="grid gap-3 md:grid-cols-[1fr_auto]">
                         <input type="text" id="room-id-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="输入 6 位数字房号" class="field">
-                        <button type="button" onclick="createRoom()" class="action-button bg-white text-emerald-900">创建房间</button>
                         <button type="button" onclick="joinRoom()" class="action-button bg-emerald-700 text-white">加入房间</button>
                     </div>
                 </div>
@@ -2530,7 +2528,6 @@
             setText(".room-box h2", "记分房间");
             setText(".room-copy-soft", "创建房间后，把链接或房号发给朋友，大家会看到同一局实时更新。");
             setPlaceholder("#room-id-input", "输入 6 位数字房号");
-            setText('.room-box button[onclick="createRoom()"]', "创建房间");
             setText('.room-box button[onclick="joinRoom()"]', "加入房间");
             setHtml("#room-status-text", '<span class="room-status-dot" aria-hidden="true"></span><span class="text-sm">当前未连接共享房间，仍可单机使用。</span>');
             setText("#copy-room-link-button", "复制分享链接");
@@ -2651,11 +2648,11 @@
             try {
                 const parsed = JSON.parse(localStorage.getItem(fanReferenceStateStorageKey) || "{}");
                 return {
-                    classic: parsed.classic !== false,
-                    custom: parsed.custom !== false
+                    classic: parsed.classic === true,
+                    custom: parsed.custom === true
                 };
             } catch {
-                return { classic: true, custom: true };
+                return { classic: false, custom: false };
             }
         }
 
@@ -3438,6 +3435,25 @@
             }
         }
 
+        async function ensureActiveRoomForGame() {
+            if (!(await ensureFirebaseReady())) {
+                return;
+            }
+
+            if (!currentRoomId) {
+                currentRoomId = generateRoomId();
+                localStorage.setItem(roomStorageKey, currentRoomId);
+            }
+
+            document.getElementById("room-id-input").value = currentRoomId;
+            await ensureRoomStateExists();
+            await syncRoomPresence(currentRoomId);
+            subscribeToRoom(currentRoomId);
+            await syncRoomState();
+            setRoomStatus(`共享房间 ${currentRoomId} 已自动开启，可以把房号分享给朋友。`, true);
+            await refreshRoomLobby();
+        }
+
         async function joinRoom() {
             try {
                 if (!(await ensureFirebaseReady())) {
@@ -3630,7 +3646,7 @@
             }
         });
 
-        function startGame() {
+        async function startGame() {
             const priceInput = document.getElementById("price-input").value;
             perFanPrice = parseFloat(priceInput);
 
@@ -3675,7 +3691,10 @@
             updateGameUI();
             syncRoundFormState();
             saveGameData();
-            if (currentRoomId) {
+
+            if (Object.keys(players).length > 0) {
+                await ensureActiveRoomForGame();
+            } else if (currentRoomId) {
                 setRoomStatus(`共享房间 ${currentRoomId} 已开始同步。`, true);
             }
         }
@@ -4513,4 +4532,3 @@
     </script>
 </body>
 </html>
-
