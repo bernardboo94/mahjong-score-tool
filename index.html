@@ -1317,6 +1317,20 @@
             margin-top: 10px;
         }
 
+        .room-lobby-actions {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .room-delete-button {
+            min-width: auto;
+            padding: 8px 10px;
+            border-radius: 14px;
+            font-size: 0.76rem;
+            box-shadow: 0 10px 20px rgba(185, 28, 28, 0.12);
+        }
+
         .room-members {
             display: flex;
             flex-wrap: wrap;
@@ -1465,7 +1479,7 @@
         .snapshot-player-grid {
             display: grid;
             gap: 8px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             align-items: stretch;
         }
 
@@ -1475,6 +1489,18 @@
             background: rgba(255,255,255,0.72);
             border: 1px solid rgba(15, 81, 50, 0.1);
         }
+
+        .snapshot-score-card {
+            border-radius: 22px;
+            padding: 14px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 14px 28px rgba(15, 81, 50, 0.16);
+        }
+
+        .snapshot-score-positive { background: linear-gradient(135deg, #15803d, #22c55e); }
+        .snapshot-score-negative { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+        .snapshot-score-neutral { background: linear-gradient(135deg, #475569, #64748b); }
 
         .snapshot-share-button {
             width: 52px;
@@ -1545,6 +1571,12 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
+        .snapshot-analysis-grid {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
         .snapshot-history-item {
             border-radius: 16px;
             padding: 10px 12px;
@@ -1569,7 +1601,7 @@
         }
 
         .snapshot-modal-panel {
-            width: min(1200px, calc(100vw - 24px));
+            width: min(1120px, calc(100vw - 24px));
             min-height: calc(100vh - 24px);
             max-height: calc(100vh - 24px);
             display: flex;
@@ -1725,6 +1757,7 @@
             }
 
             .snapshot-kpi-grid,
+            .snapshot-analysis-grid,
             .snapshot-insight-grid,
             .snapshot-sheet-header {
                 grid-template-columns: 1fr;
@@ -1911,6 +1944,10 @@
                     </div>
                     <label for="price-input" class="block text-sm font-bold mb-2">每番价格</label>
                     <input type="number" id="price-input" placeholder="例如：10" class="field">
+                    <label class="mt-4 inline-flex items-center gap-3 text-sm font-bold">
+                        <input type="checkbox" id="shared-room-toggle" checked class="h-4 w-4 accent-emerald-700">
+                        <span>自动开启共享房间</span>
+                    </label>
                 </section>
 
                 <section class="panel p-5 md:p-7">
@@ -2068,10 +2105,6 @@
                     <div id="final-history-list" class="space-y-3"></div>
                 </div>
 
-                <div class="flex items-center justify-center">
-                    <button type="button" onclick="showSnapshotModal()" class="action-button snapshot-share-button" aria-label="打开分享截图页" title="打开分享截图页">📷</button>
-                </div>
-
                 <button onclick="resetGame()" class="action-button w-full bg-amber-400 hover:bg-amber-300 text-emerald-950 shadow-lg">
                     新的一局
                 </button>
@@ -2207,12 +2240,11 @@
         </div>
         <div id="snapshot-modal" class="fixed inset-0 bg-black/45 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4">
             <div class="relative bg-white rounded-3xl p-4 shadow-xl mx-0 modal snapshot-modal-panel">
-                <div class="flex items-center justify-between gap-3 mb-4">
-                    <h3 class="text-xl font-semibold">分享总结</h3>
-                    <button type="button" onclick="hideSnapshotModal()" class="action-button bg-slate-200 text-slate-800">关闭</button>
-                </div>
                 <div id="snapshot-sheet-frame" class="snapshot-sheet-frame">
                     <div id="snapshot-sheet" class="snapshot-sheet"></div>
+                </div>
+                <div class="pt-3">
+                    <button type="button" onclick="hideSnapshotModal()" class="action-button w-full bg-slate-200 text-slate-800">关闭</button>
                 </div>
             </div>
         </div>
@@ -2697,6 +2729,7 @@
             setText('#setup-section label[for="price-input"]', "每番价格");
             setPlaceholder("#price-input", "例如：10");
             setText("#setup-section .panel-strong .muted", "");
+            setText('#shared-room-toggle + span', "自动开启共享房间");
             setText("#setup-section .panel:last-of-type h2", "玩家名字");
             setPlaceholder("#player-1-input", "玩家一");
             setPlaceholder("#player-2-input", "玩家二");
@@ -3129,6 +3162,33 @@
             refreshRoomLobby();
         }
 
+        async function stopSharedRoomForSoloMode() {
+            const previousRoomId = currentRoomId;
+            if (roomStateUnsubscribe) {
+                roomStateUnsubscribe();
+                roomStateUnsubscribe = null;
+            }
+            if (roomPresenceUnsubscribe) {
+                roomPresenceUnsubscribe();
+                roomPresenceUnsubscribe = null;
+            }
+            if (previousRoomId) {
+                await removeRoomPresence(previousRoomId).catch(() => {});
+            }
+            currentRoomId = "";
+            currentRoomOwnerUid = "";
+            isRoomViewer = false;
+            currentPresence = {};
+            localStorage.removeItem(roomStorageKey);
+            const url = new URL(window.location.href);
+            url.searchParams.delete("room");
+            window.history.replaceState({}, "", url.toString());
+            document.getElementById("room-id-input").value = "";
+            renderRoomMembers({});
+            setRoomStatus("当前为单机模式，不会同步共享房间。");
+            applyRoomInteractionState();
+        }
+
         function formatRoomUpdatedAt(timestamp) {
             if (!timestamp || Number.isNaN(Number(timestamp))) {
                 return "刚刚更新";
@@ -3159,7 +3219,10 @@
                             <p class="text-sm font-bold uppercase tracking-[0.18em] text-emerald-900/60">Room</p>
                             <h3 class="text-2xl font-black mt-2">${room.id}</h3>
                         </div>
-                        <span class="room-lobby-tag">${room.status}</span>
+                        <div class="room-lobby-actions">
+                            <span class="room-lobby-tag">${room.status}</span>
+                    <button type="button" onclick="clearLobbyRoom('${room.id}')" class="action-button room-delete-button bg-rose-500 text-white ${room.memberNames.length ? "opacity-50 cursor-not-allowed" : ""}" ${room.memberNames.length ? "disabled" : ""}>删除</button>
+                        </div>
                     </div>
                     <div class="room-lobby-meta">
                         <span class="room-lobby-tag">${room.playerCount} 位玩家</span>
@@ -3176,6 +3239,49 @@
             document.getElementById("room-id-input").value = roomId;
             switchMainTab("play");
             joinRoom();
+        }
+
+        async function clearLobbyRoom(roomId) {
+            if (!(await ensureFirebaseReady())) {
+                return;
+            }
+            const password = window.prompt(`请输入清房密码以删除房间 ${roomId}`, "");
+            if (password === null) {
+                return;
+            }
+            if (password !== "4346") {
+                showToast("清房密码错误。");
+                return;
+            }
+
+            try {
+                const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${roomId}`);
+                const snapshot = await window.firebaseRoomApi.get(roomRef);
+                if (!snapshot.exists()) {
+                    showToast(`房间 ${roomId} 已不存在。`);
+                    await refreshRoomLobby();
+                    return;
+                }
+
+                const roomData = snapshot.val() || {};
+                const presence = roomData.presence || {};
+                const activeUsers = Object.values(presence).filter(entry => entry && typeof entry === "object");
+                if (activeUsers.length > 0) {
+                    showToast("房间里还有用户，暂时不能清房。");
+                    await refreshRoomLobby();
+                    return;
+                }
+
+                await window.firebaseRoomApi.remove(roomRef);
+                if (currentRoomId === roomId) {
+                    await stopSharedRoomForSoloMode();
+                }
+                showToast(`房间 ${roomId} 已清除。`);
+                await refreshRoomLobby();
+            } catch (error) {
+                console.error("Clear room failed:", error);
+                setRoomStatus(getFirebaseErrorText(error));
+            }
         }
 
         function subscribeToRoomLobby() {
@@ -3637,6 +3743,8 @@
                     return;
                 }
                 ensureViewerName();
+                const currentUser = await window.firebaseRoomApi.authReady;
+                currentRoomOwnerUid = currentUser.uid;
                 currentRoomId = generateRoomId();
                 localStorage.setItem(roomStorageKey, currentRoomId);
                 document.getElementById("room-id-input").value = currentRoomId;
@@ -3747,11 +3855,19 @@
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
-            await window.firebaseRoomApi.update(roomRef, {
-                state: buildGameStatePayload(),
-                ownerUid: currentRoomOwnerUid || null,
-                updatedAt: Date.now()
-            });
+            const ownerRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}/ownerUid`);
+            const updatedAtRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}/updatedAt`);
+            const snapshot = await window.firebaseRoomApi.get(roomRef);
+
+            if (!snapshot.exists()) {
+                if (!currentRoomOwnerUid) {
+                    const currentUser = await window.firebaseRoomApi.authReady;
+                    currentRoomOwnerUid = currentUser.uid;
+                }
+                await window.firebaseRoomApi.set(ownerRef, currentRoomOwnerUid);
+            }
+
+            await window.firebaseRoomApi.set(updatedAtRef, Date.now());
         }
 
         async function loadRoomState(roomId) {
@@ -3833,7 +3949,7 @@
         }
 
         async function syncRoomState() {
-            if (!currentRoomId || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
+            if (!currentRoomId || isRoomViewer || !window.firebaseRoomApi || !(await ensureFirebaseReady())) {
                 return;
             }
             const roomRef = window.firebaseRoomApi.ref(window.firebaseRoomApi.database, `rooms/${currentRoomId}`);
@@ -3943,7 +4059,9 @@
             syncRoundFormState();
             saveGameData();
 
-            if (Object.keys(players).length > 0) {
+            if (!document.getElementById("shared-room-toggle")?.checked) {
+                await stopSharedRoomForSoloMode();
+            } else if (Object.keys(players).length > 0) {
                 await ensureActiveRoomForGame();
             } else if (currentRoomId) {
                 setRoomStatus(`共享房间 ${currentRoomId} 已开始同步。`, true);
@@ -4499,52 +4617,51 @@
             ];
 
             const playerCards = ranking.map(([name, score]) => {
-                const stats = playerStats[name] || createEmptyPlayerStats();
+                let scoreClass = "snapshot-score-neutral";
+                if (score > 0) scoreClass = "snapshot-score-positive";
+                if (score < 0) scoreClass = "snapshot-score-negative";
+                return `
+                    <div class="snapshot-score-card ${scoreClass}">
+                        <p class="text-[0.64rem] uppercase tracking-[0.16em] text-white/75 font-bold">Player</p>
+                        <p class="text-base md:text-lg font-black mt-1 break-words">${name}</p>
+                        <p class="text-[1.2rem] md:text-[1.5rem] font-black mt-3 leading-none">${Number(score).toFixed(2)}</p>
+                    </div>
+                `;
+            }).join("");
+
+            const playerAnalysisCards = Object.keys(playerStats).map(name => {
+                const stats = playerStats[name];
                 const avgFans = stats.wins > 0 ? (stats.totalFans / stats.wins).toFixed(2) : "0.00";
                 return `
                     <div class="snapshot-mini-card">
-                        <p class="text-[0.64rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">Player</p>
-                        <p class="text-sm md:text-base font-black mt-1 break-words">${name}</p>
-                        <p class="text-[1.08rem] md:text-[1.28rem] font-black mt-2 leading-none">${Number(score).toFixed(2)}</p>
+                        <p class="text-sm font-black">${name}</p>
                         <div class="mt-2 snapshot-tight-text">
+                            <p>平均番数 ${avgFans}</p>
+                            <p>最高番数 ${stats.maxFans}</p>
                             <p>胡牌 ${stats.wins} 次</p>
                             <p>自摸 ${stats.selfDraws} 次</p>
-                            <p>平均番数 ${avgFans}</p>
+                            <p>点炮 ${stats.paos} 次</p>
                         </div>
                     </div>
                 `;
             }).join("");
 
-            const historyColumns = [[], []];
-            history.forEach((record, index) => {
-                historyColumns[index % 2].push(`
-                    <div class="snapshot-history-item">
-                        <p class="font-bold">${`第${Math.floor(record.round / 4) + 1}圈，${winds[record.round % 4]}局`}</p>
-                        <p class="mt-1">${record.description}</p>
-                    </div>
-                `);
-            });
-            const historyRows = history.length
-                ? `
-                    <div class="snapshot-history-grid">
-                        <div class="snapshot-history">${historyColumns[0].join("")}</div>
-                        <div class="snapshot-history">${historyColumns[1].join("")}</div>
-                    </div>
-                `
-                : `<div class="snapshot-history-item">还没有记录</div>`;
+            const winningNames = ranking.filter(([, score]) => score === ranking[0]?.[1]).map(([name]) => name).join("、") || "暂无";
+            const losingNames = ranking.length ? ranking.filter(([, score]) => score === ranking[ranking.length - 1]?.[1]).map(([name]) => name).join("、") : "暂无";
 
             sheet.innerHTML = `
-                <div class="snapshot-sheet-header">
-                    <div>
-                        <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/60 font-bold">Four-Player Mahjong Scorer</p>
-                        <h4 class="text-[1.8rem] font-black mt-1">分享总结</h4>
-                        <p class="snapshot-tight-text mt-3">今晚牌局完整总结，适合截图分享。</p>
-                    </div>
-                    <div class="snapshot-mini-card">
-                        <p class="snapshot-section-title">Top Winner</p>
-                        <p class="text-2xl font-black mt-2">${leadingName}</p>
-                        <p class="text-lg font-black mt-2">${Number(leadingScore).toFixed(2)}</p>
-                        <p class="snapshot-tight-text mt-2">最高得分玩家</p>
+                <div class="snapshot-mini-card">
+                    <div class="snapshot-sheet-header">
+                        <div>
+                            <p class="text-sm uppercase tracking-[0.2em] text-emerald-900/60 font-bold">Top Winner</p>
+                            <p class="text-[2.2rem] md:text-[2.8rem] font-black mt-2 break-words">${leadingName}</p>
+                            <p class="text-lg md:text-xl font-black mt-3">${Number(leadingScore).toFixed(2)}</p>
+                        </div>
+                        <div class="snapshot-tight-text md:text-right">
+                            <p>总局次数 ${history.length}</p>
+                            <p>流局次数 ${totalDraws}</p>
+                            <p>平均每局 ${avgDuration} 秒</p>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -4554,7 +4671,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="snapshot-section-title mb-2">Game Snapshot</p>
+                    <p class="snapshot-section-title mb-2">分析总结</p>
                     <div class="snapshot-kpi-grid">
                         ${compactStats.map(item => `
                             <div class="snapshot-mini-card">
@@ -4565,20 +4682,35 @@
                     </div>
                 </div>
                 <div>
-                    <p class="snapshot-section-title mb-2">Highlights</p>
-                    <div class="snapshot-insight-grid">
+                    <div class="snapshot-analysis-grid">
                         ${spotlightRows.map(item => `
                             <div class="snapshot-mini-card">
                                 <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">${item.title}</p>
                                 <p class="text-sm font-black mt-2 leading-snug break-words">${item.value}</p>
                             </div>
                         `).join("")}
+                        <div class="snapshot-mini-card">
+                            <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">连胡之王</p>
+                            <p class="text-sm font-black mt-2 leading-snug break-words">${pickLeaders("consecutiveWins").names} (${pickLeaders("consecutiveWins").value} 局)</p>
+                        </div>
+                        <div class="snapshot-mini-card">
+                            <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">连炮之王</p>
+                            <p class="text-sm font-black mt-2 leading-snug break-words">${pickLeaders("consecutivePaos").names} (${pickLeaders("consecutivePaos").value} 次)</p>
+                        </div>
+                        <div class="snapshot-mini-card">
+                            <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">赢家之王</p>
+                            <p class="text-sm font-black mt-2 leading-snug break-words">${winningNames}</p>
+                        </div>
+                        <div class="snapshot-mini-card">
+                            <p class="text-[0.68rem] uppercase tracking-[0.16em] text-emerald-900/60 font-bold">输家之王</p>
+                            <p class="text-sm font-black mt-2 leading-snug break-words">${losingNames}</p>
+                        </div>
                     </div>
                 </div>
                 <div>
-                    <p class="snapshot-section-title mb-2">Full History</p>
-                    <div class="snapshot-history">
-                        ${historyRows}
+                    <p class="snapshot-section-title mb-2">玩家数据</p>
+                    <div class="snapshot-player-grid">
+                        ${playerAnalysisCards}
                     </div>
                 </div>
             `;
@@ -4911,15 +5043,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
